@@ -3,12 +3,11 @@
  */
 function onOpen(e) {
   BinMenu(SpreadsheetApp.getUi());
-  Logger.log("Welcome to 'Binance to GoogleSheets' by Diego Calero, enjoy!  =]");
+  Logger.log("Welcome to 'Binance to Google Sheets' by Diego Calero, enjoy!  =]");
 }
 
 function onInstall(e) {
-  Logger.log("Installing 'Binance to GoogleSheets..");
-  // const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  Logger.log("Installing 'Binance to Google Sheets'..");
   onOpen(e);
 }
 
@@ -66,10 +65,10 @@ function showAPIKeys() {
   const user_props = PropertiesService.getUserProperties();
   ui.alert("Binance API Keys",
            "API Key:\n"+
-           (user_props.getProperty(API_KEY_NAME) || "- not set -")+"\n"+
+           (BinSetup().getAPIKey() || "- not set -")+"\n"+
            "\n"+
            "API Secret Key:\n"+
-           (BinUtils().obscureSecret(user_props.getProperty(API_SECRET_NAME)) || "- not set -")
+           (BinUtils().obscureSecret(BinSetup().getAPISecret()) || "- not set -")
            ,ui.ButtonSet.OK);
 }
 
@@ -77,7 +76,7 @@ function showAPIKeys() {
  * Displays a modal to setup API keys.
  */
 function showAPIKeysSetup() {
-  BinSetup(SpreadsheetApp.getUi()).APIKeys();
+  BinSetup().configAPIKeys(SpreadsheetApp.getUi());
 }
 
 /**
@@ -106,6 +105,6 @@ function showCredits() {
                "So, I think and hope that many of you will find it as useful as it is for myself.\n"+
                "\n"+
                "Enjoy, cheers!";
-  ui.alert("Credits - Binance to GoogleSheets", body, ui.ButtonSet.OK);
+  ui.alert("Credits - Binance to Google Sheets - "+VERSION, body, ui.ButtonSet.OK);
   Logger.log("[Credits! =] Diego Calero - dcalero@fiqus.coop - https://fiqus.coop");
 }

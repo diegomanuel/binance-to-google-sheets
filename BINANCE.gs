@@ -3,6 +3,7 @@
  * Diego Calero - dcalero@fiqus.coop
  */
 
+const VERSION = "v0.0.2-dev"
 const API_KEY_NAME = "BIN_API_KEY";
 const API_SECRET_NAME = "BIN_API_SECRET";
 const BASE_URL = "https://api.binance.com";

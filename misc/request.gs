@@ -10,7 +10,7 @@ function BinRequest() {
     lastUpdate
   };
   
-  
+
   /**
   * Reads data from cache or sends a request to the backend API and stores the data into cache with given TTL.
   */
@@ -59,11 +59,8 @@ function BinRequest() {
     try {
       let da_qs = qs || "";
       if (need_auth) { // Calling a private endpoint
-        const userProperties = PropertiesService.getUserProperties();
-        const api_key = userProperties.getProperty(API_KEY_NAME) || "";
-        const ts = (new Date()).getTime();
-        options["headers"]["X-MBX-APIKEY"] = api_key;
-        da_qs += (da_qs?"&":"")+"timestamp="+ts+"&recvWindow=30000";
+        options["headers"]["X-MBX-APIKEY"] = BinSetup().getAPIKey();
+        da_qs += (da_qs?"&":"")+"timestamp="+(new Date()).getTime()+"&recvWindow=30000";
         da_qs += "&signature="+getSignature(da_qs, payload);
       }
       const da_url = BASE_URL+"/"+url+"?"+da_qs;
@@ -105,7 +102,7 @@ function BinRequest() {
   * @OnlyCurrentDoc
   */
   function getSignature(qs, payload) {
-    const key = PropertiesService.getUserProperties().getProperty(API_SECRET_NAME);
+    const key = BinSetup().getAPISecret();
     return Utilities.computeHmacSha256Signature(qs+(payload||""), key)
     .reduce(function(str, chr) {
       chr = (chr < 0 ? chr + 256 : chr).toString(16);

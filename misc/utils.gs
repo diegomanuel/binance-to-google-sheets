@@ -10,14 +10,13 @@ function BinUtils() {
     obscureSecret
   };
   
-  
   /**
-  * Get user lock waiting for given `time` to acquire it or sleep given `sleep` milliseconds to return `false`.
+  * Gets lock, waiting for given `time` to acquire it, or sleep given `sleep` milliseconds to return `false`.
   */
   function getLock(time, sleep) {
     time = time || 10000; // Milliseconds
     sleep = sleep || 100; // Milliseconds
-    const lock = LockService.getUserLock();
+    const lock = LockService.getDocumentLock();
     if (!lock.tryLock(time) || !lock.hasLock()) {
       Logger.log("Could not acquire lock! Waiting 100ms..");
       Utilities.sleep(sleep);

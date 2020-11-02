@@ -3,76 +3,100 @@
  *
  * @OnlyCurrentDoc
  */
-function BinSetup(ui) {
+function BinSetup() {
+  const user_props = PropertiesService.getUserProperties();
+
   return {
-    APIKeys
+    getAPIKey,
+    setAPIKey,
+    getAPISecret,
+    setAPISecret,
+    configAPIKeys
   };
   
   
   /**
+   * Returns the Binance API Key
+   */
+  function getAPIKey() {
+    return user_props.getProperty(API_KEY_NAME) || "";
+  }
+  /**
+   * Returns the Binance API Key
+   */
+  function setAPIKey(value) {
+    return user_props.setProperty(API_KEY_NAME, value);
+  }
+
+  /**
+   * Returns the Binance API Secret
+   */
+  function getAPISecret() {
+    return user_props.getProperty(API_SECRET_NAME) || "";
+  }
+  /**
+   * Sets the Binance API Secret
+   */
+  function setAPISecret(value) {
+    return user_props.setProperty(API_SECRET_NAME, value);
+  }
+
+  /**
    * API keys configuration.
    */
-  /*function APIKeys() {
-    const html = HtmlService.createHtmlOutputFromFile("setup-sidebar")
-      .setTitle("Binance to GoogleSheets")
-      .setWidth(300);
-    
-    return SpreadsheetApp.getUi()
-      .showSidebar(html);
-  }*/
-  
-  function APIKeys() {
-    const userProperties = PropertiesService.getUserProperties();
-    const api_key = userProperties.getProperty(API_KEY_NAME);
-    const api_secret = userProperties.getProperty(API_SECRET_NAME);
+  function configAPIKeys(ui) {
+    const api_key = getAPIKey();
+    const api_secret = getAPISecret();
+    let text = "";
     let result = false;
+    let user_input = null;
 
     // API KEY
     if (api_key) {
-      result = ui.prompt("Set API Key",
-                         "✅ Your API key is already set!\n\nYou can still re-enter it below to override its current value:",
-                         ui.ButtonSet.OK_CANCEL);
+      text = "✅ Your Binance API key is already set!\n\nYou can still re-enter it below to override its current value:";
     } else {
-      result = ui.prompt("Set API Key",
-                         "Please enter your API Key below:",
-                         ui.ButtonSet.OK_CANCEL);  
+      text = "Please enter your Binance API Key below:";
     }
-    let button = result.getSelectedButton();
-    let user_input = result.getResponseText().replace(/\s+/g, '');
-    if (button == ui.Button.OK && user_input) {
-      userProperties.setProperty(API_KEY_NAME, user_input);
-      ui.alert("API Key saved",
-               "Your API Key was successfully saved!",
+    result = ui.prompt("Set Binance API Key", text, ui.ButtonSet.OK_CANCEL);
+    user_input = result.getResponseText().replace(/\s+/g, '');
+    if (result.getSelectedButton() != ui.Button.OK) {
+      return false; // Cancel setup
+    }
+    if (user_input) {
+      setAPIKey(user_input);
+      ui.alert("Binance API Key saved",
+               "Your Binance API Key was successfully saved!",
                ui.ButtonSet.OK);
     }
   
     // API SECRET KEY
     if (api_secret) {
-      result = ui.prompt("Set API Secret Key",
-                         "✅ Your API Secret key is already set!\n\nYou can still re-enter it below to override its current value:",
-                         ui.ButtonSet.OK_CANCEL);
+      text = "✅ Your Binance API Secret key is already set!\n\nYou can still re-enter it below to override its current value:";
     } else {
-      result = ui.prompt("Set API Secret Key",
-                         "Please enter your API Secret Key below:",
-                         ui.ButtonSet.OK_CANCEL);  
+      text = "Please enter your Binance API Secret Key below:";  
     }
-    button = result.getSelectedButton();
+    result = ui.prompt("Set Binance API Secret Key", text, ui.ButtonSet.OK_CANCEL);
     user_input = result.getResponseText().replace(/\s+/g, '');
-    if (button == ui.Button.OK && user_input) {
-      userProperties.setProperty(API_SECRET_NAME, user_input);
-      ui.alert("API Secret Key saved",
-               "Your API Secret Key was successfully saved!",
+    if (result.getSelectedButton() != ui.Button.OK) {
+      return false; // Cancel setup
+    }
+    if (user_input) {
+      setAPISecret(user_input);
+      ui.alert("Binance API Secret Key saved",
+               "Your Binance API Secret Key was successfully saved!",
                ui.ButtonSet.OK);
     }
 
-    if (!userProperties.getProperty(API_KEY_NAME)) {
-      ui.alert("API Key not set!",
-               "You must set an API Key to use this script!",
+    if (!getAPIKey()) {
+      ui.alert("Binance API Key is not set!",
+               "You just need a Binance API Key if you want open/closed orders list.\n\n"+
+               "It's NOT needed to get market prices and 24hr stats!",
                ui.ButtonSet.OK);
     }
-    if (!userProperties.getProperty(API_SECRET_NAME)) {
-      ui.alert("API Secret Key not set!",
-               "You must set an API Secret Key to use this script!",
+    if (!getAPISecret()) {
+      ui.alert("Binance API Secret Key is not set!",
+               "You just need a Binance API Secret Key if you want open/closed orders.\n\n"+
+               "It's NOT needed to get market prices and 24hr stats!",
                ui.ButtonSet.OK);
     }
   }
