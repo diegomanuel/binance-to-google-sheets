@@ -12,16 +12,16 @@ function BinSetup(ui) {
   /**
    * API keys configuration.
    */
-  function APIKeys() {
-    const html = HtmlService.createHtmlOutputFromFile("BinSetup")
+  /*function APIKeys() {
+    const html = HtmlService.createHtmlOutputFromFile("setup-sidebar")
       .setTitle("Binance to GoogleSheets")
       .setWidth(300);
     
     return SpreadsheetApp.getUi()
       .showSidebar(html);
-  }
+  }*/
   
-  function APIKeys2() {
+  function APIKeys() {
     const userProperties = PropertiesService.getUserProperties();
     const api_key = userProperties.getProperty(API_KEY_NAME);
     const api_secret = userProperties.getProperty(API_SECRET_NAME);

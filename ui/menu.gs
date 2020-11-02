@@ -1,9 +1,15 @@
 /**
  * Executes main menu setup on document open.
  */
-function onOpen() {
+function onOpen(e) {
   BinMenu(SpreadsheetApp.getUi());
   Logger.log("Welcome to 'Binance to GoogleSheets' by Diego Calero, enjoy!  =]");
+}
+
+function onInstall(e) {
+  Logger.log("Installing 'Binance to GoogleSheets..");
+  // const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  onOpen(e);
 }
 
 /**
@@ -34,7 +40,7 @@ function BinMenu(ui) {
 function showAPILastUpdate() {
   const ui = SpreadsheetApp.getUi();
   const last_update = BinRequest().lastUpdate();
-  const formatted = last_update.toLocaleDateString()+" "+last_update.toLocaleTimeString(undefined, {hour12: false});
+  const formatted = last_update ? last_update.toLocaleDateString()+" "+last_update.toLocaleTimeString(undefined, {hour12: false}) : "- never called yet -";
   ui.alert("Binance API last call", formatted, ui.ButtonSet.OK);
 }
 
@@ -60,10 +66,10 @@ function showAPIKeys() {
   const user_props = PropertiesService.getUserProperties();
   ui.alert("Binance API Keys",
            "API Key:\n"+
-           user_props.getProperty(API_KEY_NAME)+"\n"+
+           (user_props.getProperty(API_KEY_NAME) || "- not set -")+"\n"+
            "\n"+
            "API Secret Key:\n"+
-           BinUtils().obscureSecret(user_props.getProperty(API_SECRET_NAME))
+           (BinUtils().obscureSecret(user_props.getProperty(API_SECRET_NAME)) || "- not set -")
            ,ui.ButtonSet.OK);
 }
 

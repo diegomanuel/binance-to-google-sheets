@@ -1,3 +1,3 @@
-# Binance to Google Spreadsheets!
+# Binance to Google Sheets!
 
-Google Spreadsheets add-on to get data from Binance API!
+A lightweight `add-on` for **Google Spreadsheets** to get data <u>directly</u> from **Binance API** with out any intermediaries!

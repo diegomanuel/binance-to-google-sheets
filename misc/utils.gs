@@ -40,6 +40,10 @@ function BinUtils() {
   * Replaces some characters to obscure the given secret.
   */
   function obscureSecret(secret) {
+    if (!(secret && secret.length)) {
+      return "";
+    }
+
     const length = 20;
     const start = parseInt(secret.length / 2) - parseInt(length / 2);
     return secret.substr(0,start)+"*".repeat(length-1)+secret.substr(start+length);
