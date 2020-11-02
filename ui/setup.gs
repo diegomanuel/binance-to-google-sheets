@@ -45,14 +45,12 @@ function BinSetup() {
    * API keys configuration.
    */
   function configAPIKeys(ui) {
-    const api_key = getAPIKey();
-    const api_secret = getAPISecret();
     let text = "";
     let result = false;
     let user_input = null;
 
     // API KEY
-    if (api_key) {
+    if (getAPIKey()) {
       text = "✅ Your Binance API key is already set!\n\nYou can still re-enter it below to override its current value:";
     } else {
       text = "Please enter your Binance API Key below:";
@@ -70,7 +68,7 @@ function BinSetup() {
     }
   
     // API SECRET KEY
-    if (api_secret) {
+    if (getAPISecret()) {
       text = "✅ Your Binance API Secret key is already set!\n\nYou can still re-enter it below to override its current value:";
     } else {
       text = "Please enter your Binance API Secret Key below:";  

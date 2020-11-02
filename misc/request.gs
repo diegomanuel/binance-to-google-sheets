@@ -102,11 +102,12 @@ function BinRequest() {
   * @OnlyCurrentDoc
   */
   function getSignature(qs, payload) {
-    const key = BinSetup().getAPISecret();
-    return Utilities.computeHmacSha256Signature(qs+(payload||""), key)
-    .reduce(function(str, chr) {
-      chr = (chr < 0 ? chr + 256 : chr).toString(16);
-      return str + (chr.length==1?'0':'') + chr;
-    },'');
+    const secret = BinSetup().getAPISecret();
+    return Utilities
+      .computeHmacSha256Signature(qs+(payload||""), secret)
+      .reduce(function(str, chr) {
+        chr = (chr < 0 ? chr + 256 : chr).toString(16);
+        return str + (chr.length==1?'0':'') + chr;
+      },'');
   }
 }
