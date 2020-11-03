@@ -1,7 +1,19 @@
 /**
+ * Executes setup on document open and add-on install.
+ */
+function onOpen(e) {
+  BinMenu(SpreadsheetApp.getUi());
+  BinSetup().configPriceTrigger(); // Automatically keep the prices updated!
+  Logger.log("Welcome to 'Binance to Google Sheets' by Diego Calero, enjoy!  =]");
+}
+
+function onInstall(e) {
+  Logger.log("Installing 'Binance to Google Sheets'..");
+  onOpen(e);
+}
+
+/**
  * Script setup functions wrapper.
- *
- * @OnlyCurrentDoc
  */
 function BinSetup() {
   const user_props = PropertiesService.getUserProperties();
@@ -11,7 +23,8 @@ function BinSetup() {
     setAPIKey,
     getAPISecret,
     setAPISecret,
-    configAPIKeys
+    configAPIKeys,
+    configPriceTrigger
   };
   
   
@@ -98,4 +111,28 @@ function BinSetup() {
                ui.ButtonSet.OK);
     }
   }
+
+  /**
+   * Configs a trigger to automatically have the prices updated.
+   */
+  function configPriceTrigger() {
+    // First, deletes all triggers in the current project
+    ScriptApp.getProjectTriggers().map(function(trigger) {
+      return ScriptApp.deleteTrigger(trigger);
+    });
+
+    // Create the trigger again
+    return ScriptApp.newTrigger("doPriceTrigger")
+      .timeBased()
+      .everyMinutes(1)
+      .create();
+  }
 }
+
+/**
+ * This one has to live here in the outside world
+ * because of how `ScriptApp.newTrigger` works.
+ */
+function doPriceTrigger() {
+  return BinDoCurrentPrices({}).run();
+};

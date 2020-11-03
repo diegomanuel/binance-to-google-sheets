@@ -14,11 +14,11 @@ function BinUtils() {
   * Gets lock, waiting for given `time` to acquire it, or sleep given `sleep` milliseconds to return `false`.
   */
   function getLock(time, sleep) {
-    time = time || 10000; // Milliseconds
-    sleep = sleep || 100; // Milliseconds
-    const lock = LockService.getDocumentLock();
+    time = time || 5000; // Milliseconds
+    sleep = sleep || 500; // Milliseconds
+    const lock = LockService.getUserLock();
     if (!lock.tryLock(time) || !lock.hasLock()) {
-      Logger.log("Could not acquire lock! Waiting 100ms..");
+      Logger.log("Could not acquire lock! Waiting "+sleep+"ms..");
       Utilities.sleep(sleep);
       return false;
     }

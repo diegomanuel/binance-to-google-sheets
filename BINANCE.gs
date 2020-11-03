@@ -20,23 +20,21 @@ const TICKER_AGAINST = "USDT"; // @TODO Give support to configure this!
  */
 function BINANCE(func, options, refresh_cell) {
   if (func == "prices") {
-    return BinDoCurrentPrices({
-      CACHE_TTL: 60 * 2 // 2 minutes, in seconds
-    }).run(options);
+    return BinDoCurrentPrices({}).run(options);
   }
   if (func == "24hstats") {
     return BinDo24hStats({
-      CACHE_TTL: 60 * 60 // 1 hour, in seconds
+      CACHE_TTL: 60 * 60 * 4 // 4 hours, in seconds
     }).run(options);
   }
   if (func == "orders/all") {
     return BinDoAllOrders({
-      CACHE_TTL: 60 * 5 // 5 minutes, in seconds
+      CACHE_TTL: 60 * 10 // 10 minutes, in seconds
     }).run(options);
   }
   if (func == "orders/open") {
     return BinDoOpenOrders({
-      CACHE_TTL: 60 * 2 // 2 minutes, in seconds
+      CACHE_TTL: 60 * 5 // 5 minutes, in seconds
     }).run(options);
   }
   if (func == "last_update") {

@@ -1,17 +1,4 @@
 /**
- * Executes main menu setup on document open.
- */
-function onOpen(e) {
-  BinMenu(SpreadsheetApp.getUi());
-  Logger.log("Welcome to 'Binance to Google Sheets' by Diego Calero, enjoy!  =]");
-}
-
-function onInstall(e) {
-  Logger.log("Installing 'Binance to Google Sheets'..");
-  onOpen(e);
-}
-
-/**
  * Adds menu items under "Binance" at main menu.
  */
 function BinMenu(ui) {

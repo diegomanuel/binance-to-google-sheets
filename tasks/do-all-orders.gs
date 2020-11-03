@@ -27,7 +27,7 @@ function BinDoAllOrders(options) {
     };
     const data = (range||[]).reduce(function(rows, crypto) {
       const qs = "symbol="+crypto+TICKER_AGAINST;
-      Utilities.sleep(100); // Add some waiting time to avoid 418 responses!
+      Utilities.sleep(200); // Add some waiting time to avoid 418 responses!
       const crypto_data = BinRequest().cache(options.CACHE_TTL, "get", "api/v3/myTrades", qs, "", opts);
       return [...crypto_data, ...rows];
     }, []);

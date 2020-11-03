@@ -4,10 +4,8 @@
  * @OnlyCurrentDoc
  */
 function BinDoCurrentPrices(options) {
-  // Sanitize options
-  options = options || {
-    CACHE_TTL: 60 * 2 // 2 minutes, in seconds
-  };
+  options = options || {}; // Init options
+  const CACHE_TTL = 60 * 5 // 5 minutes, in seconds
   
   /**
    * Returns current market prices.
@@ -23,7 +21,7 @@ function BinDoCurrentPrices(options) {
     }
 
     const opts = {"public": true};
-    const data = BinRequest().cache(options.CACHE_TTL, "get", "api/v3/ticker/price", "", "", opts);
+    const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/ticker/price", "", "", opts);
   
     lock.releaseLock();
     const parsed = parse(data, symbol);
