@@ -74,7 +74,7 @@ function BinRequest() {
       if (response.getResponseCode() == 418) {
         // The IP has been auto-banned for continuing to send requests after receiving 429 codes
         Logger.log("Got 418 from Binance API! We are banned for a while..  =/");
-        return null; 
+        return []; 
       }
       if (response.getResponseCode() == 429 && opts["retries"] < 3) {
         opts["retries"] = (opts["retries"]||0) + 1;

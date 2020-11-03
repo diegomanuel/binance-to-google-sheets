@@ -5,7 +5,7 @@
  */
 function BinDoCurrentPrices(options) {
   options = options || {}; // Init options
-  const CACHE_TTL = 60 * 5 // 5 minutes, in seconds
+  const CACHE_TTL = 55; // In seconds
   
   /**
    * Returns current market prices.

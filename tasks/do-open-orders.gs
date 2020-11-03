@@ -23,7 +23,7 @@ function BinDoOpenOrders(options) {
     }
     
     const opts = {
-      "filter": function(data) {
+      "filter": !symbol ? null : function(data) {
         return filter(data, symbol);
       }
     };
@@ -40,7 +40,7 @@ function BinDoOpenOrders(options) {
    */
   function filter(data, symbol) {
     return data.filter(function(ticker) {
-      return !symbol || ticker.symbol == symbol;
+      return ticker.symbol == symbol;
     });
   }
   
