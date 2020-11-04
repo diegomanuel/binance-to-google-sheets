@@ -3,8 +3,9 @@
  */
 function onOpen(e) {
   BinMenu(SpreadsheetApp.getUi());
-  BinSetup().configPriceTrigger(); // Automatically keep the prices updated!
+  BinSetup().configTrigger(); // Automatically keep the prices updated!
   Logger.log("Welcome to 'Binance to Google Sheets' by Diego Calero, enjoy!  =]");
+  SpreadsheetApp.getActive().toast("Enabled, enjoy it!  =]", "Binance to Google Sheets", 10);
 }
 
 function onInstall(e) {
@@ -24,7 +25,8 @@ function BinSetup() {
     getAPISecret,
     setAPISecret,
     configAPIKeys,
-    configPriceTrigger
+    configTrigger,
+    forceRefreshSheetFormulas
   };
   
   
@@ -113,26 +115,59 @@ function BinSetup() {
   }
 
   /**
-   * Configs a trigger to automatically have the prices updated.
+   * Configs a trigger to automatically have the data updated.
    */
-  function configPriceTrigger() {
+  function configTrigger() {
     // First, deletes all triggers in the current project
     ScriptApp.getProjectTriggers().map(function(trigger) {
       return ScriptApp.deleteTrigger(trigger);
     });
 
     // Create the trigger again
-    return ScriptApp.newTrigger("doPriceTrigger")
+    return ScriptApp.newTrigger("doRefresh")
       .timeBased()
-      .everyMinutes(1)
+      .everyMinutes(5)
       .create();
   }
+
+  /**
+   * Changes formulas then changes them back to force-refresh'em.
+   */
+  function forceRefreshSheetFormulas() {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const regex = new RegExp(/=.*BINANCE\s*\(/);
+
+    function replaceRangeFormulas(range, formulas, formula) {
+      const num_cols = range.getNumColumns();
+      const num_rows = range.getNumRows();
+      const row_offset = range.getRow();
+      const col_offset = range.getColumn();
+      for (let row = 0; row < num_rows ; row++) {
+        for (let col = 0; col < num_cols; col++) {
+          if (formulas[row][col] != "" && regex.test(formulas[row][col])) {
+            range.getCell(row+row_offset, col+col_offset).setFormula(formula === "" ? "" : formulas[row][col]);
+          }
+        };
+      };
+    }
+
+    Logger.log("Refreshing spreadsheet formulas..");
+    ss.getSheets().map(function(sheet) {
+      const range = sheet.getDataRange();
+      const formulas = range.getFormulas();
+      replaceRangeFormulas(range, formulas, "");
+      SpreadsheetApp.flush();
+      replaceRangeFormulas(range, formulas);
+      SpreadsheetApp.flush();
+    });
+    Logger.log("Spreadsheet formulas were refreshed!");
+  };
 }
 
 /**
  * This one has to live here in the outside world
  * because of how `ScriptApp.newTrigger` works.
  */
-function doPriceTrigger() {
-  return BinDoCurrentPrices({}).run();
+function doRefresh(e) {
+  BinSetup().forceRefreshSheetFormulas();
 };

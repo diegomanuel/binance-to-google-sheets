@@ -6,6 +6,7 @@
 function BinUtils() {
   return {
     getLock,
+    getRangeOrCell,
     sortResults,
     obscureSecret
   };
@@ -23,6 +24,14 @@ function BinUtils() {
       return false;
     }
     return lock;
+  }
+
+  /**
+   * Always returns an array no matter if it's a single cell or an entire range
+   * @TODO Add "n-dimension" support
+   */
+  function getRangeOrCell(range_or_cell) {
+    return typeof range_or_cell == "string" ? [range_or_cell] : range_or_cell;
   }
   
   /**

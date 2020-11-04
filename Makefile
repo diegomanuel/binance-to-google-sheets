@@ -11,3 +11,8 @@ versions:
 
 deploys:
 	@clasp deployments
+
+demo:
+	@cd ../binance-to-google-sheets-copies && ${MAKE} demo
+
+.PHONY: demo

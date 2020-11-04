@@ -15,20 +15,20 @@ function BinDo24hStats(options) {
    * @param ["BTC","ETH"..] range If given, returns just the matching symbols stats.
    * @return The list of 24hs stats for given symbols against USDT.
    */
-  function run(range) {
+  function run(range_or_cell) {
     Logger.log("[BinDo24hStats/1] Running..");
-    if (!range) {
+    if (!range_or_cell) { // @TODO This limitation could be removed if cache is changed by other storage
       throw new Error("A range with crypto names must be given!");
     }
     const lock = BinUtils().getLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(range);
+      return run(range_or_cell);
     }
   
     const opts = {
       "public": true,
       "filter": function(data) {
-        return filter(data, range);
+        return filter(data, range_or_cell);
       }
     };
     const data = BinRequest().cache(options.CACHE_TTL, "get", "api/v3/ticker/24hr", "", "", opts);
@@ -42,9 +42,10 @@ function BinDo24hStats(options) {
   /**
    * @OnlyCurrentDoc
    */
-  function filter(data, range) {
+  function filter(data, range_or_cell) {
+    const cryptos = BinUtils().getRangeOrCell(range_or_cell);
     return data.filter(function(ticker) {
-      return (range||[]).find(function(crypto) {
+      return cryptos.find(function(crypto) {
         return ticker.symbol == crypto+TICKER_AGAINST;
       });
     });
