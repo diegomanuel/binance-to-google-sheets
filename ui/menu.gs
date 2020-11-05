@@ -2,18 +2,26 @@
  * Adds menu items under "Binance" at main menu.
  */
 function BinMenu(ui) {
-  // @TODO doc
+  /**
+   * Adds the menu items to spreadsheet's main menu
+   */
   function addMenuItems(menu) {
-    return menu
-      .addItem("Show API Last Update", "showAPILastUpdate")
-      .addSeparator()
-      .addItem("Show Open Orders", "showOpenOrders")
-      .addSeparator()
-      .addItem("Show API Keys", "showAPIKeys")
-      .addItem("Configure API Keys", "showAPIKeysSetup")
-      .addSeparator()
-      .addItem("Credits!  =]", "showCredits")
-      .addToUi();
+    menu.addItem("Show API Last Update", "showAPILastUpdate")
+        .addSeparator();
+    if (BinSetup().areAPIKeysConfigured()) {
+      menu.addItem("Show Open Orders", "showOpenOrders")
+          .addSeparator()
+          .addItem("Show API Keys", "showAPIKeys")
+          .addItem("Re-configure API Keys", "showAPIKeysSetup")
+          .addItem("Clear API Keys", "showAPIKeysClear")
+          .addSeparator()
+    } else {
+      menu.addItem("Configure API Keys", "showAPIKeysSetup")
+          .addSeparator()
+    }
+    menu.addItem("Credits!  =]", "showCredits");
+    
+    return menu.addToUi();
   }
   
   addMenuItems(ui.createMenu("Binance"));
@@ -26,7 +34,7 @@ function BinMenu(ui) {
 function showAPILastUpdate() {
   const ui = SpreadsheetApp.getUi();
   const last_update = BinDoLastUpdate().run();
-  const formatted = last_update ? new Date(last_update) : "- never called yet -";
+  const formatted = last_update+"" || "- never called yet -";
   ui.alert("Binance API last call", formatted, ui.ButtonSet.OK);
 }
 
@@ -49,7 +57,6 @@ function showOpenOrders() {
  */
 function showAPIKeys() {
   const ui = SpreadsheetApp.getUi();
-  const user_props = PropertiesService.getUserProperties();
   ui.alert("Binance API Keys",
            "API Key:\n"+
            (BinSetup().getAPIKey() || "- not set -")+"\n"+
@@ -64,6 +71,13 @@ function showAPIKeys() {
  */
 function showAPIKeysSetup() {
   BinSetup().configAPIKeys(SpreadsheetApp.getUi());
+}
+
+/**
+ * Displays a modal to setup API keys.
+ */
+function showAPIKeysClear() {
+  BinSetup().clearAPIKeys(SpreadsheetApp.getUi());
 }
 
 /**

@@ -21,7 +21,7 @@ function BinDoLastUpdate() {
     
     if (ts == undefined) { // Getter
       const last_update = doc_props.getProperty("BIN_LAST_UPDATE");
-      ts = last_update ? new Date(last_update) : "-";
+      ts = last_update ? new Date(last_update) : "";
       Logger.log("[BinDoLastUpdate/1] Got last update time: "+ts);
       return ts;
     }

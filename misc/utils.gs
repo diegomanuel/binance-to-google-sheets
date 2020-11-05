@@ -8,7 +8,8 @@ function BinUtils() {
     getLock,
     getRangeOrCell,
     sortResults,
-    obscureSecret
+    obscureSecret,
+    toast
   };
   
   /**
@@ -55,5 +56,16 @@ function BinUtils() {
     const length = 20;
     const start = parseInt(secret.length / 2) - parseInt(length / 2);
     return secret.substr(0,start)+"*".repeat(length-1)+secret.substr(start+length);
+  }
+
+  /**
+   * Displays a toast message on screen
+   */
+  function toast(body, title, timeout) {
+    return SpreadsheetApp.getActive().toast(
+      body,
+      title || "Binance to Google Sheets",
+      timeout || 10
+    );
   }
 }

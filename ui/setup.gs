@@ -1,20 +1,4 @@
 /**
- * Executes setup on document open and add-on install.
- */
-function onOpen(e) {
-  BinMenu(SpreadsheetApp.getUi());
-  BinSetup().configTrigger(); // Automatically keep the prices updated!
-  Logger.log("EVENT: "+JSON.stringify(e));
-  Logger.log("Welcome to 'Binance to Google Sheets' by Diego Calero, enjoy!  =]");
-  SpreadsheetApp.getActive().toast("Enabled, enjoy it!  =]", "Binance to Google Sheets", 10);
-}
-
-function onInstall(e) {
-  Logger.log("Installing 'Binance to Google Sheets'..");
-  onOpen(e);
-}
-
-/**
  * Script setup functions wrapper.
  */
 function BinSetup() {
@@ -28,6 +12,7 @@ function BinSetup() {
     getAPISecret,
     setAPISecret,
     configAPIKeys,
+    clearAPIKeys,
     configTrigger,
     forceRefreshSheetFormulas
   };
@@ -116,7 +101,7 @@ function BinSetup() {
     const api_key = getAPIKey();
     const api_secret = getAPISecret();
     if (changed && api_key && api_secret) {
-      return forceRefreshSheetFormulas(); // Force refresh all formulas results!
+      return _refreshUI(); // Force UI refresh!
     }
 
     if (!api_key) {
@@ -130,6 +115,21 @@ function BinSetup() {
                "You just need a Binance API Secret Key if you want open/closed orders.\n\n"+
                "It's NOT needed to get market prices and 24hr stats!",
                ui.ButtonSet.OK);
+    }
+  }
+
+  /**
+   * Clears configured API keys
+   */
+  function clearAPIKeys(ui) {
+    const text = "Are you sure you want to remove your configured Binance API keys?\n\nYou can always re-configure'em again if you proceed here.";
+    const result = ui.alert("Clear Binance API Keys", text, ui.ButtonSet.OK_CANCEL);
+    if (result == ui.Button.OK) {
+      user_props.deleteProperty(API_KEY_NAME);
+      user_props.deleteProperty(API_SECRET_NAME);
+      Logger.log("[clearAPIKeys] Binance API Keys were cleared!");
+      BinUtils().toast("Binance API Keys were cleared! You can always re-configure'em again from 'Binance' menu.", "", 30);
+      _refreshUI(); // Force UI refresh!
     }
   }
 
@@ -208,6 +208,11 @@ function BinSetup() {
               ||
             BinDoLastUpdate().isFormulaReplacement(period, formula);
           
+  }
+
+  function _refreshUI() {
+    BinMenu(SpreadsheetApp.getUi()); // Update main menu items
+    return forceRefreshSheetFormulas(); // Force refresh all formulas results!
   }
 }
 
