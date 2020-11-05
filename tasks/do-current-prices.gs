@@ -4,8 +4,17 @@
  * @OnlyCurrentDoc
  */
 function BinDoCurrentPrices(options) {
-  options = options || {}; // Init options
-  const CACHE_TTL = 60; // In seconds
+  // Sanitize options
+  options = options || {};
+  const CACHE_TTL = 55; // In seconds
+  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
+
+  /**
+   * Returns this function tag (the one that's used for BINANCE function 1st parameter)
+   */
+  function tag() {
+    return "prices";
+  }
   
   /**
    * Returns current market prices.
@@ -55,9 +64,18 @@ function BinDoCurrentPrices(options) {
     }
     return BinUtils().sortResults(parsed);
   }
+
+  /**
+   * Returns true if the formula matches the criteria
+   */
+  function isFormulaReplacement(period, formula) {
+    return period == "1m" && regex_formula.test(formula);
+  }
   
   // Return just what's needed from outside!
   return {
-    run
+    tag,
+    run,
+    isFormulaReplacement
   };
 }

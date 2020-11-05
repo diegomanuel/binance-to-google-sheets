@@ -12,36 +12,30 @@ const TICKER_AGAINST = "USDT"; // @TODO Give support to configure this!
 /**
  * Main function that acts as a wrapper.
  *
- * @param {"prices" | "orders/open"} func What to return.
- * @param {"symbol"} options Additional options for the given operation.
- * @param refresh_cell Whatever value to force a refresh.
+ * @param operation The operation tag to call.
+ * @param options Additional options for the given operation.
+ * @param force_refresh_cell Cells are automatically refreshed, but you can force it by passing any value here.
  * @return Depends on the func given.
  * @customfunction
  */
-function BINANCE(func, options, refresh_cell) {
-  if (func == "prices") {
-    return BinDoCurrentPrices({}).run(options);
+function BINANCE(operation, options, force_refresh_cell) {
+  if (operation == BinDoCurrentPrices().tag()) {
+    return BinDoCurrentPrices().run(options);
   }
-  if (func == "24hstats") {
-    return BinDo24hStats({
-      CACHE_TTL: 60 * 60 * 4 // 4 hours, in seconds
-    }).run(options);
+  if (operation == BinDo24hStats().tag()) {
+    return BinDo24hStats().run(options);
   }
-  if (func == "orders/all") {
-    return BinDoAllOrders({
-      CACHE_TTL: 60 * 10 // 10 minutes, in seconds
-    }).run(options);
+  if (operation == BinDoDoneOrders().tag()) {
+    return BinDoDoneOrders().run(options);
   }
-  if (func == "orders/open") {
-    return BinDoOpenOrders({
-      CACHE_TTL: 60 * 5 // 5 minutes, in seconds
-    }).run(options);
+  if (operation == BinDoOpenOrders().tag()) {
+    return BinDoOpenOrders().run(options);
   }
-  if (func == "last_update") {
-    return BinRequest().lastUpdate();
+  if (operation == BinDoLastUpdate().tag()) {
+    return BinDoLastUpdate().run();
   }
   
-  throw new Error("Unsupported function given: '"+func+"'");
+  throw new Error("Unsupported operation given: '"+operation+"'");
 }
 
 

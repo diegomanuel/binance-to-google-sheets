@@ -5,9 +5,16 @@
  */
 function BinDo24hStats(options) {
   // Sanitize options
-  options = options || {
-    CACHE_TTL: 60 * 60 // 1 hour, in seconds
-  };
+  options = options || {};
+  const CACHE_TTL = 60 * 60 * 4; // 4 hours, in seconds
+  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
+
+  /**
+   * Returns this function tag (the one that's used for BINANCE function 1st parameter)
+   */
+  function tag() {
+    return "stats/24h";
+  }
   
   /**
    * Returns the 24hs stats list against USDT.
@@ -31,7 +38,7 @@ function BinDo24hStats(options) {
         return filter(data, range_or_cell);
       }
     };
-    const data = BinRequest().cache(options.CACHE_TTL, "get", "api/v3/ticker/24hr", "", "", opts);
+    const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/ticker/24hr", "", "", opts);
   
     lock.releaseLock();
     const parsed = parse(data);
@@ -88,9 +95,18 @@ function BinDo24hStats(options) {
 
     return BinUtils().sortResults(parsed, 1, false);
   }
+
+  /**
+   * Returns true if the formula matches the criteria
+   */
+  function isFormulaReplacement(period, formula) {
+    return period == "5m" && regex_formula.test(formula);
+  }
   
   // Return just what's needed from outside!
   return {
-    run
+    tag,
+    run,
+    isFormulaReplacement
   };
 }

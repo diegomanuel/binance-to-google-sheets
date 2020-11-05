@@ -5,9 +5,16 @@
  */
 function BinDoOpenOrders(options) {
   // Sanitize options
-  options = options || {
-    CACHE_TTL: 60 * 2 // 2 minutes, in seconds
-  };
+  options = options || {};
+  const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
+  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
+
+  /**
+   * Returns this function tag (the one that's used for BINANCE function 1st parameter)
+   */
+  function tag() {
+    return "orders/open";
+  }
   
   /**
    * Returns current open oders.
@@ -27,7 +34,7 @@ function BinDoOpenOrders(options) {
         return filter(data, symbol);
       }
     };
-    const data = BinRequest().cache(options.CACHE_TTL, "get", "api/v3/openOrders", "", "", opts);
+    const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/openOrders", "", "", opts);
   
     lock.releaseLock();
     const parsed = parse(data);
@@ -69,9 +76,18 @@ function BinDoOpenOrders(options) {
 
     return BinUtils().sortResults(parsed, 0, true);
   }
+
+  /**
+   * Returns true if the formula matches the criteria
+   */
+  function isFormulaReplacement(period, formula) {
+    return period == "5m" && regex_formula.test(formula);
+  }
   
   // Return just what's needed from outside!
   return {
-    run
+    tag,
+    run,
+    isFormulaReplacement
   };
 }

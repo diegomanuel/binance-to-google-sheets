@@ -25,8 +25,8 @@ function BinMenu(ui) {
  */
 function showAPILastUpdate() {
   const ui = SpreadsheetApp.getUi();
-  const last_update = BinRequest().lastUpdate();
-  const formatted = last_update ? last_update.toLocaleDateString()+" "+last_update.toLocaleTimeString(undefined, {hour12: false}) : "- never called yet -";
+  const last_update = BinDoLastUpdate().run();
+  const formatted = last_update ? new Date(last_update) : "- never called yet -";
   ui.alert("Binance API last call", formatted, ui.ButtonSet.OK);
 }
 

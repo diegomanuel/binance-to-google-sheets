@@ -4,6 +4,7 @@
 function onOpen(e) {
   BinMenu(SpreadsheetApp.getUi());
   BinSetup().configTrigger(); // Automatically keep the prices updated!
+  Logger.log("EVENT: "+JSON.stringify(e));
   Logger.log("Welcome to 'Binance to Google Sheets' by Diego Calero, enjoy!  =]");
   SpreadsheetApp.getActive().toast("Enabled, enjoy it!  =]", "Binance to Google Sheets", 10);
 }
@@ -18,8 +19,10 @@ function onInstall(e) {
  */
 function BinSetup() {
   const user_props = PropertiesService.getUserProperties();
+  const regex_formula = new RegExp(/=.*BINANCE\s*\(/);
 
   return {
+    areAPIKeysConfigured,
     getAPIKey,
     setAPIKey,
     getAPISecret,
@@ -30,6 +33,13 @@ function BinSetup() {
   };
   
   
+  /**
+   * Returns true is API keys are configured
+   */
+  function areAPIKeysConfigured() {
+    return getAPIKey() && getAPISecret();
+  }
+
   /**
    * Returns the Binance API Key
    */
@@ -61,6 +71,7 @@ function BinSetup() {
    */
   function configAPIKeys(ui) {
     let text = "";
+    let changed = false;
     let result = false;
     let user_input = null;
 
@@ -77,6 +88,7 @@ function BinSetup() {
     }
     if (user_input) {
       setAPIKey(user_input);
+      changed = true;
       ui.alert("Binance API Key saved",
                "Your Binance API Key was successfully saved!",
                ui.ButtonSet.OK);
@@ -95,18 +107,25 @@ function BinSetup() {
     }
     if (user_input) {
       setAPISecret(user_input);
+      changed = true;
       ui.alert("Binance API Secret Key saved",
                "Your Binance API Secret Key was successfully saved!",
                ui.ButtonSet.OK);
     }
 
-    if (!getAPIKey()) {
+    const api_key = getAPIKey();
+    const api_secret = getAPISecret();
+    if (changed && api_key && api_secret) {
+      return forceRefreshSheetFormulas(); // Force refresh all formulas results!
+    }
+
+    if (!api_key) {
       ui.alert("Binance API Key is not set!",
                "You just need a Binance API Key if you want open/closed orders list.\n\n"+
                "It's NOT needed to get market prices and 24hr stats!",
                ui.ButtonSet.OK);
     }
-    if (!getAPISecret()) {
+    if (!api_secret) {
       ui.alert("Binance API Secret Key is not set!",
                "You just need a Binance API Secret Key if you want open/closed orders.\n\n"+
                "It's NOT needed to get market prices and 24hr stats!",
@@ -123,8 +142,12 @@ function BinSetup() {
       return ScriptApp.deleteTrigger(trigger);
     });
 
-    // Create the trigger again
-    return ScriptApp.newTrigger("doRefresh")
+    // Create triggers again
+    ScriptApp.newTrigger("doRefresh1m")
+      .timeBased()
+      .everyMinutes(1)
+      .create();
+    ScriptApp.newTrigger("doRefresh5m")
       .timeBased()
       .everyMinutes(5)
       .create();
@@ -133,41 +156,70 @@ function BinSetup() {
   /**
    * Changes formulas then changes them back to force-refresh'em.
    */
-  function forceRefreshSheetFormulas() {
+  function forceRefreshSheetFormulas(period) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const regex = new RegExp(/=.*BINANCE\s*\(/);
-
-    function replaceRangeFormulas(range, formulas, formula) {
-      const num_cols = range.getNumColumns();
-      const num_rows = range.getNumRows();
-      const row_offset = range.getRow();
-      const col_offset = range.getColumn();
-      for (let row = 0; row < num_rows ; row++) {
-        for (let col = 0; col < num_cols; col++) {
-          if (formulas[row][col] != "" && regex.test(formulas[row][col])) {
-            range.getCell(row+row_offset, col+col_offset).setFormula(formula === "" ? "" : formulas[row][col]);
-          }
-        };
-      };
-    }
+    let count = 0;
 
     Logger.log("Refreshing spreadsheet formulas..");
     ss.getSheets().map(function(sheet) {
       const range = sheet.getDataRange();
       const formulas = range.getFormulas();
-      replaceRangeFormulas(range, formulas, "");
-      SpreadsheetApp.flush();
-      replaceRangeFormulas(range, formulas);
-      SpreadsheetApp.flush();
+      const changed = _replaceRangeFormulas(period, range, formulas, "");
+      if (changed > 0) {
+        SpreadsheetApp.flush();
+        count +=_replaceRangeFormulas(period, range, formulas);
+        SpreadsheetApp.flush();
+      }
     });
-    Logger.log("Spreadsheet formulas were refreshed!");
-  };
+    Logger.log(count+" spreadsheet formulas were refreshed!");
+  }
+
+  function _replaceRangeFormulas(period, range, formulas, formula) {
+    const num_cols = range.getNumColumns();
+    const num_rows = range.getNumRows();
+    const row_offset = range.getRow();
+    const col_offset = range.getColumn();
+    let count = 0;
+    for (let row = 0; row < num_rows ; row++) {
+      for (let col = 0; col < num_cols; col++) {
+        if (_isFormulaReplacement(period, formulas[row][col])) {
+          count++;
+          range.getCell(row+row_offset, col+col_offset).setFormula(formula === "" ? "" : formulas[row][col]);
+        }
+      };
+    };
+    return count;
+  }
+
+  function _isFormulaReplacement(period, formula) {
+    if (!(formula != "" && regex_formula.test(formula))) {
+      return false;
+    }
+    
+    return  !period
+              ||
+            BinDoCurrentPrices().isFormulaReplacement(period, formula)
+              ||
+            BinDo24hStats().isFormulaReplacement(period, formula)
+              ||
+            BinDoDoneOrders().isFormulaReplacement(period, formula)
+              ||
+            BinDoOpenOrders().isFormulaReplacement(period, formula)
+              ||
+            BinDoLastUpdate().isFormulaReplacement(period, formula);
+          
+  }
 }
 
 /**
- * This one has to live here in the outside world
+ * These ones have to live here in the outside world
  * because of how `ScriptApp.newTrigger` works.
  */
-function doRefresh(e) {
-  BinSetup().forceRefreshSheetFormulas();
+function doRefresh1m(e) {
+  Logger.log("EVENT: "+JSON.stringify(e));
+  BinSetup().forceRefreshSheetFormulas("1m");
+};
+function doRefresh5m(e) {
+  Logger.log("EVENT: "+JSON.stringify(e));
+  BinSetup().forceRefreshSheetFormulas("5m");
 };

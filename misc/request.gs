@@ -6,8 +6,7 @@
 function BinRequest() {
   return {
     cache,
-    send,
-    lastUpdate
+    send
   };
   
 
@@ -61,6 +60,9 @@ function BinRequest() {
     try {
       let da_qs = qs || "";
       if (need_auth) { // Calling a private endpoint
+        if (!BinSetup().areAPIKeysConfigured()) { // Do not allow to continue if API keys aren't set!
+          throw new Error("Binance API keys are required to call this operation!");
+        }
         options["headers"]["X-MBX-APIKEY"] = BinSetup().getAPIKey();
         da_qs += (da_qs?"&":"")+"timestamp="+(new Date()).getTime()+"&recvWindow=30000";
         da_qs += "&signature="+getSignature(da_qs, da_payload);
@@ -68,7 +70,7 @@ function BinRequest() {
       const da_url = BASE_URL+"/"+url+"?"+da_qs;
       const response = UrlFetchApp.fetch(da_url, options);
       if (response.getResponseCode() == 200) {
-        lastUpdate(new Date()); // Refresh last update ts
+        BinDoLastUpdate().run(new Date()); // Refresh last update ts
         return JSON.parse(response.getContentText()); 
       }
       if (response.getResponseCode() == 418) {
@@ -89,26 +91,6 @@ function BinRequest() {
       console.error(err);
       throw err;
     }
-  }
-  
-  /**
-  * Sets or returns the timestamp of the last issued request to the backend API.
-  */
-  function lastUpdate(ts) {
-    const doc_props = PropertiesService.getDocumentProperties();
-    
-    if (ts == undefined) { // Getter
-      const last_update = doc_props.getProperty("BIN_LAST_UPDATE");
-      ts = last_update ? new Date(last_update) : "-";
-      Logger.log("[BinLastUpdate/1] Got last update time: "+ts);
-      return ts;
-    }
-    
-    // Setter
-    ts = new Date();
-    doc_props.setProperty("BIN_LAST_UPDATE", ts);
-    Logger.log("[BinLastUpdate/1] Set last update time: "+ts);
-    return ts;
   }
 
   /**

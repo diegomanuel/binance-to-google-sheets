@@ -3,11 +3,18 @@
  *
  * @OnlyCurrentDoc
  */
-function BinDoAllOrders(options) {
+function BinDoDoneOrders(options) {
   // Sanitize options
-  options = options || {
-    CACHE_TTL: 60 * 5 // 5 minutes, in seconds
-  };
+  options = options || {};
+  const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
+  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
+
+  /**
+   * Returns this function tag (the one that's used for BINANCE function 1st parameter)
+   */
+  function tag() {
+    return "orders/done";
+  }
   
   /**
    * Returns all account orders: active, canceled, or filled.
@@ -16,7 +23,7 @@ function BinDoAllOrders(options) {
    * @return The list of all current open orders for all symbols/tickers.
    */
   function run(range) {
-    Logger.log("[BinDoAllOrders/1] Running..");
+    Logger.log("[BinDoDoneOrders/1] Running..");
     const lock = BinUtils().getLock();
     if (!lock) { // Could not acquire lock! => Retry
       return run(range);
@@ -28,13 +35,13 @@ function BinDoAllOrders(options) {
     const data = (range||[]).reduce(function(rows, crypto) {
       const qs = "symbol="+crypto+TICKER_AGAINST;
       Utilities.sleep(200); // Add some waiting time to avoid 418 responses!
-      const crypto_data = BinRequest().cache(options.CACHE_TTL, "get", "api/v3/myTrades", qs, "", opts);
+      const crypto_data = BinRequest().cache(CACHE_TTL, "get", "api/v3/myTrades", qs, "", opts);
       return [...crypto_data, ...rows];
     }, []);
   
     lock.releaseLock();
     const parsed = parse(data);
-    Logger.log("[BinDoAllOrders/1] Done!");
+    Logger.log("[BinDoDoneOrders/1] Done!");
     return parsed;
   }
   
@@ -73,9 +80,18 @@ function BinDoAllOrders(options) {
 
     return BinUtils().sortResults(parsed, 1, true);
   }
+
+  /**
+   * Returns true if the formula matches the criteria
+   */
+  function isFormulaReplacement(period, formula) {
+    return period == "5m" && regex_formula.test(formula);
+  }
   
   // Return just what's needed from outside!
   return {
-    run
+    tag,
+    run,
+    isFormulaReplacement
   };
 }
