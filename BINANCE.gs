@@ -3,7 +3,8 @@
  * Diego Calero - dcalero@fiqus.coop
  */
 
-const VERSION = "v0.1.0"
+const DEBUG = false;
+const VERSION = "v0.1.0";
 const API_KEY_NAME = "BIN_API_KEY";
 const API_SECRET_NAME = "BIN_API_SECRET";
 const BASE_URL = "https://api.binance.com";
@@ -12,10 +13,12 @@ const TICKER_AGAINST = "USDT"; // @TODO Give support to configure this!
 /**
  * Initialization on document open.
  */
-function onOpen(e) {
+function onOpen(event) {
   BinMenu(SpreadsheetApp.getUi());
   BinSetup().configTrigger(); // Automatically keep the prices updated!
-  Logger.log("EVENT: "+JSON.stringify(e));
+  if (DEBUG) {
+    Logger.log("EVENT: "+JSON.stringify(event));
+  }
   Logger.log("Welcome to 'Binance to Google Sheets' by Diego Calero, enjoy!  =]");
   BinUtils().toast("I just started working at this spreadsheet. Enjoy it!  =]");
 }
@@ -23,9 +26,9 @@ function onOpen(e) {
 /**
  * Initialization on add-on install.
  */
-function onInstall(e) {
+function onInstall(event) {
   Logger.log("Installing 'Binance to Google Sheets'..");
-  onOpen(e);
+  onOpen(event);
 }
 
 /**

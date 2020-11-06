@@ -228,11 +228,15 @@ function BinSetup() {
  * These ones have to live here in the outside world
  * because of how `ScriptApp.newTrigger` works.
  */
-function doRefresh1m(e) {
-  Logger.log("EVENT: "+JSON.stringify(e));
+function doRefresh1m(event) {
+  if (DEBUG) {
+    Logger.log("EVENT: "+JSON.stringify(event));
+  }
   BinSetup().forceRefreshSheetFormulas("1m");
 };
-function doRefresh5m(e) {
-  Logger.log("EVENT: "+JSON.stringify(e));
+function doRefresh5m(event) {
+  if (DEBUG) {
+    Logger.log("EVENT: "+JSON.stringify(event));
+  }
   BinSetup().forceRefreshSheetFormulas("5m");
 };
