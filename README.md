@@ -60,6 +60,24 @@ Once you have the `add-on` already installed/enabled on your desired Google Spre
 **NOTE:** You can remove or re-configure them at any time from the `Binance` main menu item.
 
 
+## OK, I have it installed! How do I use it at my spreadsheet?
+
+You just need to call the `=BINANCE()` formula in a cell.  
+So far, these are the available operations:
+
+* `=BINANCE("last_update")` will return the timestamp of the last request to Binance API (**public**, no API keys needed).
+* `=BINANCE("prices")` will return a list with the latest ticker prices from Binance (**public**, no API keys needed).
+    * `=BINANCE("prices", "BTCUSDT")` Optionally you can give a ticker to just return its price.
+* `=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance (**public**, no API keys needed).
+    * A value or a range of values is required. Range values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * They will be always compared against `USDT`! Other pairs like `BTCETH` coming soon.
+* `=BINANCE("orders/done", A1:A3)` will return a list with your latest finished BUY/SELL orders for given symbols from Binance (**private**, API keys required).
+    * A range of values is required. Range values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * They will be always compared against `USDT`! Other pairs like `BTCETH` coming soon.
+* `=BINANCE("orders/open")` will return a list with all your pending BUY/SELL orders from Binance (**private**, API keys required).
+* `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
+
+
 ## See it working live!
 
 https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg
@@ -74,15 +92,26 @@ So I decided to write my own code, all from scratch, with only my will and my ja
 ..and I was sooo happy with the results that I simply decided to share it to the world! :tada:
 
 
-## Disclaimer
+## Disclaimer - Terms of Service - Privacy Policy
 
-I'm just a guy that uses both services and wanted to have **Binance** data at my personal **Google Spreadsheet**.  
+I'm just a guy that uses both services and wanted to have **Binance** data available at my personal **Google Spreadsheet**.  
 I did it for myself and I liked it so much, that I decided to share it to the world so anyone can use it!
 
-The script only needs **READ** access keys to **Binance API**, so there is <u>no security concerns</u> about what the script is able to do at Binance.  
+The script only needs **READ** access keys to **Binance API**, so there is <u>no security concerns</u> about what the script is able to do at Binance in your behalf.  
 It will just **retrieve** useful Binance data for your enjoyment in your spreadsheets!  =]
 
 I'm not responsible for your private usage of this tool, although it will never cause you any trouble.
 
-Be safe!  
+No data collect is done in any way, that's why this `add-on` doesn't require any _"controversial"_ permission from your side.  
+The only _sensitive scopes_ provided by Google are:
+* `script.container.ui`	:: Needed to **display prompts and alerts** inside the Google Spreadsheet (no HTML content anywhere, all plain text).
+* `script.external_request`	:: Needed to **connect to Binance API** to bring data (using only GET requests).
+* `script.scriptapp` :: Needed to allow the script to **create triggers** that automatically keeps the data updated in the background.
+
+
+## Enjoy!
+
+This software was published and released under the **GPL-3.0 License**.
+
+Use it wisely, happy trading!  
 Diego.

@@ -22,16 +22,17 @@ function BinDoDoneOrders(options) {
    * @param ["BTC","ETH"..] range If given, returns just the matching symbols stats.
    * @return The list of all current open orders for all symbols/tickers.
    */
-  function run(range) {
+  function run(range_or_cell) {
     Logger.log("[BinDoDoneOrders] Running..");
     const lock = BinUtils().getLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(range);
+      return run(range_or_cell);
     }
     
     const opts = {
       "filter": filter
     };
+    const range = BinUtils().getRangeOrCell(range_or_cell);
     const data = (range||[]).reduce(function(rows, crypto) {
       const qs = "symbol="+crypto+TICKER_AGAINST;
       Utilities.sleep(200); // Add some waiting time to avoid 418 responses!
