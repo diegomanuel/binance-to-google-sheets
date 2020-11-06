@@ -24,7 +24,7 @@ function BinDoDoneOrders(options) {
    */
   function run(range_or_cell) {
     Logger.log("[BinDoDoneOrders] Running..");
-    const lock = BinUtils().getLock();
+    const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
       return run(range_or_cell);
     }

@@ -158,20 +158,28 @@ function BinSetup() {
    */
   function forceRefreshSheetFormulas(period) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let count = 0;
+    let changed = 0;
 
     Logger.log("Refreshing spreadsheet formulas..");
+    const lock = BinUtils().getScriptLock();
+    if (!lock) { // Could not acquire lock! => Retry
+      return forceRefreshSheetFormulas(period);
+    }
+
     ss.getSheets().map(function(sheet) {
       const range = sheet.getDataRange();
       const formulas = range.getFormulas();
-      const changed = _replaceRangeFormulas(period, range, formulas, "");
-      if (changed > 0) {
+      changed = _replaceRangeFormulas(period, range, formulas, "");
+      if (changed > 0) { // We have changed cell/s contents! => Set the formulas back to enforce recalculation
         SpreadsheetApp.flush();
-        count +=_replaceRangeFormulas(period, range, formulas);
+        changed =_replaceRangeFormulas(period, range, formulas);
         SpreadsheetApp.flush();
       }
     });
+
+    lock.releaseLock();
     Logger.log(count+" spreadsheet formulas were refreshed!");
+    return changed;
   }
 
   function _replaceRangeFormulas(period, range, formulas, formula) {

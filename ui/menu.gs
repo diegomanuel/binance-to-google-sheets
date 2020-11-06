@@ -55,7 +55,7 @@ function showCurrentPrices() {
     return tickers;
     }, tickers);
   const formatted = Object.keys(data).map(function(symbol) {
-    return symbol+": "+data[symbol];
+    return symbol+": $"+data[symbol];
   });
   ui.alert("Current Crypto Prices", formatted.join("\n"), ui.ButtonSet.OK);
 }

@@ -24,7 +24,7 @@ function BinDoOpenOrders(options) {
    */
   function run(symbol) {
     Logger.log("[BinDoOpenOrders] Running..");
-    const lock = BinUtils().getLock();
+    const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
       return run(symbol);
     }

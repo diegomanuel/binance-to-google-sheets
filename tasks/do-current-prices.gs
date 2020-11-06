@@ -24,7 +24,7 @@ function BinDoCurrentPrices(options) {
    */
   function run(symbol) {
     Logger.log("[BinDoCurrentPrices] Running..");
-    const lock = BinUtils().getLock();
+    const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
       return run(symbol);
     }

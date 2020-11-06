@@ -27,7 +27,7 @@ function BinDo24hStats(options) {
     if (!range_or_cell) { // @TODO This limitation could be removed if cache is changed by other storage
       throw new Error("A range with crypto names must be given!");
     }
-    const lock = BinUtils().getLock();
+    const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
       return run(range_or_cell);
     }

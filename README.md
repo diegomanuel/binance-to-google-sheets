@@ -103,10 +103,8 @@ It will just **retrieve** useful Binance data for your enjoyment in your spreads
 I'm not responsible for your private usage of this tool, although it will never cause you any trouble.
 
 No data collect is done in any way, that's why this `add-on` doesn't require any _"controversial"_ permission from your side.  
-The only _sensitive scopes_ provided by Google are:
-* `script.container.ui`	:: Needed to **display prompts and alerts** inside the Google Spreadsheet (no HTML content anywhere, all plain text).
+The only _sensitive scope_ provided by Google is:
 * `script.external_request`	:: Needed to **connect to Binance API** to bring data (using only GET requests).
-* `script.scriptapp` :: Needed to allow the script to **create triggers** that automatically keeps the data updated in the background.
 
 
 ## Enjoy!
