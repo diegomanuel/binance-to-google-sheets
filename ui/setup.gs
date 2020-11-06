@@ -178,7 +178,7 @@ function BinSetup() {
     });
 
     lock.releaseLock();
-    Logger.log(count+" spreadsheet formulas were refreshed!");
+    Logger.log(changed+" spreadsheet formulas were refreshed!");
     return changed;
   }
 
