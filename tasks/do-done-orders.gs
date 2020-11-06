@@ -23,7 +23,7 @@ function BinDoDoneOrders(options) {
    * @return The list of all current open orders for all symbols/tickers.
    */
   function run(range) {
-    Logger.log("[BinDoDoneOrders/1] Running..");
+    Logger.log("[BinDoDoneOrders] Running..");
     const lock = BinUtils().getLock();
     if (!lock) { // Could not acquire lock! => Retry
       return run(range);
@@ -41,7 +41,7 @@ function BinDoDoneOrders(options) {
   
     lock.releaseLock();
     const parsed = parse(data);
-    Logger.log("[BinDoDoneOrders/1] Done!");
+    Logger.log("[BinDoDoneOrders] Done!");
     return parsed;
   }
   

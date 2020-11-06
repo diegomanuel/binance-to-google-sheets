@@ -23,7 +23,7 @@ function BinDoCurrentPrices(options) {
    * @return The list of current prices for all symbols/tickers.
    */
   function run(symbol) {
-    Logger.log("[BinDoCurrentPrices/1] Running..");
+    Logger.log("[BinDoCurrentPrices] Running..");
     const lock = BinUtils().getLock();
     if (!lock) { // Could not acquire lock! => Retry
       return run(symbol);
@@ -34,7 +34,7 @@ function BinDoCurrentPrices(options) {
   
     lock.releaseLock();
     const parsed = parse(data, symbol);
-    Logger.log("[BinDoCurrentPrices/1] Done!");
+    Logger.log("[BinDoCurrentPrices] Done!");
     return parsed;
   }
   

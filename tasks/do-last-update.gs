@@ -22,14 +22,14 @@ function BinDoLastUpdate() {
     if (ts == undefined) { // Getter
       const last_update = doc_props.getProperty("BIN_LAST_UPDATE");
       ts = last_update ? new Date(last_update) : "";
-      Logger.log("[BinDoLastUpdate/1] Got last update time: "+ts);
+      Logger.log("[BinDoLastUpdate] Got last update time: "+ts);
       return ts;
     }
     
     // Setter
     ts = new Date();
     doc_props.setProperty("BIN_LAST_UPDATE", ts);
-    Logger.log("[BinDoLastUpdate/1] Set last update time: "+ts);
+    Logger.log("[BinDoLastUpdate] Set last update time: "+ts);
     return ts;
   }
 

@@ -23,7 +23,7 @@ function BinDo24hStats(options) {
    * @return The list of 24hs stats for given symbols against USDT.
    */
   function run(range_or_cell) {
-    Logger.log("[BinDo24hStats/1] Running..");
+    Logger.log("[BinDo24hStats] Running..");
     if (!range_or_cell) { // @TODO This limitation could be removed if cache is changed by other storage
       throw new Error("A range with crypto names must be given!");
     }
@@ -42,7 +42,7 @@ function BinDo24hStats(options) {
   
     lock.releaseLock();
     const parsed = parse(data);
-    Logger.log("[BinDo24hStats/1] Done!");
+    Logger.log("[BinDo24hStats] Done!");
     return parsed;
   }
   
