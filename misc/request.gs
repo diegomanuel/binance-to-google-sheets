@@ -73,6 +73,10 @@ function BinRequest() {
         BinDoLastUpdate().run(new Date()); // Refresh last update ts
         return JSON.parse(response.getContentText()); 
       }
+      if (response.getResponseCode() == 401) {
+        // There might be a problem with the Binance API keys
+        throw new Error("Got 401 from Binance API! The keys aren't set or they are not valid anymore.");
+      }
       if (response.getResponseCode() == 418) {
         // The IP has been auto-banned for continuing to send requests after receiving 429 codes
         Logger.log("Got 418 from Binance API! We are banned for a while..  =/");

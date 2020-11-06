@@ -15,12 +15,12 @@ function BinMenu(ui) {
           .addItem("Show API Keys", "showAPIKeys")
           .addItem("Re-configure API Keys", "showAPIKeysSetup")
           .addItem("Clear API Keys", "showAPIKeysClear")
-          .addSeparator()
     } else {
-      menu.addItem("Configure API Keys", "showAPIKeysSetup")
-          .addSeparator()
+      menu.addSeparator()
+          .addItem("Configure API Keys", "showAPIKeysSetup")
     }
-    menu.addItem("Credits!  =]", "showCredits");
+    menu.addSeparator()
+        .addItem("Credits!  =]", "showCredits");
     
     return menu.addToUi();
   }
