@@ -109,11 +109,10 @@ The only _sensitive scope_ provided by Google is:
 
 ## Binance Account
 
-<a href="https://www.binance.com/en/register?ref=45140860" target="_blank"><img src="img/binance-join.png" alt="Join to Binance!" title="Join to Binance!" width="300" style="float:right"/></a>
-
 Don't you have a **Binance** account yet?  
 Just register there and start trading with its fantastic platform!  
-[https://www.binance.com/en/register?ref=45140860](https://www.binance.com/en/register?ref=45140860)
+[https://www.binance.com/en/register?ref=45140860](https://www.binance.com/en/register?ref=45140860)  
+<a href="https://www.binance.com/en/register?ref=45140860" target="_blank"><img src="img/binance-join.png" alt="Join to Binance!" title="Join to Binance!" width="300"/></a>
 
 
 ## Enjoy - Donate - Buy me a beer!  =]
