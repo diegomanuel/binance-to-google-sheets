@@ -158,7 +158,7 @@ function BinSetup() {
    */
   function forceRefreshSheetFormulas(period) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let changed = 0;
+    let count = 0;
 
     Logger.log("Refreshing spreadsheet formulas..");
     const lock = BinUtils().getScriptLock();
@@ -169,17 +169,17 @@ function BinSetup() {
     ss.getSheets().map(function(sheet) {
       const range = sheet.getDataRange();
       const formulas = range.getFormulas();
-      changed = _replaceRangeFormulas(period, range, formulas, "");
+      const changed = _replaceRangeFormulas(period, range, formulas, "");
       if (changed > 0) { // We have changed cell/s contents! => Set the formulas back to enforce recalculation
         SpreadsheetApp.flush();
-        changed =_replaceRangeFormulas(period, range, formulas);
+        count +=_replaceRangeFormulas(period, range, formulas);
         SpreadsheetApp.flush();
       }
     });
 
     lock.releaseLock();
-    Logger.log(changed+" spreadsheet formulas were refreshed!");
-    return changed;
+    Logger.log(count+" spreadsheet formulas were refreshed!");
+    return count;
   }
 
   function _replaceRangeFormulas(period, range, formulas, formula) {

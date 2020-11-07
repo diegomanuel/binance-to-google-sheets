@@ -107,7 +107,34 @@ The only _sensitive scope_ provided by Google is:
 * `script.external_request`	:: Needed to **connect to Binance API** to bring data (using only GET requests).
 
 
-## Enjoy!
+## Binance Account
+
+<a href="https://www.binance.com/en/register?ref=45140860" target="_blank"><img src="img/binance-join.png" alt="Join to Binance!" title="Join to Binance!" width="300" style="float:right"/></a>
+
+Don't you have a **Binance** account yet?  
+Just register there and start trading with its fantastic platform!  
+[https://www.binance.com/en/register?ref=45140860](https://www.binance.com/en/register?ref=45140860)
+
+
+## Enjoy - Donate - Buy me a beer!  =]
+
+Thank you for using Binance to Google Sheets add-on!  
+I really hope you enjoyed and loved it as much as I love to use it everyday.
+
+If your love is strong enough, feel free to share it with me!  =D  
+I will much appreciate any contribution and support to keep working on it.
+
+I have plenty of ideas for new features and improvements.  
+So far, this is just the first acceptable release, but much more could come..!
+
+---
+
+**[BTC] Bitcoin donate address** | **[ETH] Ethereum donate address** | **[LTC] Litecoin donate address** | **[BNB] Binance Coin donate address**
+:---:|:---:|:---:|:---:
+![Bitcoin donate address](img/BTC-donate-address.png "Bitcoin donate address") | ![Ethereum donate address](img/ETH-donate-address.png "Ethereum donate address") | ![Litecoin donate address](img/LTC-donate-address.png "Litecoin donate address") | ![Binance Coin donate address](img/BNB-donate-address.png "Binance Coin donate address")
+1FsN54WNibhhPhRt4vnAPRGgzaVeeFvEnM | 0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97 | LZ8URuChzyuuy272isMCrts7R7UKtwnj6a | 0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97
+
+---
 
 This software was published and released under the **GPL-3.0 License**.
 

@@ -1,10 +1,11 @@
 /**
  * Binance to Google Sheets!
- * Diego Calero - dcalero@fiqus.coop
+ * Diego Manuel - diegomanuel@gmail.com
  */
 
 const DEBUG = false;
 const VERSION = "v0.1.0";
+const REPO_URL = "https://github.com/diegomanuel/binance-to-google-sheets";
 const API_KEY_NAME = "BIN_API_KEY";
 const API_SECRET_NAME = "BIN_API_SECRET";
 const BASE_URL = "https://api.binance.com";
@@ -19,7 +20,7 @@ function onOpen(event) {
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
-  Logger.log("Welcome to 'Binance to Google Sheets' by Diego Calero, enjoy!  =]");
+  Logger.log("Welcome to 'Binance to Google Sheets' by Diego Manuel, enjoy!  =]");
   BinUtils().toast("I just started working at this spreadsheet. Enjoy it!  =]");
 }
 

@@ -20,7 +20,8 @@ function BinMenu(ui) {
           .addItem("Configure API Keys", "showAPIKeysSetup")
     }
     menu.addSeparator()
-        .addItem("Credits!  =]", "showCredits");
+        .addItem("Credits!", "showCredits")
+        .addItem("Donate  =]", "showDonate");
     
     return menu.addToUi();
   }
@@ -107,8 +108,9 @@ function showAPIKeysClear() {
  */
 function showCredits() {
   const ui = SpreadsheetApp.getUi();
+  const title = "Credits - Binance to Google Sheets - "+VERSION;
   const body = "Diego Manuel - diegomanuel@gmail.com - Argentina\n"+
-               "https://github.com/diegomanuel/binance-to-google-sheets\n"+
+               REPO_URL+"\n"+
                "\n"+
                "\n"+
                "Diego says: Hello there folks!\n"+
@@ -129,6 +131,47 @@ function showCredits() {
                "So, I think and hope that many of you will find it as useful as it is for myself.\n"+
                "\n"+
                "Enjoy, cheers!";
-  ui.alert("Credits - Binance to Google Sheets - "+VERSION, body, ui.ButtonSet.OK);
-  Logger.log("[Credits! =] Diego Calero - dcalero@fiqus.coop - https://fiqus.coop");
+  ui.alert(title, body, ui.ButtonSet.OK);
+  Logger.log("[Credits] Diego Manuel - diegomanuel@gmail.com - "+REPO_URL);
+}
+
+/**
+ * Displays a modal with the donation options  =]
+ */
+function showDonate() {
+  const ui = SpreadsheetApp.getUi();
+  const title = "Donate - Buy me a beer!  =]";
+  const body = "Thank you for using Binance to Google Sheets add-on!\n"+
+               "I really hope you enjoyed and loved it as much as I love to use it everyday.\n"+
+               "\n"+
+               "If your love is strong enough, feel free to share it with me!  =D\n"+
+               "I will much appreciate any contribution and support to keep working on it.\n"+
+               "\n"+
+               "I have plenty of ideas for new features and improvements.\n"+
+               "So far, this is just the first acceptable release, but much more could come..!\n"+
+               "\n"+
+               "------------------------------------------------\n"+
+               "Don't you have a Binance account yet?\n"+
+               "Just register there and start trading with its fantastic platform!\n"+
+               "https://www.binance.com/en/register?ref=45140860\n"+
+               "------------------------------------------------\n"+
+               "[BTC] Bitcoin donate address:\n"+
+               "1FsN54WNibhhPhRt4vnAPRGgzaVeeFvEnM\n"+
+               "\n"+
+               "[ETH] Ethereum donate address:\n"+
+               "0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
+               "\n"+
+               "[LTC] Litecoin donate address:\n"+
+               "LZ8URuChzyuuy272isMCrts7R7UKtwnj6a\n"+
+               "\n"+
+               "[BNB] Binance Coin donate address:\n"+
+               "0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
+               "------------------------------------------------\n"+
+               "\n"+
+               "This software was published and released under the GPL-3.0 License.\n"+
+               "\n"+
+               "Use it wisely, happy trading!\n"+
+               "Diego.";
+  ui.alert(title, body, ui.ButtonSet.OK);
+  Logger.log("[Donate] Buy me a beer!  =]");
 }
