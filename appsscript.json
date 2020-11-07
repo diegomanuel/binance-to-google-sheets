@@ -7,5 +7,18 @@
   "oauthScopes": [
     "https://www.googleapis.com/auth/spreadsheets.currentonly",
     "https://www.googleapis.com/auth/script.external_request"
-  ]
+  ],
+  "addOns": {
+    "common": {
+      "name": "Binance to Google Sheets",
+      "logoUrl": "https://raw.githubusercontent.com/diegomanuel/binance-to-google-sheets/master/img/binance-to-google-sheets-logo.png"
+    },
+    "sheets": {
+      "homepageTrigger": {
+        "enabled": false,
+        "runFunction": ""
+      }
+    }
+  },
+  "urlFetchWhitelist": ["https://api.binance.com/"]
 }
