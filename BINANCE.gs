@@ -41,15 +41,15 @@ function onInstall(event) {
  * @return Depends on the func given.
  * @customfunction
  */
-function BINANCE(operation, range_or_cell, force_refresh_cell) {
+function BINANCE(operation, range_or_cell, additional_opts, force_refresh_cell) {
   if (operation == BinDoLastUpdate().tag()) {
     return BinDoLastUpdate().run();
   }
   if (operation == BinDoCurrentPrices().tag()) {
-    return BinDoCurrentPrices().run(range_or_cell);
+    return BinDoCurrentPrices().run(range_or_cell, additional_opts);
   }
   if (operation == BinDo24hStats().tag()) {
-    return BinDo24hStats().run(range_or_cell);
+    return BinDo24hStats().run(range_or_cell, additional_opts);
   }
   if (operation == BinDoDoneOrders().tag()) {
     return BinDoDoneOrders().run(range_or_cell);

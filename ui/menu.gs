@@ -42,21 +42,17 @@ function showAPILastUpdate() {
 
 /**
  * Displays a modal with the most important crypto prices.
+ * // @TODO Improve this to be like the 10th cryptos with most volume
  */
 function showCurrentPrices() {
-  const tickers = { // @TODO Improve this to be like the 10th cryptos with most volume
-    "BTCUSDT": 0, "BCHUSDT": 0, "ETHUSDT": 0, "LTCUSDT": 0, "BNBUSDT": 0
-  };
+  const tickers = ["BTC", "BCH", "ETH", "LTC", "BNB"];
   const ui = SpreadsheetApp.getUi();
-  const current_prices = BinDoCurrentPrices().run();
-  const data = (current_prices||[]).reduce(function(tickers, [symbol, price]) {
-    if (tickers[symbol] !== undefined) {
-      tickers[symbol] = price;
-    }
-    return tickers;
-    }, tickers);
-  const formatted = Object.keys(data).map(function(symbol) {
-    return symbol+": $"+data[symbol];
+  const current_prices = BinDoCurrentPrices().run().map((function([symbol, price]) {
+    return {"symbol": symbol, "price": price};
+  }));
+  const data = BinUtils().filterTickerSymbol(current_prices, tickers);
+  const formatted = data.map(function(ticker) {
+    return ticker.symbol+": $"+ticker.price;
   });
   ui.alert("Current Crypto Prices", formatted.join("\n"), ui.ButtonSet.OK);
 }

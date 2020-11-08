@@ -9,6 +9,7 @@ function BinUtils() {
     getScriptLock,
     getUserLock,
     getRangeOrCell,
+    filterTickerSymbol,
     sortResults,
     obscureSecret,
     toast
@@ -56,6 +57,31 @@ function BinUtils() {
    */
   function getRangeOrCell(range_or_cell) {
     return typeof range_or_cell == "string" ? [range_or_cell] : range_or_cell;
+  }
+
+  /**
+   * Filters a given data array by given range of values or a single value
+   * @param data Array with tickers data
+   * @param range_or_cell A range of cells or a single cell
+   * @param ticker_against Ticker to match against
+   */
+  function filterTickerSymbol(data, range_or_cell, ticker_against) {
+    ticker_against = ticker_against || TICKER_AGAINST;
+    const cryptos = getRangeOrCell(range_or_cell);
+    const tickers = cryptos.reduce(function(tickers, crypto) { // Init tickers
+        tickers[crypto+ticker_against] = "?";
+        return tickers;
+      }, {});
+    const results = (data||[]).reduce(function(tickers, ticker) {
+      if (tickers[ticker.symbol] !== undefined) {
+        tickers[ticker.symbol] = ticker;
+      }
+      return tickers;
+      }, tickers);
+
+    return Object.keys(results).map(function(ticker) { // Return tickers values
+      return results[ticker];
+    });
   }
   
   /**

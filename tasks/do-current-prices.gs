@@ -19,21 +19,22 @@ function BinDoCurrentPrices(options) {
   /**
    * Returns current market prices.
    *
-   * @param {"BTCUSDT|..."} symbol If given, returns just the matching symbol price.
+   * @param {"BTC|..."} symbol_or_range If given, returns just the matching symbol price or range prices. If not given, returns all the prices.
+   * @param ticker_against Ticker to match against
    * @return The list of current prices for all symbols/tickers.
    */
-  function run(symbol) {
+  function run(symbol_or_range, ticker_against) {
     Logger.log("[BinDoCurrentPrices] Running..");
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(symbol);
+      return run(symbol_or_range);
     }
 
     const opts = {"public": true};
     const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/ticker/price", "", "", opts);
   
     lock.releaseLock();
-    const parsed = parse(data, symbol);
+    const parsed = parse(data, symbol_or_range, ticker_against);
     Logger.log("[BinDoCurrentPrices] Done!");
     return parsed;
   }
@@ -41,28 +42,22 @@ function BinDoCurrentPrices(options) {
   /**
    * @OnlyCurrentDoc
    */
-  function parse(data, symbol) {
-    const output = [["Symbol", "Price"]];
-    let found = null;
-    const parsed = data.reduce(function(rows, ticker) {
-      if (symbol && symbol == ticker.symbol) {
-        found = parseFloat(ticker.price);
-      }
-      const row = [
-        ticker.symbol,
-        parseFloat(ticker.price)
-      ];
+  function parse(data, symbol_or_range, ticker_against) {
+    const header = [["Symbol", "Price"]];
+    const tickers = symbol_or_range ? BinUtils().filterTickerSymbol(data, symbol_or_range, ticker_against) : data;
+    if (typeof symbol_or_range == "string") { // A single value to return
+      return tickers && tickers[0] ? parseFloat(tickers[0].price) : "?";
+    }
+
+    // Multiple rows to return
+    const parsed = tickers.reduce(function(rows, ticker) {
+      const price = parseFloat(ticker.price);
+      const row = symbol_or_range ? price : [ticker.symbol, price];
       rows.push(row);
       return rows;
-    }, output);
+    }, symbol_or_range ? [] : header);
 
-    if (symbol && found != null) { // Ticker found!
-      return found;
-    }
-    if (symbol) { // Ticker not found!
-      return "";
-    }
-    return BinUtils().sortResults(parsed);
+    return symbol_or_range ? parsed : BinUtils().sortResults(parsed);
   }
 
   /**
