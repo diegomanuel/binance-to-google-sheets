@@ -15,11 +15,7 @@ function BinRequest() {
   */
   function cache(CACHE_TTL, method, url, qs, payload, opts) {
     opts = opts || {}; // Init opts
-    const CACHE_KEY = "BIN_CACHE{"+method+"_"+url+"_"+qs+"}";
-    const cache = CacheService.getUserCache();
-    const cache_data = cache.get(CACHE_KEY);
-    const unzip_data = cache_data ? Utilities.unzip(Utilities.newBlob(Utilities.base64Decode(cache_data), "application/zip")) : null;
-    let data = unzip_data ? JSON.parse(unzip_data[0].getAs("application/octet-stream").getDataAsString()) : [];
+    let data = BinCache().read(method+"_"+url+"_"+qs);
     
     // First check if we have a cached version
     if (!(data && data.length > 1)) { // Fetch data from API
@@ -30,8 +26,7 @@ function BinRequest() {
         if (opts["filter"]) { // Apply custom data filtering before storing into cache
           data = opts["filter"](data);
         }
-        const blob_data = Utilities.zip([Utilities.newBlob(JSON.stringify(data), "application/octet-stream")]);
-        cache.put(CACHE_KEY, Utilities.base64Encode(blob_data.getBytes()), CACHE_TTL);
+        BinCache().write(method+"_"+url+"_"+qs, data, CACHE_TTL);
       }
     } else {
       Logger.log("FOUND CACHE entry!");
@@ -65,13 +60,19 @@ function BinRequest() {
         }
         options["headers"]["X-MBX-APIKEY"] = BinSetup().getAPIKey();
         da_qs += (da_qs?"&":"")+"timestamp="+(new Date()).getTime()+"&recvWindow=30000";
-        da_qs += "&signature="+getSignature(da_qs, da_payload);
+        da_qs += "&signature="+_computeSignature(da_qs, da_payload);
       }
       const da_url = BASE_URL+"/"+url+"?"+da_qs;
       const response = UrlFetchApp.fetch(da_url, options);
       if (response.getResponseCode() == 200) {
         BinDoLastUpdate().run(new Date()); // Refresh last update ts
-        return JSON.parse(response.getContentText()); 
+        const resptext = response.getContentText();
+        _setLastCacheResponseOK(da_qs, da_payload, resptext); // Keep last OK response
+        return JSON.parse(resptext); 
+      }
+      if (response.getResponseCode() == 400) {
+        // There might be a problem with the Binance API keys
+        throw new Error("Got 400 from Binance API! The request seems to be wrong.");
       }
       if (response.getResponseCode() == 401) {
         // There might be a problem with the Binance API keys
@@ -80,15 +81,29 @@ function BinRequest() {
       if (response.getResponseCode() == 418) {
         // The IP has been auto-banned for continuing to send requests after receiving 429 codes
         Logger.log("Got 418 from Binance API! We are banned for a while..  =/");
-        return []; 
+        if (opts["retries_418"] < 3) { // Wait a little and try again!
+          opts["retries_418"] = (opts["retries_418"]||0) + 1;
+          Logger.log("Retry "+opts["retries_418"]+"/3 in five seconds..");
+          Utilities.sleep(5000);
+          return send(method, url, qs, payload, opts); 
+        }
       }
-      if (response.getResponseCode() == 429 && opts["retries"] < 3) {
-        opts["retries"] = (opts["retries"]||0) + 1;
-        Logger.log("Got 429 from Binance API! Retry "+opts["retries"]+"/3 in five seconds..");
-        Utilities.sleep(5000); // Wait a little and try again!
-        return send(method, url, qs, payload, opts); 
+      if (response.getResponseCode() == 429) {
+        // Binance is telling us that we are sending too many requests
+        Logger.log("Got 429 from Binance API! We are sending too many requests from our IP..  =/");
+        if (opts["retries_429"] < 3) {
+          opts["retries_429"] = (opts["retries_429"]||0) + 1;
+          Logger.log("Retry "+opts["retries_429"]+"/3 in five seconds..");
+          Utilities.sleep(5000); // Wait a little and try again!
+          return send(method, url, qs, payload, opts); 
+        }
       }
-      console.error(response);
+
+      const cache_response = _getLastCacheResponseOK(da_qs, da_payload);
+      if (cache_response) { // Fallback to last cached OK response (if any)
+        Logger.log("Got 429 from Binance API! Retry "+opts["retries_429"]+"/3 in five seconds..");
+        return cache_response; 
+      }
       throw new Error("Request failed with status: "+response.getResponseCode());
     }
     catch (err) {
@@ -98,9 +113,24 @@ function BinRequest() {
   }
 
   /**
-  * @OnlyCurrentDoc
+  * Sets last OK response into cache.
   */
-  function getSignature(qs, payload) {
+  function _setLastCacheResponseOK(qs, payload, data) {
+    const CACHE_TTL = 60 * 60; // 1 hour, in seconds
+    return BinCache().write("OK_"+qs+"_"+payload, data, CACHE_TTL);
+  }
+
+  /**
+  * Gets last OK response from cache.
+  */
+  function _getLastCacheResponseOK(qs, payload) {
+    return BinCache().read("OK_"+qs+"_"+payload);
+  }
+
+  /**
+  * Computes the HMAC signature for given query string.
+  */
+  function _computeSignature(qs, payload) {
     const secret = BinSetup().getAPISecret();
     return Utilities
       .computeHmacSha256Signature(qs+(payload||""), secret)
