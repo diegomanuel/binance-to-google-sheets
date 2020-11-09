@@ -79,6 +79,9 @@ function BinUtils() {
       return tickers;
       }, tickers);
 
+    if (DEBUG) {
+      Logger.log("FILTERED: "+JSON.stringify(results));
+    }
     return Object.keys(results).map(function(ticker) { // Return tickers values
       return results[ticker];
     });

@@ -64,6 +64,10 @@ function BinRequest() {
       }
       const da_url = BASE_URL+"/"+url+"?"+da_qs;
       const response = UrlFetchApp.fetch(da_url, options);
+      if (DEBUG) {
+        Logger.log("QUERY: "+da_url);
+        Logger.log("RESPONSE: "+JSON.stringify(response));
+      }
       if (response.getResponseCode() == 200) {
         BinDoLastUpdate().run(new Date()); // Refresh last update ts
         const resptext = response.getContentText();
@@ -81,28 +85,24 @@ function BinRequest() {
       if (response.getResponseCode() == 418) {
         // The IP has been auto-banned for continuing to send requests after receiving 429 codes
         Logger.log("Got 418 from Binance API! We are banned for a while..  =/");
-        if (opts["retries_418"] < 3) { // Wait a little and try again!
-          opts["retries_418"] = (opts["retries_418"]||0) + 1;
-          Logger.log("Retry "+opts["retries_418"]+"/3 in five seconds..");
-          Utilities.sleep(5000);
-          return send(method, url, qs, payload, opts); 
+        const options = _canRetryRequest(418, opts);
+        if (options) { // Somewhat "weird" function, it acts as a bool helper and opts updater at once.. but whatever..!
+          return send(method, url, qs, payload, options);
         }
       }
       if (response.getResponseCode() == 429) {
         // Binance is telling us that we are sending too many requests
         Logger.log("Got 429 from Binance API! We are sending too many requests from our IP..  =/");
-        if (opts["retries_429"] < 3) {
-          opts["retries_429"] = (opts["retries_429"]||0) + 1;
-          Logger.log("Retry "+opts["retries_429"]+"/3 in five seconds..");
-          Utilities.sleep(5000); // Wait a little and try again!
-          return send(method, url, qs, payload, opts); 
+        const options = _canRetryRequest(429, opts);
+        if (options) { // Somewhat "weird" function, it acts as a bool helper and opts updater at once.. but whatever..!
+          return send(method, url, qs, payload, options);
         }
       }
 
       const cache_response = _getLastCacheResponseOK(da_qs, da_payload);
       if (cache_response) { // Fallback to last cached OK response (if any)
         Logger.log("Got 429 from Binance API! Retry "+opts["retries_429"]+"/3 in five seconds..");
-        return cache_response; 
+        return cache_response;
       }
       throw new Error("Request failed with status: "+response.getResponseCode());
     }
@@ -110,6 +110,20 @@ function BinRequest() {
       console.error(err);
       throw err;
     }
+  }
+
+  /**
+   * Retries an execution for given status code.
+   */
+  function _canRetryRequest(code, opts) {
+    if (opts["retries_"+code]||0 < 3) {
+      opts["retries_"+code] = (opts["retries_"+code]||0) + 1;
+      Logger.log("Retry "+opts["retries_"+code]+"/3 for status code ["+code+"] in five seconds..");
+      Utilities.sleep(5000); // Wait a little and try again!
+      return opts;
+    }
+
+    return false;
   }
 
   /**

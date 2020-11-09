@@ -28,9 +28,7 @@ function BinCache() {
   function write(key, data, ttl) {
     const CACHE_KEY = _craftKey(key);
     const cache = CacheService.getUserCache();
-    const data = cache.get(CACHE_KEY);
     const blob_data = Utilities.zip([Utilities.newBlob(JSON.stringify(data), "application/octet-stream")]);
-
     cache.put(CACHE_KEY, Utilities.base64Encode(blob_data.getBytes()), ttl);
     return cache;
   }
