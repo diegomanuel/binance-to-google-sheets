@@ -88,8 +88,8 @@ So far, these are the available operations:
 
 https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg
 
-<img src="img/screenshot-crypto-prices-list.png" alt="Binance to Google Sheets DEMO - Prices list" title="Binance to Google Sheets DEMO - Prices list" width="300"/>
-<img src="img/screenshot-crypto-24h-stats.png" alt="Binance to Google Sheets DEMO - 24h stats" title="Binance to Google Sheets DEMO - 24h stats" width="600"/>
+<img src="img/screenshot-crypto-prices-list.png" alt="Binance to Google Sheets DEMO - Prices list" title="Binance to Google Sheets DEMO - Prices list" width="400"/>
+<img src="img/screenshot-crypto-24h-stats.png" alt="Binance to Google Sheets DEMO - 24h stats" title="Binance to Google Sheets DEMO - 24h stats" width="800"/>
 
 
 ## Some background: Why this tool had ever to come alive?!
@@ -121,7 +121,7 @@ The only _sensitive scope_ provided by Google is:
 Don't you have a **Binance** account yet?  
 Just register there and start trading with its fantastic platform!  
 [https://www.binance.com/en/register?ref=45140860](https://www.binance.com/en/register?ref=45140860)  
-<a href="https://www.binance.com/en/register?ref=45140860" target="_blank"><img src="img/binance-join.png" alt="Join to Binance!" title="Join to Binance!" width="300"/></a>
+<a href="https://www.binance.com/en/register?ref=45140860" target="_blank"><img src="img/binance-join.png" alt="Join to Binance!" title="Join to Binance!"/></a>
 
 
 ## Enjoy - Donate - Buy me a beer!  =]
