@@ -35,6 +35,7 @@ function BinDo24hStats(options) {
   
     const opts = {
       "public": true,
+      "no_cache_ok": true,
       "filter": function(data) {
         return BinUtils().filterTickerSymbol(data, range_or_cell, ticker_against||TICKER_AGAINST);
       }

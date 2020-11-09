@@ -71,7 +71,9 @@ function BinRequest() {
       if (response.getResponseCode() == 200) {
         BinDoLastUpdate().run(new Date()); // Refresh last update ts
         const resptext = response.getContentText();
-        _setLastCacheResponseOK(da_qs, da_payload, resptext); // Keep last OK response
+        if (!opts["no_cache_ok"]) { // Keep last OK response
+          _setLastCacheResponseOK(da_qs, da_payload, resptext);
+        }
         return JSON.parse(resptext); 
       }
       if (response.getResponseCode() == 400) {
@@ -101,7 +103,7 @@ function BinRequest() {
 
       const cache_response = _getLastCacheResponseOK(da_qs, da_payload);
       if (cache_response) { // Fallback to last cached OK response (if any)
-        Logger.log("Got 429 from Binance API! Retry "+opts["retries_429"]+"/3 in five seconds..");
+        Logger.log("Couldn't get an OK response from Binance API! Fallback to last cached OK response..  =0");
         return cache_response;
       }
       throw new Error("Request failed with status: "+response.getResponseCode());
@@ -116,7 +118,7 @@ function BinRequest() {
    * Retries an execution for given status code.
    */
   function _canRetryRequest(code, opts) {
-    if (opts["retries_"+code]||0 < 3) {
+    if ((opts["retries_"+code]||0) < 3) {
       opts["retries_"+code] = (opts["retries_"+code]||0) + 1;
       Logger.log("Retry "+opts["retries_"+code]+"/3 for status code ["+code+"] in five seconds..");
       Utilities.sleep(5000); // Wait a little and try again!
@@ -131,6 +133,7 @@ function BinRequest() {
   */
   function _setLastCacheResponseOK(qs, payload, data) {
     const CACHE_TTL = 60 * 60; // 1 hour, in seconds
+    Logger.log("[cache-OK] Saving OK response to cache for "+CACHE_TTL+" seconds.");
     return BinCache().write("OK_"+qs+"_"+payload, data, CACHE_TTL);
   }
 
@@ -138,6 +141,7 @@ function BinRequest() {
   * Gets last OK response from cache.
   */
   function _getLastCacheResponseOK(qs, payload) {
+    Logger.log("[cache-OK] Getting OK response from cache.");
     return BinCache().read("OK_"+qs+"_"+payload);
   }
 
