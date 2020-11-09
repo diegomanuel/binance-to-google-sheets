@@ -19,7 +19,7 @@ Enjoy, cheers! :beers:
 
 ## How can I use it in my Google Spreadsheets?
 
-### If you AREN'T a developer
+### If you AREN'T a developer (not available yet, coming soon)
 
 Simple enough! Just download the **Binance to Google Sheets `add-on`** from within your desired spreadsheet using [Google Workspace Marketplace](https://gsuite.google.com/marketplace/search/binance%20to%20google%20sheets) and you are ready to go!  
 Follow these simple steps:
