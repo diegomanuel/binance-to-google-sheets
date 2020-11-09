@@ -1,7 +1,7 @@
 # https://developers.google.com/apps-script/guides/clasp
 
 # You can replace it with your own script ID so you can call `make apply` directly.
-export SCRIPT_ID="replace-me"
+export SCRIPT_ID=replace-me
 
 all: push
 	@cd ../binance-to-google-sheets-copies && ${MAKE}

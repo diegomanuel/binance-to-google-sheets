@@ -64,8 +64,15 @@ function showOpenOrders() {
   const ui = SpreadsheetApp.getUi();
   const data = BinDoOpenOrders().run();
   const formatted = (data||[]).reduce(function(out, row) {
-      row[0] = Utilities.formatDate(new Date(row[0]), "GMT", "MM-dd HH:mm");
-      return [row.join("\t"), ...out];
+      if (out.length > 0) {
+        row[0] = Utilities.formatDate(new Date(row[0]), "UTC", "MM-dd HH:mm");
+        row[row.length-1] = "$"+row[row.length-1];
+      }
+      out.push(row.join(" || "));
+      if (out.length === 1) {
+        out.push("-------------------------------------------------------------------------------------------------");
+      }
+      return out;
     }, [])
     .join("\n");
   ui.alert("Current open orders ("+data.length+")", formatted, ui.ButtonSet.OK);
