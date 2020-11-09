@@ -21,7 +21,7 @@ Enjoy, cheers! :beers:
 
 ### If you AREN'T a developer
 
-Simple enough! Just download the **Binance to Google Sheets `add-on`** from within your desired spreadsheet using [Google Workspace Marketplace](https://gsuite.google.com/u/1/marketplace/appfinder/category/works-with-spreadsheet) and you are ready to go!  
+Simple enough! Just download the **Binance to Google Sheets `add-on`** from within your desired spreadsheet using [Google Workspace Marketplace](https://gsuite.google.com/marketplace/search/binance%20to%20google%20sheets) and you are ready to go!  
 Follow these simple steps:
 
 1. With your desired `Google Spreadsheet` opened, go to `Add-ons -> Get add-ons`.
@@ -39,6 +39,7 @@ You will need [clasp](https://github.com/google/clasp) and [node](https://nodejs
     2. At the `Google Script` screen, go to `File -> Project properties`.
     3. The needed ID is the one under the `Script ID` label!
 4. Run the target `make apply SCRIPT_ID=my-script-id` replacing `my-script-id` with the ID obtained at point `3`.
+    * TIP: You can set your `SCRIPT_ID` at `export SCRIPT_ID="replace-me"` on `Makefile` so you can call `make apply` alone.
 5. Refresh/reload your Google Spreadsheet (hit `F5`) and voila!
 
 You can also do it **by hand**, manually copying each file content to your script source at [Google Scripts](https://script.google.com/) but it's a pain in _you-know-where_.
