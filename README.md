@@ -88,6 +88,9 @@ So far, these are the available operations:
 
 https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg
 
+<img src="img/screenshot-crypto-prices-list.png" alt="Binance to Google Sheets DEMO - Prices list" title="Binance to Google Sheets DEMO - Prices list" width="300"/>
+<img src="img/screenshot-crypto-24h-stats.png" alt="Binance to Google Sheets DEMO - 24h stats" title="Binance to Google Sheets DEMO - 24h stats" width="600"/>
+
 
 ## Some background: Why this tool had ever to come alive?!
 
