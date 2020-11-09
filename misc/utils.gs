@@ -9,6 +9,7 @@ function BinUtils() {
     getScriptLock,
     getUserLock,
     getRangeOrCell,
+    parsePrice,
     filterTickerSymbol,
     sortResults,
     obscureSecret,
@@ -57,6 +58,15 @@ function BinUtils() {
    */
   function getRangeOrCell(range_or_cell) {
     return typeof range_or_cell == "string" ? [range_or_cell] : range_or_cell;
+  }
+
+  /**
+   * Returns a given price as a float number or "?" if it's wrong
+   * NOTE: Only makes sense to pass prices > 0 because a $0 price will produce "?"
+   * And besides.. nothing worths $0 right? nothing's free! (except this script, of course =)
+   */
+  function parsePrice(price) {
+    return (parseFloat(price) || "?");
   }
 
   /**

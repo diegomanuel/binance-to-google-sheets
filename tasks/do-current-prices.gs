@@ -45,12 +45,12 @@ function BinDoCurrentPrices(options) {
     const header = [["Symbol", "Price"]];
     const tickers = symbol_or_range ? BinUtils().filterTickerSymbol(data, symbol_or_range, ticker_against) : data;
     if (typeof symbol_or_range == "string") { // A single value to return
-      return tickers && tickers[0] ? parseFloat(tickers[0].price) : "?";
+      return BinUtils().parsePrice(((tickers||[{}])[0]||{}).price);
     }
 
     // Multiple rows to return
     const parsed = tickers.reduce(function(rows, ticker) {
-      const price = parseFloat(ticker.price);
+      const price = BinUtils().parsePrice(ticker.price);
       const row = symbol_or_range ? price : [ticker.symbol, price];
       rows.push(row);
       return rows;

@@ -62,9 +62,9 @@ function BinDoDoneOrders(options) {
     const output = [["#ID", "Date", "Pair", "Side", "Price", "Amount", "Commission", "Total"]];
     const parsed = data.reduce(function(rows, order) {
       const symbol = order.symbol;
-      const price = parseFloat(order.price);
+      const price = BinUtils().parsePrice(order.price);
       const amount = parseFloat(order.qty);
-      const commission = parseFloat(order.commission);
+      const commission = BinUtils().parsePrice(order.commission);
       const row = [
         order.orderId,
         new Date(parseInt(order.time)),

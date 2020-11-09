@@ -58,7 +58,7 @@ function BinDoOpenOrders(options) {
     const output = [["Date", "Pair", "Type", "Side", "Price", "Amount", "Executed", "Total"]];
     const parsed = data.reduce(function(rows, order) {
       const symbol = order.symbol;
-      const price = parseFloat(order.price);
+      const price = BinUtils().parsePrice(order.price);
       const amount = parseFloat(order.origQty);
       const row = [
         new Date(parseInt(order.time)),
