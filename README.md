@@ -2,11 +2,16 @@
 
 A lightweight **Google Spreadsheets** `add-on` to GET data <u>directly</u> from **Binance API** without any intermediaries!
 
-You can get  directly in your spreadsheet, by using the `BINANCE()` formula, data from Binance API like current crypto prices, 24h stats, open/done orders, and many more to come!
+You can get directly in your spreadsheet, by using the `BINANCE()` formula, data fetched from Binance API like:  
+* Current crypto prices
+* 24h stats
+* Open and Done orders
+* Last update time
+* ..and many more to come!
 
 It <u>only</u> requires **Binance API keys** for open/finished orders listing, but a **READ-ONLY** API key from Binance is enough for everything to work.  
 In deed, I _personally recommend_ to generate <u>READ-ONLY</u> API key at Binance site.  
-It does <u>NOT</u> need write/trade access <u>in any way</u> to properly work with **ALL** its features!
+It does <u>NOT</u> need write/trade access <u>in any way</u> to properly work with **ALL** its features!  
 
 I think and hope that many of you will find it as useful as it is for myself.  
 Enjoy, cheers! :beers:
