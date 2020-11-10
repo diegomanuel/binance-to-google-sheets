@@ -82,7 +82,12 @@ function BinUtils() {
         tickers[crypto+ticker_against] = "?";
         return tickers;
       }, {});
-    const results = (data||[]).reduce(function(tickers, ticker) {
+    if (DEBUG) {
+      Logger.log("TICKERS: "+JSON.stringify(tickers));
+    }
+
+    const data_array = Array.isArray(data) ? data : (data ? [data] : []);
+    const results = data_array.reduce(function(tickers, ticker) {
       if (tickers[ticker.symbol] !== undefined) {
         tickers[ticker.symbol] = ticker;
       }

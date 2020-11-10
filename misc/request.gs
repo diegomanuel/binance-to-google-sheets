@@ -30,6 +30,9 @@ function BinRequest() {
       }
     } else {
       Logger.log("FOUND CACHE entry!");
+      if (opts["filter"]) { // Apply custom data filtering before storing into cache
+        data = opts["filter"](data);
+      }
     }
     
     return data;

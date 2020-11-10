@@ -37,7 +37,7 @@ function BinDo24hStats(options) {
       "public": true,
       "no_cache_ok": true,
       "filter": function(data) {
-        return BinUtils().filterTickerSymbol(data, range_or_cell, ticker_against||TICKER_AGAINST);
+        return BinUtils().filterTickerSymbol(data, range_or_cell, ticker_against);
       }
     };
     const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/ticker/24hr", "", "", opts);
@@ -54,6 +54,13 @@ function BinDo24hStats(options) {
   function parse(data) {
     const output = [["Date", "Symbol", "Price", "Ask", "Bid", "Open", "High", "Low", "Prev Close", "$ Change 24h", "% Change 24h", "Volume"]];
     const parsed = data.reduce(function(rows, ticker) {
+      if (ticker === "?") {
+        rows.push(output[0].map(function() {
+          return "?";
+        }));
+        return rows;
+      }
+
       const symbol = ticker.symbol;
       const price = BinUtils().parsePrice(ticker.lastPrice);
       const ask_price = BinUtils().parsePrice(ticker.askPrice);

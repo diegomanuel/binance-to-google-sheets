@@ -29,15 +29,11 @@ function BinDoOpenOrders(options) {
       return run(symbol);
     }
     
-    const opts = {
-      "filter": !symbol ? null : function(data) {
-        return filter(data, symbol);
-      }
-    };
+    const opts = {};
     const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/openOrders", "", "", opts);
   
     lock.releaseLock();
-    const parsed = parse(data);
+    const parsed = parse(symbol ? filter(data, symbol) : data);
     Logger.log("[BinDoOpenOrders] Done!");
     return parsed;
   }

@@ -74,6 +74,7 @@ So far, these are the available operations:
 * `=BINANCE("last_update")` will return the timestamp of the last request to Binance API (**public**, no API keys needed).
 * `=BINANCE("prices")` will return a list with the latest ticker prices from Binance (**public**, no API keys needed).
     * `=BINANCE("prices", "BTC", "USDT")` Optionally you can give a ticker to just return its price.
+    * `=BINANCE("prices", A1:A3)` Optionally you can give a ticker range to return a list of prices.
 * `=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance (**public**, no API keys needed).
     * A single value or a range of values is required. Range values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
     * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to compare (defaults to `USDT`).
@@ -86,6 +87,7 @@ So far, these are the available operations:
 
 ## See it working live!
 
+A spreadsheet example using the `BINANCE()` formula:  
 https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg
 
 <img src="img/screenshot-crypto-prices-list.png" alt="Binance to Google Sheets DEMO - Prices list" title="Binance to Google Sheets DEMO - Prices list" width="400"/>

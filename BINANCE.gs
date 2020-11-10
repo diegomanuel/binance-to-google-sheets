@@ -52,7 +52,7 @@ function BINANCE(operation, range_or_cell, additional_opts, force_refresh_cell) 
     return BinDo24hStats().run(range_or_cell, additional_opts);
   }
   if (operation == BinDoDoneOrders().tag()) {
-    return BinDoDoneOrders().run(range_or_cell);
+    return BinDoDoneOrders().run(range_or_cell, additional_opts);
   }
   if (operation == BinDoOpenOrders().tag()) {
     return BinDoOpenOrders().run(range_or_cell);

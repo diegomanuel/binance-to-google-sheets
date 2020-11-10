@@ -22,19 +22,20 @@ function BinDoDoneOrders(options) {
    * @param ["BTC","ETH"..] range If given, returns just the matching symbols stats.
    * @return The list of all current open orders for all symbols/tickers.
    */
-  function run(range_or_cell) {
+  function run(range_or_cell, ticker_against) {
     Logger.log("[BinDoDoneOrders] Running..");
+    if (!range_or_cell) {
+      throw new Error("A range with crypto names must be given!");
+    }
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
       return run(range_or_cell);
     }
     
-    const opts = {
-      "filter": filter
-    };
+    const opts = {};
     const range = BinUtils().getRangeOrCell(range_or_cell);
     const data = (range||[]).reduce(function(rows, crypto) {
-      const qs = "symbol="+crypto+TICKER_AGAINST;
+      const qs = "symbol="+crypto+(ticker_against||TICKER_AGAINST);
       Utilities.sleep(200); // Add some waiting time to avoid 418 responses!
       const crypto_data = BinRequest().cache(CACHE_TTL, "get", "api/v3/myTrades", qs, "", opts);
       return [...crypto_data, ...rows];
@@ -44,15 +45,6 @@ function BinDoDoneOrders(options) {
     const parsed = parse(data);
     Logger.log("[BinDoDoneOrders] Done!");
     return parsed;
-  }
-  
-  /**
-   * @OnlyCurrentDoc
-   */
-  function filter(data) {
-    return data.filter(function(order) {
-      return true; // No filtering so far..
-    });
   }
   
   /**
