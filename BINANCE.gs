@@ -15,20 +15,23 @@ const TICKER_AGAINST = "USDT"; // @TODO Give support to configure this!
  * Initialization on document open.
  */
 function onOpen(event) {
-  BinMenu(SpreadsheetApp.getUi());
-  BinSetup().configTrigger(); // Automatically keep the prices updated!
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
+  const auth_mode = event && event.authMode ? event.authMode : ScriptApp.AuthMode.NONE;
+  BinMenu(SpreadsheetApp.getUi(), auth_mode); // Add items to main menu
+  if (BinUtils().isAuthEnough(auth_mode)) {
+    BinSetup().configTrigger(); // Automatically keep the formulas updated!
+  }
+
   Logger.log("Welcome to 'Binance to Google Sheets' by Diego Manuel, enjoy!  =]");
-  BinUtils().toast("I just started working at this spreadsheet. Enjoy it!  =]");
 }
 
 /**
  * Initialization on add-on install.
  */
 function onInstall(event) {
-  Logger.log("Installing 'Binance to Google Sheets'..");
+  Logger.log("Binance to Google Sheets was installed!");
   onOpen(event);
 }
 

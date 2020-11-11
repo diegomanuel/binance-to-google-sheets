@@ -13,6 +13,7 @@ function BinUtils() {
     filterTickerSymbol,
     sortResults,
     obscureSecret,
+    isAuthEnough,
     toast
   };
   
@@ -126,13 +127,20 @@ function BinUtils() {
   }
 
   /**
+   * Returns true is the current auth mode is enough to the add-on requirements
+   */
+  function isAuthEnough(auth_mode) {
+    return auth_mode === ScriptApp.AuthMode.FULL || auth_mode === ScriptApp.AuthMode.LIMITED;
+  }
+
+  /**
    * Displays a toast message on screen
    */
   function toast(body, title, timeout) {
     return SpreadsheetApp.getActive().toast(
       body,
       title || "Binance to Google Sheets",
-      timeout || 10
+      timeout || 10 // In seconds
     );
   }
 }

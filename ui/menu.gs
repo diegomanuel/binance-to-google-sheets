@@ -1,33 +1,60 @@
 /**
  * Adds menu items under "Binance" at main menu.
  */
-function BinMenu(ui) {
+function BinMenu(ui, auth_mode) {
   /**
    * Adds the menu items to spreadsheet's main menu
    */
   function addMenuItems(menu) {
-    menu.addItem("Show API Last Update", "showAPILastUpdate")
-        .addSeparator()
-        .addItem("Show Current Prices", "showCurrentPrices");
-    if (BinSetup().areAPIKeysConfigured()) {
-      menu.addItem("Show Open Orders", "showOpenOrders")
-          .addSeparator()
-          .addItem("Show API Keys", "showAPIKeys")
-          .addItem("Re-configure API Keys", "showAPIKeysSetup")
-          .addItem("Clear API Keys", "showAPIKeysClear")
-    } else {
-      menu.addSeparator()
-          .addItem("Configure API Keys", "showAPIKeysSetup")
+    const is_auth_enough = BinUtils().isAuthEnough(auth_mode);
+
+    if (!is_auth_enough) { // Script is not authorized
+      menu.addItem("Enable BINANCE() formula", "showEnableFull")
+          .addSeparator();
     }
-    menu.addSeparator()
-        .addItem("Credits!", "showCredits")
-        .addItem("Donate  =]", "showDonate");
+    menu.addItem("Show API Last Update", "showAPILastUpdate")
+        .addItem("Show Current Prices", "showCurrentPrices");
+    if (is_auth_enough) { // Script is installed and authorized
+      if (BinSetup().areAPIKeysConfigured()) {
+        menu.addItem("Show Open Orders", "showOpenOrders")
+            .addSeparator()
+            .addItem("Show API Keys", "showAPIKeys")
+            .addItem("Re-configure API Keys", "showAPIKeysSetup")
+            .addItem("Clear API Keys", "showAPIKeysClear")
+      } else {
+        menu.addSeparator()
+            .addItem("Configure API Keys", "showAPIKeysSetup")
+      }
+      menu.addSeparator()
+          .addItem("Credits!", "showCredits")
+          .addItem("Donate  =]", "showDonate");
+    }
     
-    return menu.addToUi();
+    menu.addToUi(); // Add resultant menu items to the spreadsheet main menu
+
+    if (is_auth_enough) { // Show welcome/acknownledge toast
+      BinUtils().toast("I just started working at this spreadsheet. Enjoy it!  =]");
+    } else if (auth_mode !== ScriptApp.AuthMode.NONE) { // Show enable/authorize toast
+      BinUtils().toast("The BINANCE() formula  WON'T be available until you **enable and authorize** the add-on.", "", 30);
+    }
   }
   
   addMenuItems(ui.createMenu("Binance"));
   addMenuItems(ui.createAddonMenu());
+}
+
+/**
+ * Displays a modal to tell the user to enable/authorize the add-on.
+ */
+function showEnableFull() {
+  const ui = SpreadsheetApp.getUi();
+  ui.alert("Enable Binance to Google Sheets!",
+           "You first need to **enable and authorize** the add-on in order to\n"+
+           "get the 'BINANCE()' formula available on this spreadsheet.\n"+
+           "\n"+
+           "Unlock the power and enjoy!\n"+
+           "Diego"
+           ,ui.ButtonSet.OK);
 }
 
 /**

@@ -137,20 +137,21 @@ function BinSetup() {
    * Configs a trigger to automatically have the data updated.
    */
   function configTrigger() {
-    // First, deletes all triggers in the current project
+    // Time-based triggers config
+    const triggers = {"doRefresh1m": 1, "doRefresh5m": 5};
+
+    // First, deletes all triggers in the current project that belongs to this add-on
     ScriptApp.getProjectTriggers().map(function(trigger) {
-      return ScriptApp.deleteTrigger(trigger);
+      return triggers[trigger.getHandlerFunction()] ? ScriptApp.deleteTrigger(trigger) : false;
     });
 
     // Create triggers again
-    ScriptApp.newTrigger("doRefresh1m")
-      .timeBased()
-      .everyMinutes(1)
-      .create();
-    ScriptApp.newTrigger("doRefresh5m")
-      .timeBased()
-      .everyMinutes(5)
-      .create();
+    return Object.keys(triggers).map(function(func) {
+      return ScriptApp.newTrigger(func)
+        .timeBased()
+        .everyMinutes(triggers[func])
+        .create();
+    });
   }
 
   /**
