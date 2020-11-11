@@ -117,7 +117,7 @@ It will just **retrieve** useful Binance data for your enjoyment in your spreads
 I'm not responsible for your private usage of this tool, although it will never cause you any problems!  
 Therefore, you will agree upon your own fully responsibility at the very moment you start using this tool.
 
-**NOTE:** If you have any concerns, please feel free to open a ticket in the [issues](/issues) section or email me.
+**NOTE:** If you have any concerns, please feel free to open a ticket in the [issues](https://github.com/diegomanuel/binance-to-google-sheets/issues) section or email me.
 
 
 ### Privacy Policy
@@ -131,7 +131,7 @@ The script, and in the end, myself, don't need/want/wish any personal informatio
 **I am firmly committed to honor this pact from now and forever!**
 
 **NOTE:** This is an _open-source_ project, so you will always be available to keep and eye to the code and audit it.  
-If you have any concerns, please feel free to open a ticket in the [issues](/issues) section or email me.
+If you have any concerns, please feel free to open a ticket in the [issues](https://github.com/diegomanuel/binance-to-google-sheets/issues) section or email me.
 
 
 ### Terms of Service
@@ -145,7 +145,7 @@ You may also remove your Binance API key anytime and just use the public endpoin
 Requests to Binance API from your spreadsheets are made from your Google account on your behalf.  
 No other service acts as an intermediary between your Google spreadsheet and Binance!
 
-**NOTE:** If you have any concerns, please feel free to open a ticket in the [issues](/issues) section or email me.
+**NOTE:** If you have any concerns, please feel free to open a ticket in the [issues](https://github.com/diegomanuel/binance-to-google-sheets/issues) section or email me.
 
 
 ## Binance Account
