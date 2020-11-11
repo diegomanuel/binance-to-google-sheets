@@ -152,13 +152,12 @@ function showCredits() {
                "So I decided to write my own code, all from scratch, with only my will and my javascript knownledge aboard..\n"+
                "..and I was sooo happy with the results that I simply decided to share it to the world!\n"+
                "\n"+
-               "It only requires Binance API keys for open/finished orders list, but a READ-ONLY API key from Binance is enough for everything to work.\n"+
-               "In deed, I personally recommend to generate READ-ONLY API key at Binance site.\n"+
-               "It does NOT NEED write/trade access in any way to properly work with ALL its features!\n"+
+               "It only requires a Binance API key for open/done orders lists, but a READ-ONLY API key is enough for everything to work.\n"+
+               "In deed, I personally recommend to generate a READ-ONLY API key at Binance site.\n"+
+               "It does NOT need write/trade access in ANY way to properly work with all its features!\n"+
                "\n"+
                "\n"+
-               "This script intention will always be to fetch data from Binance API, so just read-only access is enough for good.  =]\n"+
-               "So, I think and hope that many of you will find it as useful as it is for myself.\n"+
+               "I think and hope that many of you will find it as useful as it is for myself.\n"+
                "\n"+
                "Enjoy, cheers!";
   ui.alert(title, body, ui.ButtonSet.OK);

@@ -1,17 +1,19 @@
 # Binance to Google Sheets!
 
-A lightweight **Google Spreadsheets** `add-on` to GET data <u>directly</u> from **Binance API** without any intermediaries!
+A lightweight **Google Spreadsheets** `add-on` to GET data _directly_ from **Binance API** without any intermediaries!
 
-You can get directly in your spreadsheet, by using the `BINANCE()` formula, data fetched from Binance API like:  
+This `add-on` is basically an **API client** specially hand-crafted to work between Google Spreadsheets and Binance.  
+By using the `BINANCE()` formula in your spreadsheet, you can get data fetched from Binance API like:  
 * Current crypto prices
 * 24h stats
 * Open and Done orders
 * Last update time
 * ..and many more to come!
 
-It <u>only</u> requires **Binance API keys** for open/finished orders listing, but a **READ-ONLY** API key from Binance is enough for everything to work.  
-In deed, I _personally recommend_ to generate <u>READ-ONLY</u> API key at Binance site.  
-It does <u>NOT</u> need write/trade access <u>in any way</u> to properly work with **ALL** its features!  
+At first glance, **NO Binance API key** is needed to call public endpoints like current crypto prices and 24h stats.  
+It **only** requires a [Binance API key](#binance-api-key) for open/done orders lists, but a **READ-ONLY** API key is enough for everything to work.  
+In deed, I _personally recommend_ to generate a **READ-ONLY** API key at Binance site [here](https://www.binance.com/en/usercenter/settings/api-management).  
+It does **NOT need** write/trade access **in ANY way** to properly work with all its features, so don't give extra permissions if they aren't needed!
 
 I think and hope that many of you will find it as useful as it is for myself.  
 Enjoy, cheers! :beers:
@@ -45,9 +47,9 @@ You will need [clasp](https://github.com/google/clasp) and [node](https://nodejs
 You can also do it **by hand**, manually copying each file content to your script source at [Google Scripts](https://script.google.com/) but it's a pain in _you-know-where_.
 
 
-### Binance API Keys
+### Binance API Key
 
-Only needed if you **also want** to have pending and done orders listing working in your spreadsheet.  
+Only needed if you **also want** to have open/pending and done/finished orders listing working in your spreadsheet.  
 To get your keys, go to [Binance API panel](https://www.binance.com/en/usercenter/settings/api-management) and create a new one:
 
 1. Enter a label like `Binance to Google Sheets` and click the `Create` button.
@@ -63,7 +65,7 @@ Once you have the `add-on` already installed/enabled on your desired Google Spre
 2. Set your `API Key` and click `OK`. Do the same for `API Secret Key`.
 3. Voila, you are ready to go!
 
-**NOTE:** You can remove or re-configure them at any time from the `Binance` main menu item.
+**NOTE:** You can remove or re-configure them at any time from the `Binance` main menu item in your spreadsheet.
 
 
 ## OK, I have it installed! How do I use it at my spreadsheet?
@@ -84,6 +86,8 @@ So far, these are the available operations:
 * `=BINANCE("orders/open")` will return a list with all your pending BUY/SELL orders from Binance (**private**, API keys required).
 * `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
 
+**NOTE:** Check the `Examples` sheet in the [live DEMO](https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg/edit#gid=1522299933)  spreadsheet for more details.
+
 
 ## See it working live!
 
@@ -96,26 +100,52 @@ https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LL
 
 ## Some background: Why this tool had ever to come alive?!
 
-
 I needed a way to have Binance data directly available at my Google Spreadsheet.  
 First, I've looked for several existing solutions, but none provided me the _freedom_ and _confidence_ that I wanted for this kind of _delicate_ stuff (you know what I mean, right? =)  
 So I decided to write my own code, all from scratch, with only my will and my javascript knownledge aboard..  
 ..and I was sooo happy with the results that I simply decided to share it to the world! :tada:
 
 
-## Disclaimer - Terms of Service - Privacy Policy
+## Disclaimer
 
 I'm just a guy that uses both services and wanted to have **Binance** data available at my personal **Google Spreadsheet**.  
-I did it for myself and I liked it so much, that I decided to share it to the world so anyone can use it!
+I did it for myself and I liked it so much, that I decided to share it so anyone can use it!
 
-The script only needs **READ** access keys to **Binance API**, so there is <u>no security concerns</u> about what the script is able to do at Binance in your behalf.  
-It will just **retrieve** useful Binance data for your enjoyment in your spreadsheets!  =]
+The script only needs **READ** access keys to **Binance API**, so there is **no security concerns** about what the script is able to do at Binance in your behalf.  
+It will just **retrieve** useful Binance data for your enjoyment in your spreadsheets.  =]
 
-I'm not responsible for your private usage of this tool, although it will never cause you any trouble.
+I'm not responsible for your private usage of this tool, although it will never cause you any problems!  
+Therefore, you will agree upon your own fully responsibility at the very moment you start using this tool.
 
-No data collect is done in any way, that's why this `add-on` doesn't require any _"controversial"_ permission from your side.  
-The only _sensitive scope_ provided by Google is:
-* `script.external_request`	:: Needed to **connect to Binance API** to bring data (using only GET requests).
+**NOTE:** If you have any concerns, please feel free to open a ticket in the [issues](issues) section or email me.
+
+
+### Privacy Policy
+
+No personal data collect and/or usage is done in any way, that's why this `add-on` doesn't require any _"controversial"_ permission from your side.  
+The only _sensitive scopes_ according to **Google** are:
+* `script.external_request` :: Needed to **fetch data from Binance API** into the spreadsheet (GET requests only).
+* `script.scriptapp` :: Needed to **install and run 2 triggers** to keep data updated in the spreadsheet (every 1 and 5 minutes).
+
+The script, and in the end, myself, don't need/want/wish any personal information like name, email and so on.  
+**I am firmly committed to honor this pact from now and forever!**
+
+**NOTE:** This is an _open-source_ project, so you will always be available to keep and eye to the code and audit it.  
+If you have any concerns, please feel free to open a ticket in the [issues](issues) section or email me.
+
+
+### Terms of Service
+
+**This is not a service.** There is no contract nor obligations between the code/myself and you.  
+The only commitment on my behalf is regarding to no personal data usage in any way.
+
+Only **you** decide when and how to use this tool. You can remove the `add-on` anytime like any other add-on.  
+You may also remove your Binance API key anytime and just use the public endpoints.
+
+Requests to Binance API from your spreadsheets are made from your Google account on your behalf.  
+No other service acts as an intermediary between your Google spreadsheet and Binance!
+
+**NOTE:** If you have any concerns, please feel free to open a ticket in the [issues](issues) section or email me.
 
 
 ## Binance Account
