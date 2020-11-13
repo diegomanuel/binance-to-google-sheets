@@ -1,6 +1,6 @@
 # Binance to Google Sheets!
 
-A lightweight **Google Spreadsheets** `add-on` to GET data _directly_ from **Binance API** without any intermediaries!
+A lightweight **Google Spreadsheets** `add-on` to GET data _directly_ from **Binance API** _without_ any intermediaries!
 
 This `add-on` is basically an **API client** specially hand-crafted to work between Google Spreadsheets and Binance.  
 By using the `BINANCE()` formula in your spreadsheet, you can get data fetched from Binance API like:  
@@ -23,7 +23,7 @@ Enjoy, cheers! :beers:
 
 ### If you AREN'T a developer (not available yet, coming soon)
 
-Simple enough! Just download the **Binance to Google Sheets `add-on`** from within your desired spreadsheet using [Google Workspace Marketplace](https://gsuite.google.com/marketplace/search/binance%20to%20google%20sheets) and you are ready to go!  
+Simple enough! Just install the **Binance to Google Sheets `add-on`** from within your desired spreadsheet using [Google Workspace Marketplace](https://gsuite.google.com/marketplace/search/binance%20to%20google%20sheets) and you are ready to go!  
 Follow these simple steps:
 
 1. With your desired `Google Spreadsheet` opened, go to `Add-ons -> Get add-ons`.
@@ -59,7 +59,7 @@ To get your keys, go to [Binance API panel](https://www.binance.com/en/usercente
     2. Under `IP access restrictions` select `Unrestricted`.
 4. Click the `Save` button and now you have to configure them on your spreadsheet!
 
-Once you have the `add-on` already installed/enabled on your desired Google Spreadsheet, the main menu item `Binance` should have appeared at the rightmost position at your spreadsheet's screen.
+Once you have the `add-on` already installed/enabled on your desired Google Spreadsheet, the main menu item `Binance` should have appeared at the rightmost position.
 
 1. At spreadsheet's main menu, go to `Binance -> Configure API Keys`.
 2. Set your `API Key` and click `OK`. Do the same for `API Secret Key`.
@@ -78,12 +78,13 @@ So far, these are the available operations:
     * `=BINANCE("prices", "BTC", "USDT")` Optionally you can give a ticker to just return its price.
     * `=BINANCE("prices", A1:A3)` Optionally you can give a ticker range to return a list of prices.
 * `=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance (**public**, no API keys needed).
-    * A single value or a range of values is required. Range values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-    * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to compare (defaults to `USDT`).
+    * A single value or a range of values is required. Values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
 * `=BINANCE("orders/done", A1:A3)` will return a list with your latest finished BUY/SELL orders for given symbols from Binance (**private**, API keys required).
-    * A range of values is required. Range values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-    * They will be always compared against `USDT`! Other pairs like `BTCETH` coming soon.
+    * A single value or a range of values is required. Values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
 * `=BINANCE("orders/open")` will return a list with all your pending BUY/SELL orders from Binance (**private**, API keys required).
+    * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a full ticker to filter the results.
 * `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
 
 **NOTE:** Check the `Examples` sheet in the [live DEMO](https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg/edit#gid=1522299933)  spreadsheet for more details.
