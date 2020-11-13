@@ -51,7 +51,7 @@ function BinDoDoneOrders(options) {
    * @OnlyCurrentDoc
    */
   function parse(data) {
-    const output = [["#ID", "Date", "Pair", "Side", "Price", "Amount", "Commission", "Total"]];
+    const output = [["#ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"]];
     const parsed = data.reduce(function(rows, order) {
       const symbol = order.symbol;
       const price = BinUtils().parsePrice(order.price);
@@ -61,6 +61,7 @@ function BinDoDoneOrders(options) {
         order.orderId,
         new Date(parseInt(order.time)),
         symbol,
+        order.isMaker ? "LIMIT" : "STOP-LIMIT",
         order.isBuyer ? "BUY" : "SELL",
         price,
         amount,
