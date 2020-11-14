@@ -145,13 +145,23 @@ function BinSetup() {
       return triggers[trigger.getHandlerFunction()] ? ScriptApp.deleteTrigger(trigger) : false;
     });
 
-    // Create triggers again
-    return Object.keys(triggers).map(function(func) {
-      return ScriptApp.newTrigger(func)
-        .timeBased()
-        .everyMinutes(triggers[func])
-        .create();
-    });
+    try { // Create triggers again
+      return Object.keys(triggers).map(function(func) {
+        return ScriptApp.newTrigger(func)
+          .timeBased()
+          .everyMinutes(triggers[func])
+          .create();
+      });
+    } catch (err) {
+      if (err.message.match(/trigger must be at least one hour/i)) {
+        Logger.log("[configTrigger] Can't create 1m and/or 5m triggers! => Fallback to 1h..");
+        return ScriptApp.newTrigger("doRefresh1h")
+          .timeBased()
+          .everyHours(1)
+          .create();
+      }
+      throw(err);
+    }
   }
 
   /**
@@ -240,4 +250,10 @@ function doRefresh5m(event) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
   BinSetup().forceRefreshSheetFormulas("5m");
+};
+function doRefresh1h(event) {
+  if (DEBUG) {
+    Logger.log("EVENT: "+JSON.stringify(event));
+  }
+  BinSetup().forceRefreshSheetFormulas(); // Refresh'em all!
 };
