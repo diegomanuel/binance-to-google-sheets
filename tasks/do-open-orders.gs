@@ -3,9 +3,7 @@
  *
  * @OnlyCurrentDoc
  */
-function BinDoOpenOrders(options) {
-  // Sanitize options
-  options = options || {};
+function BinDoOpenOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
 
@@ -20,7 +18,7 @@ function BinDoOpenOrders(options) {
    * Returns current open oders.
    *
    * @param {"BTCUSDT|..."} symbol If given, returns just the matching symbol open orders.
-   * @return The list of all current open orders for all symbols/tickers.
+   * @return The list of all current open orders for all or given symbol/ticker.
    */
   function run(symbol) {
     Logger.log("[BinDoOpenOrders] Running..");

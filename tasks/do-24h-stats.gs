@@ -3,9 +3,7 @@
  *
  * @OnlyCurrentDoc
  */
-function BinDo24hStats(options) {
-  // Sanitize options
-  options = options || {};
+function BinDo24hStats() {
   const CACHE_TTL = 60 * 60 * 4; // 4 hours, in seconds
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
 
@@ -19,9 +17,9 @@ function BinDo24hStats(options) {
   /**
    * Returns the 24hs stats list against USDT.
    *
-   * @param {"BTC|..."} range_or_cell If given, returns just the matching symbol price or range prices. If not given, returns all the prices.
-   * @param ticker_against Ticker to match against
-   * @return The list of 24hs stats for given symbols against USDT.
+   * @param {["BTC","ETH"..]} range_or_cell If given, returns just the matching symbol price or range prices. If not given, returns all the prices.
+   * @param ticker_against Ticker to match against (USDT by default)
+   * @return The list of 24hs stats for given symbols
    */
   function run(range_or_cell, ticker_against) {
     Logger.log("[BinDo24hStats] Running..");
@@ -30,7 +28,7 @@ function BinDo24hStats(options) {
     }
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(range_or_cell);
+      return run(range_or_cell, ticker_against);
     }
   
     const opts = {
@@ -43,7 +41,7 @@ function BinDo24hStats(options) {
     const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/ticker/24hr", "", "", opts);
   
     lock.releaseLock();
-    const parsed = parse(data);
+    const parsed = parse(data, range_or_cell);
     Logger.log("[BinDo24hStats] Done!");
     return parsed;
   }
@@ -51,7 +49,7 @@ function BinDo24hStats(options) {
   /**
    * @OnlyCurrentDoc
    */
-  function parse(data) {
+  function parse(data, range_or_cell) {
     const output = [["Date", "Symbol", "Price", "Ask", "Bid", "Open", "High", "Low", "Prev Close", "$ Change 24h", "% Change 24h", "Volume"]];
     const parsed = data.reduce(function(rows, ticker) {
       if (ticker === "?") {
@@ -90,7 +88,7 @@ function BinDo24hStats(options) {
       return rows;
     }, output);
 
-    return BinUtils().sortResults(parsed, 1, false);
+    return range_or_cell ? parsed : BinUtils().sortResults(parsed, 1, false);
   }
 
   /**

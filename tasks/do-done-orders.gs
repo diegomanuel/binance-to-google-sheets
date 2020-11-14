@@ -3,9 +3,7 @@
  *
  * @OnlyCurrentDoc
  */
-function BinDoDoneOrders(options) {
-  // Sanitize options
-  options = options || {};
+function BinDoDoneOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
 
@@ -19,8 +17,9 @@ function BinDoDoneOrders(options) {
   /**
    * Returns all account orders: active, canceled, or filled.
    *
-   * @param ["BTC","ETH"..] range If given, returns just the matching symbols stats.
-   * @return The list of all current open orders for all symbols/tickers.
+   * @param {["BTC","ETH"..]} range_or_cell If given, returns just the matching symbols stats.
+   * @param ticker_against Ticker to match against (USDT by default)
+   * @return The list of all current open orders for all or given symbols/tickers.
    */
   function run(range_or_cell, ticker_against) {
     Logger.log("[BinDoDoneOrders] Running..");
@@ -29,7 +28,7 @@ function BinDoDoneOrders(options) {
     }
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(range_or_cell);
+      return run(range_or_cell, ticker_against);
     }
     
     const opts = {};

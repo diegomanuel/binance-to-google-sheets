@@ -3,9 +3,7 @@
  *
  * @OnlyCurrentDoc
  */
-function BinDoCurrentPrices(options) {
-  // Sanitize options
-  options = options || {};
+function BinDoCurrentPrices() {
   const CACHE_TTL = 55; // In seconds
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
 
@@ -19,15 +17,15 @@ function BinDoCurrentPrices(options) {
   /**
    * Returns current market prices.
    *
-   * @param {"BTC|..."} symbol_or_range If given, returns just the matching symbol price or range prices. If not given, returns all the prices.
-   * @param ticker_against Ticker to match against
-   * @return The list of current prices for all symbols/tickers.
+   * @param {["BTC","ETH"..]} symbol_or_range If given, returns just the matching symbol price or range prices. If not given, returns all the prices.
+   * @param ticker_against Ticker to match against (USDT by default)
+   * @return The list of current prices for all or given symbols/tickers.
    */
   function run(symbol_or_range, ticker_against) {
     Logger.log("[BinDoCurrentPrices] Running..");
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(symbol_or_range);
+      return run(symbol_or_range, ticker_against);
     }
 
     const opts = {"public": true};

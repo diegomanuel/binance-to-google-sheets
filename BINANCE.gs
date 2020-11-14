@@ -39,8 +39,9 @@ function onInstall(event) {
  * Main function that acts as a wrapper.
  *
  * @param operation The operation tag to call.
- * @param range_or_cell A range of cells or a single sell or value
- * @param force_refresh_cell Cells are automatically refreshed, but you can force it by passing any value here.
+ * @param range_or_cell A range of cells or a single cell or a literal/string value.
+ * @param additional_opts Additional options like the symbol/ticker to match against (depending the called operation).
+ * @param force_refresh_cell Cells are automatically refreshed, but you can force it by passing any changing value here.
  * @return Depends on the func given.
  * @customfunction
  */
