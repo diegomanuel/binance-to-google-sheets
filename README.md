@@ -21,6 +21,11 @@ Enjoy, cheers! :beers:
 
 ## How can I use it in my Google Spreadsheets?
 
+First of all, open your desired Google Spreadsheet and configure it properly:
+1. Go to `File -> Spreadsheet settings`.
+2. Under the `Calculation` tab set the `Recalculation` combobox to `On change and every minute`.
+3. Hit `Save settings` button and that's it!
+
 ### If you AREN'T a developer (not available yet, coming soon)
 
 Simple enough! Just install the **Binance to Google Sheets `add-on`** from within your desired spreadsheet using [Google Workspace Marketplace](https://gsuite.google.com/marketplace/search/binance%20to%20google%20sheets) and you are ready to go!  
@@ -30,21 +35,27 @@ Follow these simple steps:
 2. Search for `Binance to Google Sheets` and click on it once found.
 3. Click the `Install` button and voila!
 
+**IMPORTANT:** This type of installation does **NOT** allow to keep data _automatically_ updated in less than `1 hour` because of Google's policies for add-ons!  
+**NOTE:** The installation mode bellow **DOES** allow to have `1` and `5` minutes triggers properly configured and running.
+
 ### If you ARE a developer
 
-You will need [clasp](https://github.com/google/clasp) and [node](https://nodejs.org) in order to apply the `add-on` to your Google Spreadsheet.  
+You will need [node](https://nodejs.org) and [clasp](https://github.com/google/clasp) in order to apply the `add-on` to your Google Spreadsheets.  
 
-1. Install `node` and `clasp`.
-2. Clone the `repo` at your local computer.
+1. Install `node` and `clasp` following their simple setup guides.
+2. Clone the `repo` and login to your Google account with `clasp` by running: `clasp login`.
 3. Get the `Script ID` for your desired Google Spreadsheet.
-    1. At your `Google Spreadsheet` screen, go to `Tools -> Script editor`.
+    1. With your `Google Spreadsheet` open, go to `Tools -> Script editor`.
     2. At the `Google Script` screen, go to `File -> Project properties`.
     3. The needed ID is the one under the `Script ID` label!
-4. Run the target `make apply SCRIPT_ID=my-script-id` replacing `my-script-id` with the ID obtained at point `3`.
-    * TIP: You can set your `SCRIPT_ID` at `export SCRIPT_ID=replace-me` on `Makefile` so you can call `make apply` alone.
-5. Refresh/reload your Google Spreadsheet (hit `F5`) and voila!
+4. Just for the first time, run the target `make setup SCRIPT_ID=my-script-id` replacing `my-script-id` with the ID obtained at point `3`.
+    * It should create the file `.clasp.json` with your `scriptId` inside for future use.
+    * **NOTE:** You only need to re-run this step if you want to change the configured `scriptId`.
+5. Now you can run `make push` (or just `make` alone) to upload/apply local code to your desired Google Spreadsheet!
+    * From now on, you can just run `make` to keep applying changes to the same configured spreadsheet.
+6. Refresh/reload your Google Spreadsheet (hit `F5`) and voila!
 
-You can also do it **by hand**, manually copying each file content to your script source at [Google Scripts](https://script.google.com/) but it's a pain in _you-know-where_.
+**Windows users:** You can download and use `make` from [here](https://sourceforge.net/projects/gnuwin32/files/make/3.81/) or even the entire [GnuWin](https://sourceforge.net/projects/gnuwin32/) toolset.
 
 
 ### Binance API Key
