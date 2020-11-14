@@ -53,6 +53,7 @@ You will need [node](https://nodejs.org) and [clasp](https://github.com/google/c
     * **NOTE:** You only need to re-run this step if you want to change the configured `scriptId`.
 5. Now you can run `make push` (or just `make` alone) to upload/apply local code to your desired Google Spreadsheet!
     * From now on, you can just run `make` to keep applying changes to the same configured spreadsheet.
+    * **TIP:** You can run `make update` to pull latest changes from this repo and push them to your configured spreadsheet.
 6. Refresh/reload your Google Spreadsheet (hit `F5`) and voila!
 
 **Windows users:** You can download and use `make` from [here](https://sourceforge.net/projects/gnuwin32/files/make/3.81/) or even the entire [GnuWin](https://sourceforge.net/projects/gnuwin32/) toolset.

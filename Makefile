@@ -16,6 +16,11 @@ setup:
 	@echo "DONE:"
 	@cat .clasp.json
 
+update:
+	@echo "Pulling from repo and pushing to configured SCRIPT_ID.."
+	@git pull
+	${MAKE} push
+
 ##
 # Next ones are for internal development purposes only  =]
 ##
