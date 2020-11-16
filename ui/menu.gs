@@ -11,6 +11,9 @@ function BinMenu(ui, auth_mode) {
     if (!is_auth_enough) { // Script is not authorized
       menu.addItem("Enable BINANCE() formula", "showEnableFull")
           .addSeparator();
+    } else {
+      menu.addItem("Refresh", "forceRefresh")
+          .addSeparator()
     }
     menu.addItem("Show API Last Update", "showAPILastUpdate")
         .addItem("Show Current Prices", "showCurrentPrices");
@@ -41,6 +44,14 @@ function BinMenu(ui, auth_mode) {
   
   addMenuItems(ui.createMenu("Binance"));
   addMenuItems(ui.createAddonMenu());
+}
+
+/**
+ * Forces all BINANCE() formulas recalculation on the current spreadsheet.
+ * NOTE: Data might come from cache anyways! This function is useful only when triggers are not available to automatically update'em.
+ */
+function forceRefresh() {
+  BinSetup().forceRefreshSheetFormulas(); // Refresh'em all!
 }
 
 /**
