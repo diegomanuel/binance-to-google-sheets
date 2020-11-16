@@ -1,0 +1,44 @@
+name: CI - Build BINANCE.gs
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build all-in-one BINANCE.gs file
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build file
+        id: build_file
+        run: |
+          filename=BINANCE.gs
+          filepath=_build/$filename
+          mkdir _build
+          cat BINANCE.gs > $filepath
+          find . -type f \( -iname "*.gs" ! -iname "BINANCE.gs" \) -exec cat > tmp.gs {} +
+          printf "\n\n/////////////////////////////////////\n\n" >> $filepath
+          cat tmp.gs >> $filepath
+          echo "::set-output name=filename::$filename"
+          echo "::set-output name=filepath::$filepath"
+          echo "File $filename generated!"
+
+      - name: Upload as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: BINANCE.gs
+          path: ${{ steps.build_file.outputs.filepath }}
+
+      - name: Upload as release asset
+        id: upload_release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_name: ${{ steps.build_file.outputs.filename }}
+          asset_path: ${{ steps.build_file.outputs.filepath }}
+          asset_content_type: application/javascript
