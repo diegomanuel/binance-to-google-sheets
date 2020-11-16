@@ -1,5 +1,5 @@
 /**
- * Generl utility functions wrapper.
+ * Runs the open orders script.
  *
  * @OnlyCurrentDoc
  */

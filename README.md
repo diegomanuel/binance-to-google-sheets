@@ -26,19 +26,17 @@ First of all, open your desired Google Spreadsheet and configure it properly:
 2. Under the `Calculation` tab set the `Recalculation` combobox to `On change and every minute`.
 3. Hit `Save settings` button and that's it!
 
-### If you AREN'T a developer (not available yet, coming soon)
+### The quick'n easy way for everybody
 
-Simple enough! Just install the **Binance to Google Sheets `add-on`** from within your desired spreadsheet using [Google Workspace Marketplace](https://gsuite.google.com/marketplace/search/binance%20to%20google%20sheets) and you are ready to go!  
-Follow these simple steps:
+Just [download](https://github.com/diegomanuel/binance-to-google-sheets/releases/latest/download/BINANCE.gs) the latest released **all-in-one** `BINANCE.gs` file and **copy & paste** its contents following these steps:
 
-1. With your desired `Google Spreadsheet` opened, go to `Add-ons -> Get add-ons`.
-2. Search for `Binance to Google Sheets` and click on it once found.
-3. Click the `Install` button and voila!
+1. With your desired `Google Spreadsheet` opened, go to `Tools -> Script editor`.
+    * It should open a new page with a `Code.gs` file containing an empty function.
+2. Remove any contents from `Code.gs` and paste the contents from the downloaded `BINANCE.gs` file.
+3. Save the project at `File -> Save`. Give any name you want.
+4. Refresh/reload your Google Spreadsheet (hit `F5`) and voila!
 
-**IMPORTANT:** This type of installation does **NOT** allow to keep data _automatically_ updated in less than `1 hour` because of Google's policies for add-ons!  
-**NOTE:** The installation mode bellow **DOES** allow to have `1` and `5` minutes triggers properly configured and running.
-
-### If you ARE a developer
+### If you are a developer  =]
 
 You will need [node](https://nodejs.org) and [clasp](https://github.com/google/clasp) in order to apply the `add-on` to your Google Spreadsheets.  
 

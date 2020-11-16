@@ -1,5 +1,5 @@
 /**
- * Generl utility functions wrapper.
+ * Runs the 24h stats script.
  *
  * @OnlyCurrentDoc
  */
