@@ -10,6 +10,7 @@ function BinUtils() {
     getUserLock,
     getRangeOrCell,
     parsePrice,
+    parseOptions,
     filterTickerSymbol,
     sortResults,
     obscureSecret,
@@ -68,6 +69,27 @@ function BinUtils() {
    */
   function parsePrice(price) {
     return (parseFloat(price) || "?");
+  }
+
+  /**
+   * Returns the options parsed from a string like "ticker: USDT, headers: false"
+   * or a single value like "USDT" as {ticker: "USDT"}
+   */
+  function parseOptions(opts_or_value) {
+    const matches = (opts_or_value||"").matchAll(/([^,\s]+):\s*([^,\s]+)/ig);
+    const marr = [...matches];
+    const options = marr.reduce(function(obj, [_, key, val]) {
+      obj[key] = val;
+      return obj;
+    }, {ticker: marr.length ? TICKER_AGAINST : (opts_or_value||TICKER_AGAINST)});
+
+    if (DEBUG) {
+      Logger.log("PARAMS: "+JSON.stringify(opts_or_value));
+      Logger.log("MATCHES: "+JSON.stringify(marr));
+      Logger.log("OPTIONS: "+JSON.stringify(options));
+    }
+
+    return options;
   }
 
   /**

@@ -18,13 +18,14 @@ function BinDoOpenOrders() {
    * Returns current open oders.
    *
    * @param {"BTCUSDT|..."} symbol If given, returns just the matching symbol open orders.
+   * @param options An option list like "headers: false"
    * @return The list of all current open orders for all or given symbol/ticker.
    */
-  function run(symbol) {
+  function run(symbol, options) {
     Logger.log("[BinDoOpenOrders] Running..");
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(symbol);
+      return run(symbol, options);
     }
     
     const opts = {};

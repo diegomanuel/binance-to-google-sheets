@@ -18,23 +18,24 @@ function BinDoDoneOrders() {
    * Returns all account orders: active, canceled, or filled.
    *
    * @param {["BTC","ETH"..]} range_or_cell If given, returns just the matching symbols stats.
-   * @param ticker_against Ticker to match against (USDT by default)
+   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, headers: false"
    * @return The list of all current open orders for all or given symbols/tickers.
    */
-  function run(range_or_cell, ticker_against) {
+  function run(range_or_cell, options) {
+    const ticker_against = options["ticker"];
     Logger.log("[BinDoDoneOrders] Running..");
     if (!range_or_cell) {
       throw new Error("A range with crypto names must be given!");
     }
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(range_or_cell, ticker_against);
+      return run(range_or_cell, options);
     }
     
     const opts = {};
     const range = BinUtils().getRangeOrCell(range_or_cell);
     const data = (range||[]).reduce(function(rows, crypto) {
-      const qs = "symbol="+crypto+(ticker_against||TICKER_AGAINST);
+      const qs = "symbol="+crypto+ticker_against;
       Utilities.sleep(200); // Add some waiting time to avoid 418 responses!
       const crypto_data = BinRequest().cache(CACHE_TTL, "get", "api/v3/myTrades", qs, "", opts);
       return [...crypto_data, ...rows];

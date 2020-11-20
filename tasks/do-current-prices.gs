@@ -18,14 +18,15 @@ function BinDoCurrentPrices() {
    * Returns current market prices.
    *
    * @param {["BTC","ETH"..]} symbol_or_range If given, returns just the matching symbol price or range prices. If not given, returns all the prices.
-   * @param ticker_against Ticker to match against (USDT by default)
+   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, headers: false"
    * @return The list of current prices for all or given symbols/tickers.
    */
-  function run(symbol_or_range, ticker_against) {
+  function run(symbol_or_range, options) {
+    const ticker_against = options["ticker"];
     Logger.log("[BinDoCurrentPrices] Running..");
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(symbol_or_range, ticker_against);
+      return run(symbol_or_range, options);
     }
 
     const opts = {"public": true};

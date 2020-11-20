@@ -41,26 +41,28 @@ function onInstall(event) {
  *
  * @param operation The operation tag to call.
  * @param range_or_cell A range of cells or a single cell or a literal/string value.
- * @param additional_opts Additional options like the symbol/ticker to match against (depending the called operation).
+ * @param opts Additional options like the symbol/ticker to match against or an option list like "ticker: USDT, headers: false" (depending the called operation).
  * @param force_refresh_cell Cells are automatically refreshed, but you can force it by passing any changing value here.
  * @return Depends on the func given.
  * @customfunction
  */
-function BINANCE(operation, range_or_cell, additional_opts, force_refresh_cell) {
+function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
+  const options = BinUtils().parseOptions(opts);
+
   if (operation == BinDoLastUpdate().tag()) {
     return BinDoLastUpdate().run();
   }
   if (operation == BinDoCurrentPrices().tag()) {
-    return BinDoCurrentPrices().run(range_or_cell, additional_opts);
+    return BinDoCurrentPrices().run(range_or_cell, options);
   }
   if (operation == BinDo24hStats().tag()) {
-    return BinDo24hStats().run(range_or_cell, additional_opts);
+    return BinDo24hStats().run(range_or_cell, options);
   }
   if (operation == BinDoDoneOrders().tag()) {
-    return BinDoDoneOrders().run(range_or_cell, additional_opts);
+    return BinDoDoneOrders().run(range_or_cell, options);
   }
   if (operation == BinDoOpenOrders().tag()) {
-    return BinDoOpenOrders().run(range_or_cell);
+    return BinDoOpenOrders().run(range_or_cell, options);
   }
   if (operation == "version") {
     return VERSION;

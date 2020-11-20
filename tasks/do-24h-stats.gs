@@ -18,17 +18,18 @@ function BinDo24hStats() {
    * Returns the 24hs stats list against USDT.
    *
    * @param {["BTC","ETH"..]} range_or_cell If given, returns just the matching symbol price or range prices. If not given, returns all the prices.
-   * @param ticker_against Ticker to match against (USDT by default)
+   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, headers: false"
    * @return The list of 24hs stats for given symbols
    */
-  function run(range_or_cell, ticker_against) {
+  function run(range_or_cell, options) {
+    const ticker_against = options["ticker"];
     Logger.log("[BinDo24hStats] Running..");
     if (!range_or_cell) { // @TODO This limitation could be removed if cache is changed by other storage
       throw new Error("A range with crypto names must be given!");
     }
     const lock = BinUtils().getUserLock();
     if (!lock) { // Could not acquire lock! => Retry
-      return run(range_or_cell, ticker_against);
+      return run(range_or_cell, options);
     }
   
     const opts = {
