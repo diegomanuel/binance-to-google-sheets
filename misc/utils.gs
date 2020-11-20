@@ -10,6 +10,7 @@ function BinUtils() {
     getUserLock,
     getRangeOrCell,
     parsePrice,
+    parseBool,
     parseOptions,
     filterTickerSymbol,
     sortResults,
@@ -72,6 +73,13 @@ function BinUtils() {
   }
 
   /**
+   * Returns a boolean for given value
+   */
+  function parseBool(val, default_val) {
+    return val === default_val || val === true || val === 1 || val === "1" || val === "true" || val === "yes" || val === "y";
+  }
+
+  /**
    * Returns the options parsed from a string like "ticker: USDT, headers: false"
    * or a single value like "USDT" as {ticker: "USDT"}
    */
@@ -84,9 +92,7 @@ function BinUtils() {
     }, {ticker: marr.length ? TICKER_AGAINST : (opts_or_value||TICKER_AGAINST)});
 
     if (DEBUG) {
-      Logger.log("PARAMS: "+JSON.stringify(opts_or_value));
-      Logger.log("MATCHES: "+JSON.stringify(marr));
-      Logger.log("OPTIONS: "+JSON.stringify(options));
+      Logger.log("PARSE OPTS MATCHES: "+JSON.stringify(marr));
     }
 
     return options;

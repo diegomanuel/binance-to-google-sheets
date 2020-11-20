@@ -80,28 +80,31 @@ Once you have the `add-on` already installed/enabled on your desired Google Spre
 
 ## OK, I have it installed! How do I use it at my spreadsheet?
 
+**NOTE:** Check the `Examples` sheet in the [live DEMO](https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg/edit#gid=1522299933)  spreadsheet for more details.
+
 You just need to call the `=BINANCE()` formula in a cell.  
 So far, these are the available operations:
 
 * `=BINANCE("last_update")` will return the timestamp of the last request to Binance API (**public**, no API keys needed).
 * `=BINANCE("prices")` will return a list with the latest ticker prices from Binance (**public**, no API keys needed).
-    * `=BINANCE("prices", "BTC", "USDT")` Optionally you can give a ticker to just return its price.
-    * `=BINANCE("prices", A1:A3)` Optionally you can give a ticker range to return a list of prices.
-    * `=BINANCE("prices", A1:A3, "ticker: USDT, headers: false")` Optionally you can give more options like not returning table headers.
+    * `=BINANCE("prices", "BTC")` Optionally you can give a symbol to just return its price (against `USDT` by default).
+    * `=BINANCE("prices", "BNB", "BTC")` Optionally you can give a ticker to compare against and to just return its price.
+    * `=BINANCE("prices", A1:A3)` Optionally you can give a ticker range to return a list of symbols and prices.
+        * Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * `=BINANCE("prices", A1:A3, "headers: false")` Optionally you can give more options like not returning table headers.
+    * `=BINANCE("prices", A1:A3, "ticker: BNB, prices: true")` Optionally you can return only the prices (and give a ticker in the meantime).
 * `=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance (**public**, no API keys needed).
-    * A single value or a range of values is required. Values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * A single value or a range of values is required. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
     * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
     * `=BINANCE("stats/24h", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("orders/done", A1:A3)` will return a list with your latest finished BUY/SELL orders for given symbols from Binance (**private**, API keys required).
-    * A single value or a range of values is required. Values must be symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * A single value or a range of values is required. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
     * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
     * `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("orders/open")` will return a list with all your pending BUY/SELL orders from Binance (**private**, API keys required).
     * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a full ticker to filter the results.
     * `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
-
-**NOTE:** Check the `Examples` sheet in the [live DEMO](https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg/edit#gid=1522299933)  spreadsheet for more details.
 
 
 ## See it working live!

@@ -42,7 +42,7 @@ function BinDo24hStats() {
     const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/ticker/24hr", "", "", opts);
   
     lock.releaseLock();
-    const parsed = parse(data, range_or_cell);
+    const parsed = parse(data, range_or_cell, options);
     Logger.log("[BinDo24hStats] Done!");
     return parsed;
   }
@@ -50,11 +50,11 @@ function BinDo24hStats() {
   /**
    * @OnlyCurrentDoc
    */
-  function parse(data, range_or_cell) {
-    const output = [["Date", "Symbol", "Price", "Ask", "Bid", "Open", "High", "Low", "Prev Close", "$ Change 24h", "% Change 24h", "Volume"]];
+  function parse(data, range_or_cell, {headers: show_headers}) {
+    const header = ["Date", "Symbol", "Price", "Ask", "Bid", "Open", "High", "Low", "Prev Close", "$ Change 24h", "% Change 24h", "Volume"];
     const parsed = data.reduce(function(rows, ticker) {
       if (ticker === "?") {
-        rows.push(output[0].map(function() {
+        rows.push(header.map(function() {
           return "?";
         }));
         return rows;
@@ -87,7 +87,7 @@ function BinDo24hStats() {
       ];
       rows.push(row);
       return rows;
-    }, output);
+    }, BinUtils().parseBool(show_headers) ? [header] : []);
 
     return range_or_cell ? parsed : BinUtils().sortResults(parsed, 1, false);
   }

@@ -42,7 +42,7 @@ function BinDoDoneOrders() {
     }, []);
   
     lock.releaseLock();
-    const parsed = parse(data);
+    const parsed = parse(data, options);
     Logger.log("[BinDoDoneOrders] Done!");
     return parsed;
   }
@@ -50,8 +50,8 @@ function BinDoDoneOrders() {
   /**
    * @OnlyCurrentDoc
    */
-  function parse(data) {
-    const output = [["#ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"]];
+  function parse(data, {headers: show_headers}) {
+    const header = ["#ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"];
     const parsed = data.reduce(function(rows, order) {
       const symbol = order.symbol;
       const price = BinUtils().parsePrice(order.price);
@@ -70,7 +70,7 @@ function BinDoDoneOrders() {
       ];
       rows.push(row);
       return rows;
-    }, output);
+    }, BinUtils().parseBool(show_headers) ? [header] : []);
 
     return BinUtils().sortResults(parsed, 1, true);
   }

@@ -51,6 +51,7 @@ function BinMenu(ui, auth_mode) {
  * NOTE: Data might come from cache anyways! This function is useful only when triggers are not available to automatically update'em.
  */
 function forceRefresh() {
+  BinUtils().toast("Refreshing data, be patient..!", "", 5);
   BinSetup().forceRefreshSheetFormulas(); // Refresh'em all!
 }
 
@@ -83,14 +84,11 @@ function showAPILastUpdate() {
  * // @TODO Improve this to be like the 10th cryptos with most volume
  */
 function showCurrentPrices() {
-  const tickers = ["BTC", "BCH", "ETH", "LTC", "BNB"];
   const ui = SpreadsheetApp.getUi();
-  const current_prices = BinDoCurrentPrices().run().map((function([symbol, price]) {
-    return {"symbol": symbol, "price": price};
-  }));
-  const data = BinUtils().filterTickerSymbol(current_prices, tickers);
-  const formatted = data.map(function(ticker) {
-    return ticker.symbol+": $"+ticker.price;
+  const tickers = ["BTC", "BCH", "ETH", "LTC", "BNB"];
+  const opts = {headers: false};
+  const formatted = BinDoCurrentPrices().run(tickers, opts).map(function([symbol, price]) {
+    return symbol+": $"+price;
   });
   ui.alert("Current Crypto Prices", formatted.join("\n"), ui.ButtonSet.OK);
 }
@@ -100,7 +98,7 @@ function showCurrentPrices() {
  */
 function showOpenOrders() {
   const ui = SpreadsheetApp.getUi();
-  const data = BinDoOpenOrders().run();
+  const data = BinDoOpenOrders().run(null, {});
   const formatted = (data||[]).reduce(function(out, row) {
       if (out.length > 0) {
         row[0] = Utilities.formatDate(new Date(row[0]), "UTC", "MM-dd HH:mm");
@@ -113,7 +111,7 @@ function showOpenOrders() {
       return out;
     }, [])
     .join("\n");
-  ui.alert("Current open orders ("+data.length+")", formatted, ui.ButtonSet.OK);
+  ui.alert("Current open orders ("+(data.length-1)+")", formatted, ui.ButtonSet.OK);
 }
 
 /**

@@ -169,6 +169,10 @@ function BinSetup() {
       return triggers[trigger.getHandlerFunction()] ? ScriptApp.deleteTrigger(trigger) : false;
     });
 
+    if (DEBUG) {
+      return Logger.log("[configTrigger] Skipping triggers creation while debugging..!");
+    }
+
     try { // Create triggers again
       return Object.keys(triggers).map(function(func) {
         return ScriptApp.newTrigger(func)

@@ -25,6 +25,13 @@ const TICKER_AGAINST = "USDT"; // @TODO Give support to configure this!
 function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   const options = BinUtils().parseOptions(opts);
 
+  if (DEBUG) {
+    Logger.log("OP: "+operation);
+    Logger.log("RANGE: "+JSON.stringify(range_or_cell));
+    Logger.log("OPTS: "+JSON.stringify(opts));
+    Logger.log("OPTIONS: "+JSON.stringify(options));
+  }
+
   if (operation == BinDoLastUpdate().tag()) {
     return BinDoLastUpdate().run();
   }

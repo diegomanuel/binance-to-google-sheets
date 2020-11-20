@@ -32,7 +32,7 @@ function BinDoOpenOrders() {
     const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/openOrders", "", "", opts);
   
     lock.releaseLock();
-    const parsed = parse(symbol ? filter(data, symbol) : data);
+    const parsed = parse(symbol ? filter(data, symbol) : data, options);
     Logger.log("[BinDoOpenOrders] Done!");
     return parsed;
   }
@@ -49,8 +49,8 @@ function BinDoOpenOrders() {
   /**
    * @OnlyCurrentDoc
    */
-  function parse(data) {
-    const output = [["Date", "Pair", "Type", "Side", "Price", "Amount", "Executed", "Total"]];
+  function parse(data, {headers: show_headers}) {
+    const header = ["Date", "Pair", "Type", "Side", "Price", "Amount", "Executed", "Total"];
     const parsed = data.reduce(function(rows, order) {
       const symbol = order.symbol;
       const price = BinUtils().parsePrice(order.price);
@@ -67,7 +67,7 @@ function BinDoOpenOrders() {
       ];
       rows.push(row);
       return rows;
-    }, output);
+    }, BinUtils().parseBool(show_headers) ? [header] : []);
 
     return BinUtils().sortResults(parsed, 0, true);
   }
