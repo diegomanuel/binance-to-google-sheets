@@ -12,19 +12,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build file
+      - name: Build BINANCE.gs
         id: build_file
         run: |
           filename=BINANCE.gs
           filepath=_build/$filename
+          tmpfile=_build/tmp.gs
           mkdir _build
           cat BINANCE.gs > $filepath
-          find . -type f \( -iname "*.gs" ! -iname "BINANCE.gs" \) -exec cat > tmp.gs {} +
+          find . -type f \( -iname "*.gs" ! -iname "BINANCE.gs" \) -exec cat > $tmpfile {} +
           printf "\n\n/////////////////////////////////////\n\n" >> $filepath
-          cat tmp.gs >> $filepath
+          cat $tmpfile >> $filepath
+          echo "File $filename generated!"
           echo "::set-output name=filename::$filename"
           echo "::set-output name=filepath::$filepath"
-          echo "File $filename generated!"
 
       - name: Upload as artifact
         uses: actions/upload-artifact@v1
