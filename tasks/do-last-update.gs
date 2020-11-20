@@ -20,6 +20,7 @@ function BinDoLastUpdate() {
     const doc_props = PropertiesService.getDocumentProperties();
     
     if (ts == undefined) { // Getter
+      Utilities.sleep(1000); // Wait a little to try to get a fresh value (useful mainly when a trigger runs)
       const last_update = doc_props.getProperty("BIN_LAST_UPDATE");
       ts = last_update ? new Date(last_update) : "";
       Logger.log("[BinDoLastUpdate] Got last update time: "+ts);

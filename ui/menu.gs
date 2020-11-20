@@ -9,28 +9,30 @@ function BinMenu(ui, auth_mode) {
     const is_auth_enough = BinUtils().isAuthEnough(auth_mode);
 
     if (!is_auth_enough) { // Script is not authorized
-      menu.addItem("Enable BINANCE() formula", "showEnableFull")
-          .addSeparator();
+      menu.addItem("Enable BINANCE() formula", "showEnableFull");
     } else {
-      menu.addItem("Refresh", "forceRefresh")
-          .addSeparator()
+      menu.addItem("Refresh", "forceRefresh");
     }
-    menu.addItem("Show API Last Update", "showAPILastUpdate")
+    menu.addSeparator()
+        .addItem("Show API Last Update", "showAPILastUpdate")
         .addItem("Show Current Prices", "showCurrentPrices");
     if (is_auth_enough) { // Script is installed and authorized
       if (BinSetup().areAPIKeysConfigured()) {
         menu.addItem("Show Open Orders", "showOpenOrders")
             .addSeparator()
             .addItem("Show API Keys", "showAPIKeys")
-            .addItem("Re-configure API Keys", "showAPIKeysSetup")
-            .addItem("Clear API Keys", "showAPIKeysClear")
+            .addSubMenu(ui.createMenu("Setup API Keys")
+              .addItem("Re-configure API Keys", "showAPIKeysSetup")
+              .addItem("Clear API Keys", "showAPIKeysClear"));
       } else {
         menu.addSeparator()
-            .addItem("Configure API Keys", "showAPIKeysSetup")
+            .addItem("Setup API Keys", "showAPIKeysSetup");
       }
       menu.addSeparator()
-          .addItem("Credits!", "showCredits")
-          .addItem("Donate  =]", "showDonate");
+          .addItem("Credits", "showCredits")
+          .addItem("Donate  =]", "showDonate")
+          .addSeparator()
+          .addItem("Version: "+VERSION, "showVersion");
     }
     
     menu.addToUi(); // Add resultant menu items to the spreadsheet main menu
@@ -143,6 +145,26 @@ function showAPIKeysClear() {
 }
 
 /**
+ * Displays a modal with the current running version info
+ */
+function showVersion() {
+  const ui = SpreadsheetApp.getUi();
+  const title = "Binance to Google Sheets - "+VERSION;
+  const body = "Diego Manuel - diegomanuel@gmail.com - Argentina\n"+
+               REPO_URL+"\n"+
+               "\n"+
+               "\n"+
+               "You are running version: '"+VERSION+"'\n"+
+               "Check the github repo for the latest updates.\n"+
+               "\n"+
+               "\n"+
+               "\n"+
+               "Keep enjoying!  =]";
+  ui.alert(title, body, ui.ButtonSet.OK);
+  Logger.log("[Version] "+title);
+}
+
+/**
  * Displays a modal with the developer's credits!  =]
  */
 function showCredits() {
@@ -160,10 +182,6 @@ function showCredits() {
                "First, I've looked for several existing solutions, but none provided me the 'freedom' and 'confidence' that I wanted for this kind of 'delicate' stuff (you know what I mean, right? =)\n"+
                "So I decided to write my own code, all from scratch, with only my will and my javascript knownledge aboard..\n"+
                "..and I was sooo happy with the results that I simply decided to share it to the world!\n"+
-               "\n"+
-               "It only requires a Binance API key for open/done orders lists, but a READ-ONLY API key is enough for everything to work.\n"+
-               "In deed, I personally recommend to generate a READ-ONLY API key at Binance site.\n"+
-               "It does NOT need write/trade access in ANY way to properly work with all its features!\n"+
                "\n"+
                "\n"+
                "I think and hope that many of you will find it as useful as it is for myself.\n"+

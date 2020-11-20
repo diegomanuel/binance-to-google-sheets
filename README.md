@@ -71,7 +71,7 @@ To get your keys, go to [Binance API panel](https://www.binance.com/en/usercente
 
 Once you have the `add-on` already installed/enabled on your desired Google Spreadsheet, the main menu item `Binance` should have appeared at the rightmost position.
 
-1. At spreadsheet's main menu, go to `Binance -> Configure API Keys`.
+1. At spreadsheet's main menu, go to `Binance -> Setup API Keys`.
 2. Set your `API Key` and click `OK`. Do the same for `API Secret Key`.
 3. Voila, you are ready to go!
 

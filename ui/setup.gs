@@ -86,7 +86,7 @@ function BinSetup() {
 
     // API KEY
     if (getAPIKey()) {
-      text = "✅ Your Binance API key is already set!\n\nYou can still re-enter it below to override its current value:";
+      text = "✅ Your Binance API Key is already set!\n\nYou can let it blank to keep the current one\nor re-enter a new one below to overwrite it:";
     } else {
       text = "Please enter your Binance API Key below:";
     }
@@ -105,7 +105,7 @@ function BinSetup() {
   
     // API SECRET KEY
     if (getAPISecret()) {
-      text = "✅ Your Binance API Secret key is already set!\n\nYou can still re-enter it below to override its current value:";
+      text = "✅ Your Binance API Secret Key is already set!\n\nYou can let it blank to keep the current one\nor re-enter a new one below to overwrite it:";
     } else {
       text = "Please enter your Binance API Secret Key below:";  
     }
@@ -130,13 +130,13 @@ function BinSetup() {
 
     if (!api_key) {
       ui.alert("Binance API Key is not set!",
-               "You just need a Binance API Key if you want open/closed orders list.\n\n"+
+               "You just need a Binance API Key if you want open/done orders list.\n\n"+
                "It's NOT needed to get market prices and 24hr stats!",
                ui.ButtonSet.OK);
     }
     if (!api_secret) {
       ui.alert("Binance API Secret Key is not set!",
-               "You just need a Binance API Secret Key if you want open/closed orders.\n\n"+
+               "You just need a Binance API Secret Key if you want open/done orders.\n\n"+
                "It's NOT needed to get market prices and 24hr stats!",
                ui.ButtonSet.OK);
     }
@@ -146,13 +146,13 @@ function BinSetup() {
    * Clears configured API keys
    */
   function clearAPIKeys(ui) {
-    const text = "Are you sure you want to remove your configured Binance API keys?\n\nYou can always re-configure'em again if you proceed here.";
+    const text = "Are you sure you want to remove your configured Binance API Keys?\n\nYou can always re-configure'em again later if you proceed here.";
     const result = ui.alert("Clear Binance API Keys", text, ui.ButtonSet.OK_CANCEL);
     if (result == ui.Button.OK) {
       user_props.deleteProperty(API_KEY_NAME);
       user_props.deleteProperty(API_SECRET_NAME);
       Logger.log("[clearAPIKeys] Binance API Keys were cleared!");
-      BinUtils().toast("Binance API Keys were cleared! You can always re-configure'em again from 'Binance' menu.", "", 30);
+      BinUtils().toast("Binance API Keys were cleared! You can always re-configure'em again from 'Binance' main menu.", "", 30);
       _refreshUI(); // Force UI refresh!
     }
   }
