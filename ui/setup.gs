@@ -1,4 +1,28 @@
 /**
+ * Initialization on document open.
+ */
+function onOpen(event) {
+  if (DEBUG) {
+    Logger.log("EVENT: "+JSON.stringify(event));
+  }
+  const auth_mode = event && event.authMode ? event.authMode : ScriptApp.AuthMode.NONE;
+  BinMenu(SpreadsheetApp.getUi(), auth_mode); // Add items to main menu
+  if (BinUtils().isAuthEnough(auth_mode)) {
+    BinSetup().configTrigger(); // Automatically keep the formulas updated!
+  }
+
+  Logger.log("Welcome to 'Binance to Google Sheets' by Diego Manuel, enjoy!  =]");
+}
+
+/**
+ * Initialization on add-on install.
+ */
+function onInstall(event) {
+  Logger.log("Binance to Google Sheets was installed!");
+  onOpen(event);
+}
+
+/**
  * Script setup functions wrapper.
  */
 function BinSetup() {
