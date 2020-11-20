@@ -37,4 +37,13 @@ demo:
 dev: push
 	@cd ../binance-to-google-sheets-copies && ${MAKE}
 
-.PHONY: demo dev
+generate:
+	@rm -f BINANCE-ALL.gs
+	@find . -type f \( -iname "*.gs" ! -iname "BINANCE.gs" ! -iname "tmp.gs" \) -exec cat > tmp.gs {} +
+	@cat BINANCE.gs > BINANCE-ALL.gs
+	@printf "\n\n/////////////////////////////////////\n\n" >> BINANCE-ALL.gs
+	@cat tmp.gs >> BINANCE-ALL.gs
+	@rm -f tmp.gs
+	@echo "BINANCE-ALL.gs generated!"
+
+.PHONY: demo dev generate

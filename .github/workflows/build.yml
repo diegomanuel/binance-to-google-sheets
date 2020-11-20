@@ -19,18 +19,18 @@ jobs:
           filepath=_build/$filename
           tmpfile=_build/tmp.gs
           mkdir _build
+          find . -type f \( -iname "*.gs" ! -iname "BINANCE.gs" ! -iname "tmp.gs" \) -exec cat > $tmpfile {} +
           cat BINANCE.gs > $filepath
-          find . -type f \( -iname "*.gs" ! -iname "BINANCE.gs" \) -exec cat > $tmpfile {} +
           printf "\n\n/////////////////////////////////////\n\n" >> $filepath
           cat $tmpfile >> $filepath
-          echo "File $filename generated!"
+          echo "$filename generated!"
           echo "::set-output name=filename::$filename"
           echo "::set-output name=filepath::$filepath"
 
       - name: Upload as artifact
         uses: actions/upload-artifact@v1
         with:
-          name: BINANCE.gs
+          name: ${{ steps.build_file.outputs.filename }}
           path: ${{ steps.build_file.outputs.filepath }}
 
       - name: Upload as release asset
