@@ -179,9 +179,10 @@ function showCredits() {
                "\n"+
                "Some background: Why this tool had ever to come alive?!\n"+
                "I needed a way to have Binance data directly available at my Google Spreadsheet.\n"+
-               "First, I've looked for several existing solutions, but none provided me the 'freedom' and 'confidence' that I wanted for this kind of 'delicate' stuff (you know what I mean, right? =)\n"+
+               "First, I've looked for several existing solutions, but none provided me the freedom, confidence and privacy that I want for this kind of delicate stuff.\n"+
+               "It's a requirement for me that requests to Binance go directly from my spreadsheet to its API without any intermediary service in between.\n"+
                "So I decided to write my own code, all from scratch, with only my will and my javascript knownledge aboard..\n"+
-               "..and I was sooo happy with the results that I simply decided to share it to the world!\n"+
+               "..and I was so happy with the results that I simply decided to share it to the world!\n"+
                "\n"+
                "\n"+
                "I think and hope that many of you will find it as useful as it is for myself.\n"+
@@ -208,8 +209,8 @@ function showDonate() {
                "\n"+
                "------------------------------------------------\n"+
                "Don't you have a Binance account yet?\n"+
-               "Just register there and start trading with its fantastic platform!\n"+
-               "https://www.binance.com/en/register?ref=45140860\n"+
+               "Register using the referal link below and get a 5% discount on fees for all your trades!\n"+
+               "https://www.binance.com/en/register?ref=NJE1D9CS\n"+
                "------------------------------------------------\n"+
                "[BTC] Bitcoin donate address:\n"+
                "1FsN54WNibhhPhRt4vnAPRGgzaVeeFvEnM\n"+

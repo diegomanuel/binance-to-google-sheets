@@ -28,7 +28,7 @@ First of all, open your desired Google Spreadsheet and configure it properly:
 
 ### The quick'n easy way for everybody
 
-Just [download](https://github.com/diegomanuel/binance-to-google-sheets/releases/latest/download/BINANCE.gs) the latest released **all-in-one** `BINANCE.gs` file and **copy & paste** its contents following these steps:
+Just [download the latest **BINANCE.gs**](https://github.com/diegomanuel/binance-to-google-sheets/releases/latest/download/BINANCE.gs) _all-in-one_ file and **copy & paste** its contents following these steps:
 
 1. With your desired `Google Spreadsheet` opened, go to `Tools -> Script editor`.
     * It should open a new page with a `Code.gs` file containing an empty function.
@@ -94,11 +94,11 @@ So far, these are the available operations:
     * `=BINANCE("prices", A1:A3, "headers: false")` Optionally you can give more options like not returning table headers.
     * `=BINANCE("prices", A1:A3, "ticker: BNB, prices: true")` Optionally you can return only the prices (and give a ticker in the meantime).
 * `=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance (**public**, no API keys needed).
-    * A single value or a range of values is required. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
     * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
     * `=BINANCE("stats/24h", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("orders/done", A1:A3)` will return a list with your latest finished BUY/SELL orders for given symbols from Binance (**private**, API keys required).
-    * A single value or a range of values is required. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
     * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
     * `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("orders/open")` will return a list with all your pending BUY/SELL orders from Binance (**private**, API keys required).
@@ -119,9 +119,10 @@ https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LL
 ## Some background: Why this tool had ever to come alive?!
 
 I needed a way to have Binance data directly available at my Google Spreadsheet.  
-First, I've looked for several existing solutions, but none provided me the _freedom_ and _confidence_ that I wanted for this kind of _delicate_ stuff (you know what I mean, right? =)  
+First, I've looked for several existing solutions, but none provided me the _freedom_, _confidence_ and _privacy_ that I want for this kind of _delicate_ stuff.  
+It's a requirement for me that requests to Binance go **directly** from my spreadsheet to its API without **any** intermediary _service_ in between (most than Google itself in where the spreadsheet resides, of course).  
 So I decided to write my own code, all from scratch, with only my will and my javascript knownledge aboard..  
-..and I was sooo happy with the results that I simply decided to share it to the world! :tada:
+..and I was so happy with the results that I simply decided to share it to the world! :tada:
 
 
 ## Disclaimer
@@ -166,12 +167,13 @@ No other service acts as an intermediary between your Google spreadsheet and Bin
 **NOTE:** If you have any concerns, please feel free to open a ticket in the [issues](https://github.com/diegomanuel/binance-to-google-sheets/issues) section or email me.
 
 
-## Binance Account
+## Binance Account - Get 5% discount on fees!
 
 Don't you have a **Binance** account yet?  
-Just register there and start trading with its fantastic platform!  
-[https://www.binance.com/en/register?ref=45140860](https://www.binance.com/en/register?ref=45140860)  
-<a href="https://www.binance.com/en/register?ref=45140860" target="_blank"><img src="img/binance-join.png" alt="Join to Binance!" title="Join to Binance!"/></a>
+Register using the **referal link** below and get a **5% discount on fees** for **all** your trades!
+
+[**https://www.binance.com/en/register?ref=NJE1D9CS**](https://www.binance.com/en/register?ref=NJE1D9CS)  
+<a href="https://www.binance.com/en/register?ref=NJE1D9CS" target="_blank"><img src="img/binance-join.png" alt="Join to Binance!" title="Join to Binance!"/></a>
 
 
 ## Enjoy - Donate - Buy me a beer!  =]
