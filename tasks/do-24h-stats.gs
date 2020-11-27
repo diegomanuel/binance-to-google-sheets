@@ -39,7 +39,7 @@ function BinDo24hStats() {
         return BinUtils().filterTickerSymbol(data, range_or_cell, ticker_against);
       }
     };
-    const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/ticker/24hr", "", "", opts);
+    const data = BinRequest(opts).get(CACHE_TTL, "api/v3/ticker/24hr", "", "");
   
     lock.releaseLock();
     const parsed = parse(data, range_or_cell, options);

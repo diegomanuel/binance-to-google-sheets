@@ -3,38 +3,43 @@
  *
  * @OnlyCurrentDoc
  */
-function BinRequest() {
+function BinRequest(OPTIONS) {
+  OPTIONS = OPTIONS || {}; // Init options
   const retry_delay = 1000; // Delay between API calls when it fails in milliseconds
   const retry_max_attempts = 10; // Max number of attempts when the API responses with status != 200
 
   return {
-    cache,
-    send
+    get
   };
-  
 
   /**
-  * Reads data from cache or sends a request to the backend API and stores the data into cache with given TTL.
+   * Reads data from cache or sends a GET request to Binance API and stores the data into cache with given TTL.
+   */
+  function get(CACHE_TTL, url, qs, payload) {
+    return _cache(CACHE_TTL, "get", url, qs, payload);
+  }
+
+  /**
+  * Reads data from cache or sends a request to Binance API and stores the data into cache with given TTL.
   */
-  function cache(CACHE_TTL, method, url, qs, payload, opts) {
-    opts = opts || {}; // Init opts
+  function _cache(CACHE_TTL, method, url, qs, payload) {
     let data = BinCache().read(method+"_"+url+"_"+qs);
     
     // First check if we have a cached version
     if (!(data && data.length > 1)) { // Fetch data from API
       Logger.log("NO CACHE entry found! Loading data from API..");
-      data = send(method, url, qs, payload, opts);
+      data = _request(method, url, qs, payload, OPTIONS);
       if (data && data.length > 1) {
         Logger.log("DONE loading data from API! Storing at cache..");
-        if (opts["filter"]) { // Apply custom data filtering before storing into cache
-          data = opts["filter"](data);
+        if (OPTIONS["filter"]) { // Apply custom data filtering before storing into cache
+          data = OPTIONS["filter"](data);
         }
         BinCache().write(method+"_"+url+"_"+qs, data, CACHE_TTL);
       }
     } else {
       Logger.log("FOUND CACHE entry!");
-      if (opts["filter"]) { // Apply custom data filtering before storing into cache
-        data = opts["filter"](data);
+      if (OPTIONS["filter"]) { // Apply custom data filtering before storing into cache
+        data = OPTIONS["filter"](data);
       }
     }
     
@@ -42,10 +47,9 @@ function BinRequest() {
   }
   
   /**
-  * Sends a request to the backend API with given parameters.
+  * Sends a request to Binance API with given parameters.
   */
-  function send(method, url, qs, payload, opts) {
-    opts = opts || {}; // Init opts
+  function _request(method, url, qs, payload, opts) {
     const need_auth = !opts["public"]; // Calling a private endpoint
     const headers = opts["headers"] || {};
     const da_payload = payload ? JSON.stringify(payload) : "";
@@ -95,7 +99,7 @@ function BinRequest() {
         Logger.log("Got 418 from Binance API! We are banned for a while..  =/");
         const options = _canRetryRequest(418, opts);
         if (options) { // Somewhat "weird" function, it acts as a bool helper and opts updater at once.. but whatever..!
-          return send(method, url, qs, payload, options);
+          return _request(method, url, qs, payload, options);
         }
       }
       if (response.getResponseCode() == 429) {
@@ -103,7 +107,7 @@ function BinRequest() {
         Logger.log("Got 429 from Binance API! We are sending too many requests from our IP..  =/");
         const options = _canRetryRequest(429, opts);
         if (options) { // Somewhat "weird" function, it acts as a bool helper and opts updater at once.. but whatever..!
-          return send(method, url, qs, payload, options);
+          return _request(method, url, qs, payload, options);
         }
       }
 

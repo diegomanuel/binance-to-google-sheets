@@ -40,7 +40,7 @@ function BinDoDoneOrders() {
     const data = range.reduce(function(rows, crypto) {
       const qs = "symbol="+crypto+ticker_against;
       Utilities.sleep(delay); // Add some waiting time to avoid 418 responses!
-      const crypto_data = BinRequest().cache(CACHE_TTL, "get", "api/v3/myTrades", qs, "", opts);
+      const crypto_data = BinRequest(opts).get(CACHE_TTL, "api/v3/myTrades", qs, "");
       return [...crypto_data, ...rows];
     }, []);
   

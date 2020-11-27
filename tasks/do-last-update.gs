@@ -6,7 +6,7 @@
 function BinDoLastUpdate() {
   const PROP_NAME = "BIN_LAST_UPDATE";
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
-  const delay = 1000; // Delay getter calls in milliseconds
+  const delay = 2500; // Delay getter calls in milliseconds
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -16,7 +16,7 @@ function BinDoLastUpdate() {
   }
 
   /**
-  * Sets or returns the timestamp of the last issued request to the backend API.
+  * Sets or returns the timestamp of the last issued request to Binance API.
   */
   function run(ts) {
     const doc_props = PropertiesService.getDocumentProperties();

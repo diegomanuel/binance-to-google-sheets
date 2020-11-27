@@ -29,7 +29,7 @@ function BinDoOpenOrders() {
     }
     
     const opts = {};
-    const data = BinRequest().cache(CACHE_TTL, "get", "api/v3/openOrders", "", "", opts);
+    const data = BinRequest(opts).get(CACHE_TTL, "api/v3/openOrders", "", "");
   
     lock.releaseLock();
     const parsed = parse(symbol ? filter(data, symbol) : data, options);
