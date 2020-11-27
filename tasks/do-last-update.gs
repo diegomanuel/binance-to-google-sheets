@@ -4,7 +4,9 @@
  * @OnlyCurrentDoc
  */
 function BinDoLastUpdate() {
+  const PROP_NAME = "BIN_LAST_UPDATE";
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
+  const delay = 1000; // Delay getter calls in milliseconds
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -20,8 +22,8 @@ function BinDoLastUpdate() {
     const doc_props = PropertiesService.getDocumentProperties();
     
     if (ts == undefined) { // Getter
-      Utilities.sleep(1000); // Wait a little to try to get a fresh value (useful mainly when a trigger runs)
-      const last_update = doc_props.getProperty("BIN_LAST_UPDATE");
+      Utilities.sleep(delay); // Wait a little to try to get a fresh value (useful mainly when a trigger runs)
+      const last_update = doc_props.getProperty(PROP_NAME);
       ts = last_update ? new Date(last_update) : "";
       Logger.log("[BinDoLastUpdate] Got last update time: "+ts);
       return ts;
@@ -29,7 +31,7 @@ function BinDoLastUpdate() {
     
     // Setter
     ts = new Date();
-    doc_props.setProperty("BIN_LAST_UPDATE", ts);
+    doc_props.setProperty(PROP_NAME, ts);
     Logger.log("[BinDoLastUpdate] Set last update time: "+ts);
     return ts;
   }

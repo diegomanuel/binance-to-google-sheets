@@ -6,6 +6,7 @@
 function BinDoDoneOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
+  const delay = 250; // Delay between API calls in milliseconds
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -32,11 +33,13 @@ function BinDoDoneOrders() {
       return run(range_or_cell, options);
     }
     
-    const opts = {};
-    const range = BinUtils().getRangeOrCell(range_or_cell);
-    const data = (range||[]).reduce(function(rows, crypto) {
+    const range = BinUtils().getRangeOrCell(range_or_cell) || [];
+    const opts = {
+      "retries": range.length
+    };
+    const data = range.reduce(function(rows, crypto) {
       const qs = "symbol="+crypto+ticker_against;
-      Utilities.sleep(200); // Add some waiting time to avoid 418 responses!
+      Utilities.sleep(delay); // Add some waiting time to avoid 418 responses!
       const crypto_data = BinRequest().cache(CACHE_TTL, "get", "api/v3/myTrades", qs, "", opts);
       return [...crypto_data, ...rows];
     }, []);

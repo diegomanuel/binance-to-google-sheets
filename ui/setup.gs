@@ -8,7 +8,7 @@ function onOpen(event) {
   const auth_mode = event && event.authMode ? event.authMode : ScriptApp.AuthMode.NONE;
   BinMenu(SpreadsheetApp.getUi(), auth_mode); // Add items to main menu
   if (BinUtils().isAuthEnough(auth_mode)) {
-    BinSetup().configTrigger(); // Automatically keep the formulas updated!
+    BinSetup().configTriggers(); // Automatically keep the formulas updated!
   }
 
   Logger.log("Welcome to 'Binance to Google Sheets' by Diego Manuel, enjoy!  =]");
@@ -37,7 +37,7 @@ function BinSetup() {
     setAPISecret,
     configAPIKeys,
     clearAPIKeys,
-    configTrigger,
+    configTriggers,
     forceRefreshSheetFormulas
   };
   
@@ -158,31 +158,40 @@ function BinSetup() {
   }
 
   /**
-   * Configs a trigger to automatically have the data updated.
+   * Configs required triggers to automatically have the data updated.
    */
-  function configTrigger() {
+  function configTriggers() {
     // Time-based triggers config
     const triggers = {"doRefresh1m": 1, "doRefresh5m": 5};
+    const lock = BinUtils().getUserLock();
+    if (!lock) { // Could not acquire lock! => Retry
+      return configTriggers();
+    }
 
     // First, deletes all triggers in the current project that belongs to this add-on
+    Logger.log("[configTriggers] Removing previous triggers..");
     ScriptApp.getProjectTriggers().map(function(trigger) {
       return triggers[trigger.getHandlerFunction()] ? ScriptApp.deleteTrigger(trigger) : false;
     });
 
     if (DEBUG) {
-      return Logger.log("[configTrigger] Skipping triggers creation while debugging..!");
+      return Logger.log("[configTriggers] Skipping triggers creation while debugging..!");
     }
 
     try { // Create triggers again
-      return Object.keys(triggers).map(function(func) {
+      Logger.log("[configTriggers] Creating new triggers with: "+JSON.stringify(triggers));
+      const results = Object.keys(triggers).map(function(func) {
         return ScriptApp.newTrigger(func)
           .timeBased()
           .everyMinutes(triggers[func])
           .create();
       });
+      lock.releaseLock();
+      return results;
     } catch (err) {
+      lock.releaseLock();
       if (err.message.match(/trigger must be at least one hour/i)) {
-        Logger.log("[configTrigger] Can't create 1m and/or 5m triggers! => Fallback to 1h..");
+        Logger.log("[configTriggers] Can't create 1m and/or 5m triggers! => Fallback to 1h..");
         return ScriptApp.newTrigger("doRefresh1h")
           .timeBased()
           .everyHours(1)
