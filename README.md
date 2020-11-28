@@ -7,11 +7,12 @@ By using the `BINANCE()` formula in your spreadsheet, you can get data fetched f
 * Current crypto prices
 * 24h stats
 * Open and Done orders
+* Account info
 * Last update time
 * ..and many more to come!
 
 At first glance, **NO Binance API key** is needed to call public endpoints like current crypto prices and 24h stats.  
-It **only** requires a [Binance API key](#binance-api-key) for open/done orders lists, but a **READ-ONLY** API key is enough for everything to work.  
+It **only** requires a [Binance API key](#binance-api-key) for account info and open/done orders lists, but a **READ-ONLY** API key is enough for everything to work.  
 In deed, I _personally recommend_ to generate a **READ-ONLY** API key at Binance site [here](https://www.binance.com/en/usercenter/settings/api-management).  
 It does **NOT need** write/trade access **in ANY way** to properly work with all its features, so don't give extra permissions if they aren't needed!
 
@@ -59,7 +60,7 @@ You will need [node](https://nodejs.org) and [clasp](https://github.com/google/c
 
 ### Binance API Key
 
-Only needed if you **also want** to have open/pending and done/finished orders listing working in your spreadsheet.  
+Only needed if you **also want** to have account info, open/pending and done/finished orders listing working in your spreadsheet.  
 To get your keys, go to [Binance API panel](https://www.binance.com/en/usercenter/settings/api-management) and create a new one:
 
 1. Enter a label like `Binance to Google Sheets` and click the `Create` button.
@@ -104,6 +105,8 @@ So far, these are the available operations:
 * `=BINANCE("orders/open")` will return a list with all your pending BUY/SELL orders from Binance (**private**, API keys required).
     * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a full ticker to filter the results.
     * `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
+* `=BINANCE("account")` will return account info from Binance (**private**, API keys required).
+    * `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
 
 

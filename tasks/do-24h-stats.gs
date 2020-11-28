@@ -4,7 +4,7 @@
  * @OnlyCurrentDoc
  */
 function BinDo24hStats() {
-  const CACHE_TTL = 60 * 60 * 4; // 4 hours, in seconds
+  const CACHE_TTL = 60 * 60 * 4 - 60 * 5; // 3:55 hours, in seconds
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
 
   /**

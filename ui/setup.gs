@@ -262,6 +262,8 @@ function BinSetup() {
               ||
             BinDoOpenOrders().isFormulaReplacement(period, formula)
               ||
+            BinDoAccountInfo().isFormulaReplacement(period, formula)
+              ||
             BinDoLastUpdate().isFormulaReplacement(period, formula);
           
   }

@@ -40,6 +40,9 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   if (operation == BinDoOpenOrders().tag()) {
     return BinDoOpenOrders().run(range_or_cell, options);
   }
+  if (operation == BinDoAccountInfo().tag()) {
+    return BinDoAccountInfo().run(options);
+  }
   if (operation == "version") {
     return VERSION;
   }
