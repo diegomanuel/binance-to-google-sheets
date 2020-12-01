@@ -28,6 +28,7 @@ function onInstall(event) {
 function BinSetup() {
   const user_props = PropertiesService.getUserProperties();
   const regex_formula = new RegExp(/=.*BINANCE\s*\(/);
+  let lock_retries = 10; // Max retries to acquire lock
 
   return {
     areAPIKeysConfigured,
@@ -163,7 +164,7 @@ function BinSetup() {
   function configTriggers() {
     // Time-based triggers config
     const triggers = {"doRefresh1m": 1, "doRefresh5m": 5};
-    const lock = BinUtils().getUserLock();
+    const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return configTriggers();
     }
@@ -209,7 +210,7 @@ function BinSetup() {
     let count = 0;
 
     Logger.log("Refreshing spreadsheet formulas..");
-    const lock = BinUtils().getScriptLock();
+    const lock = BinUtils().getScriptLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return forceRefreshSheetFormulas(period);
     }

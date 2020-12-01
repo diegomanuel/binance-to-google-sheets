@@ -7,6 +7,7 @@ function BinDoDoneOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
   const delay = 250; // Delay between API calls in milliseconds
+  let lock_retries = 10; // Max retries to acquire lock
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -28,7 +29,7 @@ function BinDoDoneOrders() {
     if (!range_or_cell) {
       throw new Error("A range with crypto names must be given!");
     }
-    const lock = BinUtils().getUserLock();
+    const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return run(range_or_cell, options);
     }

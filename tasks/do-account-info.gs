@@ -6,6 +6,7 @@
 function BinDoAccountInfo() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
+  let lock_retries = 10; // Max retries to acquire lock
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -22,7 +23,7 @@ function BinDoAccountInfo() {
    */
   function run(options) {
     Logger.log("[BinDoAccountInfo] Running..");
-    const lock = BinUtils().getUserLock();
+    const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return run(options);
     }
