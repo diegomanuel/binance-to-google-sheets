@@ -36,12 +36,13 @@ function BinDoDoneOrders() {
     
     const range = BinUtils().getRangeOrCell(range_or_cell) || [];
     const opts = {
+      CACHE_TTL,
       "retries": range.length
     };
     const data = range.reduce(function(rows, crypto) {
       const qs = "symbol="+crypto+ticker_against;
       Utilities.sleep(delay); // Add some waiting time to avoid 418 responses!
-      const crypto_data = BinRequest(opts).get(CACHE_TTL, "api/v3/myTrades", qs, "");
+      const crypto_data = BinRequest(opts).get("api/v3/myTrades", qs, "");
       return [...crypto_data, ...rows];
     }, []);
   

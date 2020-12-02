@@ -34,13 +34,14 @@ function BinDo24hStats() {
     }
   
     const opts = {
+      CACHE_TTL,
       "public": true,
       "no_cache_ok": true,
       "filter": function(data) {
         return BinUtils().filterTickerSymbol(data, range_or_cell, ticker_against);
       }
     };
-    const data = BinRequest(opts).get(CACHE_TTL, "api/v3/ticker/24hr", "", "");
+    const data = BinRequest(opts).get("api/v3/ticker/24hr", "", "");
   
     lock.releaseLock();
     const parsed = parse(data, range_or_cell, options);

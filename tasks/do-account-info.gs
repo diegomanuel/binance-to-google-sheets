@@ -28,8 +28,8 @@ function BinDoAccountInfo() {
       return run(options);
     }
     
-    const opts = {};
-    const data = BinRequest(opts).get(CACHE_TTL, "api/v3/account", "", "");
+    const opts = {CACHE_TTL};
+    const data = BinRequest(opts).get("api/v3/account", "", "");
   
     lock.releaseLock();
     const parsed = parse(data, options);

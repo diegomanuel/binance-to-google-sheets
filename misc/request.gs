@@ -5,6 +5,7 @@
  */
 function BinRequest(OPTIONS) {
   OPTIONS = OPTIONS || {}; // Init options
+  const CACHE_TTL = OPTIONS["CACHE_TTL"] || 60 * 60; // Defaults to 1 hour, in seconds
   const retry_delay = 1000; // Delay between API calls when it fails in milliseconds
   const retry_max_attempts = 10; // Max number of attempts when the API responses with status != 200
 
@@ -15,14 +16,14 @@ function BinRequest(OPTIONS) {
   /**
    * Reads data from cache or sends a GET request to Binance API and stores the data into cache with given TTL.
    */
-  function get(CACHE_TTL, url, qs, payload) {
-    return _cache(CACHE_TTL, "get", url, qs, payload);
+  function get(url, qs, payload) {
+    return _cache("get", url, qs, payload);
   }
 
   /**
   * Reads data from cache or sends a request to Binance API and stores the data into cache with given TTL.
   */
-  function _cache(CACHE_TTL, method, url, qs, payload) {
+  function _cache(method, url, qs, payload) {
     let data = BinCache().read(method+"_"+url+"_"+qs);
     
     // First check if we have a cached version
@@ -31,14 +32,14 @@ function BinRequest(OPTIONS) {
       data = _request(method, url, qs, payload, OPTIONS);
       if (data && data.length > 1) {
         Logger.log("DONE loading data from API! Storing at cache..");
-        if (OPTIONS["filter"]) { // Apply custom data filtering before storing into cache
+        if (OPTIONS["filter"]) { // Apply custom data filtering before storing into cache and return it
           data = OPTIONS["filter"](data);
         }
         BinCache().write(method+"_"+url+"_"+qs, data, CACHE_TTL);
       }
     } else {
       Logger.log("FOUND CACHE entry!");
-      if (OPTIONS["filter"]) { // Apply custom data filtering before storing into cache
+      if (OPTIONS["filter"]) { // Apply custom data filtering before return it
         data = OPTIONS["filter"](data);
       }
     }
