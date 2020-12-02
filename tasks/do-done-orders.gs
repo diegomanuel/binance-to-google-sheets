@@ -5,7 +5,6 @@
  */
 function BinDoDoneOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
-  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
   const delay = 250; // Delay between API calls in milliseconds
   let lock_retries = 10; // Max retries to acquire lock
 
@@ -15,13 +14,20 @@ function BinDoDoneOrders() {
   function tag() {
     return "orders/done";
   }
+
+  /**
+   * Returns this function period (the one that's used by the refresh triggers)
+   */
+  function period() {
+    return "5m";
+  }
   
   /**
-   * Returns all account orders: active, canceled, or filled.
+   * Returns the most recent (500) filled/done orders for given symbols.
    *
-   * @param {["BTC","ETH"..]} range_or_cell If given, returns just the matching symbols stats.
+   * @param {["BTC","ETH"..]} range_or_cell REQUIRED! Will fetch recent done orders for given symbols only.
    * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, headers: false"
-   * @return The list of all current open orders for all or given symbols/tickers.
+   * @return The list of all current done orders for all or given symbols/tickers.
    */
   function run(range_or_cell, options) {
     const ticker_against = options["ticker"];
@@ -80,17 +86,10 @@ function BinDoDoneOrders() {
     return BinUtils().sortResults(parsed, 1, true);
   }
 
-  /**
-   * Returns true if the formula matches the criteria
-   */
-  function isFormulaReplacement(period, formula) {
-    return period == "5m" && regex_formula.test(formula);
-  }
-  
   // Return just what's needed from outside!
   return {
     tag,
-    run,
-    isFormulaReplacement
+    period,
+    run
   };
 }

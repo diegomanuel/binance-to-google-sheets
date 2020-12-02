@@ -5,7 +5,6 @@
  */
 function BinDoCurrentPrices() {
   const CACHE_TTL = 55; // In seconds
-  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
   let lock_retries = 10; // Max retries to acquire lock
 
   /**
@@ -13,6 +12,13 @@ function BinDoCurrentPrices() {
    */
   function tag() {
     return "prices";
+  }
+
+  /**
+   * Returns this function period (the one that's used by the refresh triggers)
+   */
+  function period() {
+    return "1m";
   }
   
   /**
@@ -60,17 +66,10 @@ function BinDoCurrentPrices() {
     return symbol_or_range ? parsed : BinUtils().sortResults(parsed);
   }
 
-  /**
-   * Returns true if the formula matches the criteria
-   */
-  function isFormulaReplacement(period, formula) {
-    return period == "1m" && regex_formula.test(formula);
-  }
-  
   // Return just what's needed from outside!
   return {
     tag,
-    run,
-    isFormulaReplacement
+    period,
+    run
   };
 }

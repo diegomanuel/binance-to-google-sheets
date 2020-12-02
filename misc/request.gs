@@ -14,10 +14,20 @@ function BinRequest(OPTIONS) {
   };
 
   /**
-   * Reads data from cache or sends a GET request to Binance API and stores the data into cache with given TTL.
+   * Reads data from cache or Binance API with a GET request
    */
   function get(url, qs, payload) {
-    return _cache("get", url, qs, payload);
+    return _fetch("get", url, qs, payload);
+  }
+
+  /**
+   * Reads data from cache or Binance API
+   */
+  function _fetch(method, url, qs, payload) {
+    if (OPTIONS["no_cache"]) { // Cache is disabled on purpose for this call
+      return _request(method, url, qs, payload, OPTIONS); // Send request to Binance API
+    }
+    return _cache(method, url, qs, payload); // Maybe cache or Binance API
   }
 
   /**

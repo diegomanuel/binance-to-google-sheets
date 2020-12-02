@@ -5,7 +5,6 @@
  */
 function BinDo24hStats() {
   const CACHE_TTL = 60 * 60 * 4 - 60 * 5; // 3:55 hours, in seconds
-  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
   let lock_retries = 10; // Max retries to acquire lock
 
   /**
@@ -13,6 +12,13 @@ function BinDo24hStats() {
    */
   function tag() {
     return "stats/24h";
+  }
+
+  /**
+   * Returns this function period (the one that's used by the refresh triggers)
+   */
+  function period() {
+    return "5m";
   }
   
   /**
@@ -94,17 +100,10 @@ function BinDo24hStats() {
     return range_or_cell ? parsed : BinUtils().sortResults(parsed, 1, false);
   }
 
-  /**
-   * Returns true if the formula matches the criteria
-   */
-  function isFormulaReplacement(period, formula) {
-    return period == "5m" && regex_formula.test(formula);
-  }
-  
   // Return just what's needed from outside!
   return {
     tag,
-    run,
-    isFormulaReplacement
+    period,
+    run
   };
 }

@@ -5,7 +5,6 @@
  */
 function BinDoLastUpdate() {
   const PROP_NAME = "BIN_LAST_UPDATE";
-  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
   const delay = 1000; // Delay getter calls in milliseconds
 
   /**
@@ -13,6 +12,13 @@ function BinDoLastUpdate() {
    */
   function tag() {
     return "last_update";
+  }
+
+  /**
+   * Returns this function period (the one that's used by the refresh triggers)
+   */
+  function period() {
+    return "1m";
   }
 
   /**
@@ -36,17 +42,10 @@ function BinDoLastUpdate() {
     return ts;
   }
 
-  /**
-   * Returns true if the formula matches the criteria
-   */
-  function isFormulaReplacement(period, formula) {
-    return period == "1m" && regex_formula.test(formula);
-  }
-  
   // Return just what's needed from outside!
   return {
     tag,
-    run,
-    isFormulaReplacement
+    period,
+    run
   };
 }

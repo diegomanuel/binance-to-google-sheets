@@ -255,18 +255,24 @@ function BinSetup() {
     
     return  !period
               ||
-            BinDoCurrentPrices().isFormulaReplacement(period, formula)
+            _isFormulaReplacementModule(BinDoCurrentPrices(), period, formula)
               ||
-            BinDo24hStats().isFormulaReplacement(period, formula)
+            _isFormulaReplacementModule(BinDo24hStats(), period, formula)
               ||
-            BinDoDoneOrders().isFormulaReplacement(period, formula)
+            _isFormulaReplacementModule(BinDoDoneOrders(), period, formula)
               ||
-            BinDoOpenOrders().isFormulaReplacement(period, formula)
+            _isFormulaReplacementModule(BinDoOpenOrders(), period, formula)
               ||
-            BinDoAccountInfo().isFormulaReplacement(period, formula)
+            _isFormulaReplacementModule(BinDoAccountInfo(), period, formula)
               ||
-            BinDoLastUpdate().isFormulaReplacement(period, formula);
+            _isFormulaReplacementModule(BinDoLastUpdate(), period, formula);
           
+  }
+
+  function _isFormulaReplacementModule(module, period, formula) {
+    const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+module.tag());
+    return module.period() == period && regex_formula.test(formula);
+
   }
 
   function _refreshUI() {

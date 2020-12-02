@@ -5,7 +5,6 @@
  */
 function BinDoAccountInfo() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
-  const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+tag());
   let lock_retries = 10; // Max retries to acquire lock
 
   /**
@@ -13,6 +12,13 @@ function BinDoAccountInfo() {
    */
   function tag() {
     return "account";
+  }
+
+  /**
+   * Returns this function period (the one that's used by the refresh triggers)
+   */
+  function period() {
+    return "5m";
   }
   
   /**
@@ -66,17 +72,10 @@ function BinDoAccountInfo() {
     return [...general, ...sorted];
   }
 
-  /**
-   * Returns true if the formula matches the criteria
-   */
-  function isFormulaReplacement(period, formula) {
-    return period == "5m" && regex_formula.test(formula);
-  }
-  
   // Return just what's needed from outside!
   return {
     tag,
-    run,
-    isFormulaReplacement
+    period,
+    run
   };
 }
