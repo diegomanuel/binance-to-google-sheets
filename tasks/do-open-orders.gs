@@ -1,7 +1,5 @@
 /**
  * Runs the open orders script.
- *
- * @OnlyCurrentDoc
  */
 function BinDoOpenOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
@@ -43,19 +41,13 @@ function BinDoOpenOrders() {
     Logger.log("[BinDoOpenOrders] Done!");
     return parsed;
   }
-  
-  /**
-   * @OnlyCurrentDoc
-   */
+
   function filter(data, symbol) {
     return data.filter(function(ticker) {
       return ticker.symbol == symbol;
     });
   }
-  
-  /**
-   * @OnlyCurrentDoc
-   */
+
   function parse(data, {headers: show_headers}) {
     const header = ["Date", "Pair", "Type", "Side", "Price", "Amount", "Executed", "Total"];
     const parsed = data.reduce(function(rows, order) {

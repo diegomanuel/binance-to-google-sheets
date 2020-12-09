@@ -1,7 +1,5 @@
 /**
  * App config params.
- *
- * @OnlyCurrentDoc
  */
 
 const DEBUG = false;

@@ -1,7 +1,5 @@
 /**
  * Runs the done orders script.
- *
- * @OnlyCurrentDoc
  */
 function BinDoDoneOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
@@ -57,21 +55,17 @@ function BinDoDoneOrders() {
     Logger.log("[BinDoDoneOrders] Done!");
     return parsed;
   }
-  
-  /**
-   * @OnlyCurrentDoc
-   */
+
   function parse(data, {headers: show_headers}) {
     const header = ["#ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"];
     const parsed = data.reduce(function(rows, order) {
-      const symbol = order.symbol;
       const price = BinUtils().parsePrice(order.price);
       const amount = parseFloat(order.qty);
       const commission = BinUtils().parsePrice(order.commission);
       const row = [
         order.orderId,
         new Date(parseInt(order.time)),
-        symbol,
+        order.symbol,
         order.isMaker ? "LIMIT" : "STOP-LIMIT",
         order.isBuyer ? "BUY" : "SELL",
         price,

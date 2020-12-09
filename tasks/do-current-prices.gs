@@ -1,7 +1,5 @@
 /**
  * Runs the current prices script.
- *
- * @OnlyCurrentDoc
  */
 function BinDoCurrentPrices() {
   const CACHE_TTL = 55; // In seconds
@@ -42,10 +40,7 @@ function BinDoCurrentPrices() {
     Logger.log("[BinDoCurrentPrices] Done!");
     return parsed;
   }
-  
-  /**
-   * @OnlyCurrentDoc
-   */
+
   function parse(data, symbol_or_range, {ticker: ticker_against, headers: show_headers, prices: prices_only}) {
     prices_only = BinUtils().parseBool(prices_only, false);
     show_headers = BinUtils().parseBool(show_headers);

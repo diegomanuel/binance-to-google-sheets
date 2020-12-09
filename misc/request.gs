@@ -1,7 +1,5 @@
 /**
  * API client wrapper.
- *
- * @OnlyCurrentDoc
  */
 function BinRequest(OPTIONS) {
   OPTIONS = OPTIONS || {}; // Init options
@@ -87,7 +85,7 @@ function BinRequest(OPTIONS) {
       const response = UrlFetchApp.fetch(da_url, options);
       if (DEBUG) {
         Logger.log("QUERY: "+da_url);
-        Logger.log("RESPONSE: "+JSON.stringify(response));
+        Logger.log("RESPONSE: "+response.getResponseCode());
       }
       if (response.getResponseCode() == 200) {
         BinDoLastUpdate().run(new Date()); // Refresh last update ts

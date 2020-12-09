@@ -1,7 +1,5 @@
 /**
  * Cache wrapper.
- *
- * @OnlyCurrentDoc
  */
 function BinCache() {
   return {

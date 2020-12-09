@@ -1,7 +1,5 @@
 /**
  * Runs the last update script.
- *
- * @OnlyCurrentDoc
  */
 function BinDoLastUpdate() {
   const PROP_NAME = "BIN_LAST_UPDATE";

@@ -1,7 +1,5 @@
 /**
  * Runs the 24h stats script.
- *
- * @OnlyCurrentDoc
  */
 function BinDo24hStats() {
   const CACHE_TTL = 60 * 60 * 4 - 60 * 5; // 3:55 hours, in seconds
@@ -54,10 +52,7 @@ function BinDo24hStats() {
     Logger.log("[BinDo24hStats] Done!");
     return parsed;
   }
-  
-  /**
-   * @OnlyCurrentDoc
-   */
+
   function parse(data, range_or_cell, {headers: show_headers}) {
     const header = ["Date", "Symbol", "Price", "Ask", "Bid", "Open", "High", "Low", "Prev Close", "$ Change 24h", "% Change 24h", "Volume"];
     const parsed = data.reduce(function(rows, ticker) {

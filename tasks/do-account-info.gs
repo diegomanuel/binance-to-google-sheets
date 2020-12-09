@@ -1,7 +1,5 @@
 /**
  * Runs the account info script.
- *
- * @OnlyCurrentDoc
  */
 function BinDoAccountInfo() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
@@ -42,10 +40,7 @@ function BinDoAccountInfo() {
     Logger.log("[BinDoAccountInfo] Done!");
     return parsed;
   }
-  
-  /**
-   * @OnlyCurrentDoc
-   */
+
   function parse(data, {headers: show_headers}) {
     show_headers = BinUtils().parseBool(show_headers);
     const header1 = ["Maker Commission", "Taker Commission", "Buyer Commission", "Seller Commission", "Can Trade", "Can Withdraw", "Can Deposit", "Account Type", "Last Update"];
