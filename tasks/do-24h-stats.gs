@@ -3,7 +3,7 @@
  */
 function BinDo24hStats() {
   const CACHE_TTL = 60 * 60 * 4 - 60 * 5; // 3:55 hours, in seconds
-  let lock_retries = 10; // Max retries to acquire lock
+  let lock_retries = 5; // Max retries to acquire lock
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)

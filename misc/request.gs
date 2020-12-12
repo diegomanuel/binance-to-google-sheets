@@ -5,7 +5,7 @@ function BinRequest(OPTIONS) {
   OPTIONS = OPTIONS || {}; // Init options
   const CACHE_TTL = OPTIONS["CACHE_TTL"] || 60 * 60; // Defaults to 1 hour, in seconds
   const retry_delay = 1000; // Delay between API calls when it fails in milliseconds
-  const retry_max_attempts = 10; // Max number of attempts when the API responses with status != 200
+  const retry_max_attempts = 5; // Max number of attempts when the API responses with status != 200
 
   return {
     get
@@ -137,7 +137,7 @@ function BinRequest(OPTIONS) {
    * Retries an execution for given status code.
    */
   function _canRetryRequest(code, opts) {
-    const max_attempts = opts["retries"] || retry_max_attempts;
+    const max_attempts = Math.max(opts["retries"]||0, retry_max_attempts);
     if ((opts["retries_"+code]||0) < max_attempts) {
       opts["retries_"+code] = (opts["retries_"+code]||0) + 1;
       Logger.log("Retry "+opts["retries_"+code]+"/"+max_attempts+" for status code ["+code+"] in "+retry_delay+" milliseconds..");

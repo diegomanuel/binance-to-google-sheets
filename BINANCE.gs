@@ -34,6 +34,9 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   if (operation == BinDo24hStats().tag()) {
     return BinDo24hStats().run(range_or_cell, options);
   }
+  if (operation == BinDoHistoryOrders().tag()) {
+    return BinDoHistoryOrders().run(range_or_cell, options);
+  }
   if (operation == BinDoDoneOrders().tag()) {
     return BinDoDoneOrders().run(range_or_cell, options);
   }

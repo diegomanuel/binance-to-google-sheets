@@ -3,7 +3,7 @@
  */
 function BinDoOpenOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
-  let lock_retries = 10; // Max retries to acquire lock
+  let lock_retries = 5; // Max retries to acquire lock
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)

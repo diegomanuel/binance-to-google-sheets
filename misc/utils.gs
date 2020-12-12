@@ -1,7 +1,5 @@
 /**
  * General utility functions wrapper.
- *
- * @OnlyCurrentDoc
  */
 function BinUtils() {
   return {
@@ -16,6 +14,8 @@ function BinUtils() {
     sortResults,
     obscureSecret,
     isAuthEnough,
+    isFormulaMatching,
+    extractFormulaParams,
     toast
   };
   
@@ -62,8 +62,15 @@ function BinUtils() {
    * Always returns an array no matter if it's a single cell or an entire range
    * @TODO Add "n-dimension" support
    */
-  function getRangeOrCell(range_or_cell) {
-    return typeof range_or_cell == "string" ? [range_or_cell] : range_or_cell;
+  function getRangeOrCell(range_or_cell, sheet) {
+    if (typeof range_or_cell !== "string") {
+      return range_or_cell;
+    }
+    try {
+      return sheet ? sheet.getRange(range_or_cell).getValues() : [range_or_cell];
+    } catch (err) {
+      return [range_or_cell];
+    }
   }
 
   /**
@@ -162,6 +169,40 @@ function BinUtils() {
    */
   function isAuthEnough(auth_mode) {
     return auth_mode === ScriptApp.AuthMode.FULL || auth_mode === ScriptApp.AuthMode.LIMITED;
+  }
+
+  /**
+   * Returns true/false if the given period and formula matches the given module
+   */
+  function isFormulaMatching(module, period, formula) {
+    const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+module.tag(), "i");
+    return module.period() == period && regex_formula.test(formula);
+
+  }
+
+  /**
+   * Extract parameters from the formula string for the given module
+   */
+  function extractFormulaParams(module, formula) {
+    const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+module.tag()+"\"\\s*,\\s*\"?([^\"\\)]+)\"?(?:\\s*,\\s*\"([^\"]+)\")?", "ig");
+    const extracted = regex_formula.exec(formula);
+    let [range_or_cell, options] = ["", ""];
+
+    if (DEBUG) {
+      Logger.log("FORMULA: "+JSON.stringify(formula));
+      extracted.map(function(val) {
+        Logger.log("REGEXP VAL: "+val);
+      });
+    }
+
+    if (extracted && extracted[0] && extracted[1]) {
+      range_or_cell = extracted[1];
+    }
+    if (extracted && extracted[0] && extracted[2]) {
+      options = extracted[2];
+    }
+
+    return [range_or_cell, BinUtils().parseOptions(options)];
   }
 
   /**

@@ -4,7 +4,7 @@
 function BinDoDoneOrders() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const delay = 250; // Delay between API calls in milliseconds
-  let lock_retries = 10; // Max retries to acquire lock
+  let lock_retries = 5; // Max retries to acquire lock
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -47,7 +47,7 @@ function BinDoDoneOrders() {
       const qs = "symbol="+crypto+ticker_against;
       Utilities.sleep(delay); // Add some waiting time to avoid 418 responses!
       const crypto_data = BinRequest(opts).get("api/v3/myTrades", qs, "");
-      return [...crypto_data, ...rows];
+      return rows.concat(crypto_data);
     }, []);
   
     lock.releaseLock();

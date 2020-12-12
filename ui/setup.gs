@@ -28,7 +28,7 @@ function onInstall(event) {
 function BinSetup() {
   const user_props = PropertiesService.getUserProperties();
   const regex_formula = new RegExp(/=.*BINANCE\s*\(/);
-  let lock_retries = 10; // Max retries to acquire lock
+  let lock_retries = 5; // Max retries to acquire lock
 
   return {
     areAPIKeysConfigured,
@@ -162,8 +162,8 @@ function BinSetup() {
    * Configs required triggers to automatically have the data updated.
    */
   function configTriggers() {
-    // Time-based triggers config
-    const triggers = {"doRefresh1m": 1, "doRefresh5m": 5};
+    // Time-based triggers config (everyMinutes: 1, 5, 10, 15 or 30)
+    const triggers = {"doRefresh1m": 1, "doRefresh5m": 5, "doHistory": 10};
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return configTriggers();
@@ -243,8 +243,8 @@ function BinSetup() {
           count++;
           range.getCell(row+row_offset, col+col_offset).setFormula(formula === "" ? "" : formulas[row][col]);
         }
-      };
-    };
+      }
+    }
     return count;
   }
 
@@ -255,24 +255,18 @@ function BinSetup() {
     
     return  !period
               ||
-            _isFormulaReplacementModule(BinDoCurrentPrices(), period, formula)
+            BinUtils().isFormulaMatching(BinDoCurrentPrices(), period, formula)
               ||
-            _isFormulaReplacementModule(BinDo24hStats(), period, formula)
+            BinUtils().isFormulaMatching(BinDo24hStats(), period, formula)
               ||
-            _isFormulaReplacementModule(BinDoDoneOrders(), period, formula)
+            BinUtils().isFormulaMatching(BinDoDoneOrders(), period, formula)
               ||
-            _isFormulaReplacementModule(BinDoOpenOrders(), period, formula)
+            BinUtils().isFormulaMatching(BinDoOpenOrders(), period, formula)
               ||
-            _isFormulaReplacementModule(BinDoAccountInfo(), period, formula)
+            BinUtils().isFormulaMatching(BinDoAccountInfo(), period, formula)
               ||
-            _isFormulaReplacementModule(BinDoLastUpdate(), period, formula);
+            BinUtils().isFormulaMatching(BinDoLastUpdate(), period, formula);
           
-  }
-
-  function _isFormulaReplacementModule(module, period, formula) {
-    const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+module.tag());
-    return module.period() == period && regex_formula.test(formula);
-
   }
 
   function _refreshUI() {
@@ -303,3 +297,10 @@ function doRefresh1h(event) {
   }
   BinSetup().forceRefreshSheetFormulas(); // Refresh'em all!
 };
+function doHistory(event) {
+  if (DEBUG) {
+    Logger.log("EVENT: "+JSON.stringify(event));
+  }
+
+  BinDoHistoryOrders().execute();
+}
