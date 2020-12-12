@@ -55,6 +55,7 @@ function BinMenu(ui, auth_mode) {
 function forceRefresh() {
   BinUtils().toast("Refreshing data, be patient..!", "", 5);
   BinSetup().forceRefreshSheetFormulas(); // Refresh'em all!
+  BinDoHistoryOrders().execute(); // Run history orders poll
 }
 
 /**

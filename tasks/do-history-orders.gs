@@ -22,10 +22,13 @@ function BinDoHistoryOrders() {
   }
   
   /**
-   * Returns all orders history for given symbols.
+   * Establishes the current sheet as the orders history "table" for given symbols.
+   * 
+   * IMPORTANT: Data written into this sheet/table should never be altered by hand!
+   * You may ONLY REMOVE records from the bottom of the sheet (as many as you want, even all of them).
    *
    * @param {["BTC","ETH"..]} range_or_cell REQUIRED! Will fetch orders history for given symbols only.
-   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, headers: false"
+   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, stats: false"
    * @return The list of all orders for all or given symbols/tickers.
    */
   function run(range_or_cell, options) {
@@ -47,6 +50,21 @@ function BinDoHistoryOrders() {
     ];
   }
 
+  function init() {
+    return _findSheets().map(function(sheet) { // Go through each sheet found
+      try {
+        _initSheet(sheet); // Ensure the sheet is initialized
+      } catch (err) {
+        _setStatus(sheet, "ERROR: "+err.message);
+        console.error(err);
+      }
+      return sheet;
+    });
+  }
+
+  /**
+   * Executes a poll session to download and save historic order records for each currently active sheets
+   */
   function execute() {
     Logger.log("[BinDoHistoryOrders] Running..");
     const lock = BinUtils().getUserLock(lock_retries--);
@@ -57,8 +75,9 @@ function BinDoHistoryOrders() {
     const sheets = _findSheets();
     const names = _sheetNames(sheets);
     Logger.log("[BinDoHistoryOrders] Processing '"+names.length+"' sheets: "+JSON.stringify(names));
-    sheets.map(function(sheet) { // Get this formula's sheets (if any)
+    sheets.map(function(sheet) { // Go through each sheet found
       try {
+        _initSheet(sheet); // Ensure the sheet is initialized
         _fetchAndSave(sheet);
       } catch (err) {
         _setStatus(sheet, "ERROR: "+err.message);
@@ -72,7 +91,6 @@ function BinDoHistoryOrders() {
 
   function _fetchAndSave(sheet) {
     Logger.log("[BinDoHistoryOrders] Processing sheet: "+sheet.getName());
-    _initSheet(sheet); // Ensure this sheet is initialized
     const [range_or_cell, options] = _parseFormula(sheet);
     const ticker_against = options["ticker"];
     if (!range_or_cell) {
@@ -139,16 +157,20 @@ function BinDoHistoryOrders() {
   function _initSheet(sheet) {
     sheet.setFrozenRows(header_size); // Freeze header rows
     sheet.getRange("A1:J1").mergeAcross();
-    sheet.getRange("A2:B2").mergeAcross();
+    sheet.getRange("B2:C2").mergeAcross();
     sheet.getRange("E2:F2").mergeAcross();
 
     // Set the table headers
     const header = ["#ID", "Order #ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"];
     sheet.getRange("A3:J3").setValues([header]);
-    sheet.getRange("A2").setValue("Last update:");
+    sheet.getRange("A2").setValue("Last poll:");
     sheet.getRange("D2").setValue("Status:");
     sheet.getRange("G2").setValue("Records:");
     sheet.getRange("I2").setValue("Pairs:");
+
+    if (!sheet.getRange("E2").getValue()) { // Init first status
+      _setStatus(sheet, "waiting for 1st poll run");
+    }
 
     // Remove extra rows (if any)
     const row_min = Math.max(header_size+1, sheet.getLastRow());
@@ -167,13 +189,13 @@ function BinDoHistoryOrders() {
     const italic = SpreadsheetApp.newTextStyle().setItalic(true).build();
     sheet.getRange("A1:J"+header_size).setTextStyle(bold);
     sheet.getRange("E2").setTextStyle(italic);
-    sheet.getRange("C2").setNumberFormat("ddd d hh:mm");
+    sheet.getRange("B2").setNumberFormat("ddd d hh:mm");
   }
 
   function _parseFilterQS(sheet, symbol) {
     const row = _findLastRowData(sheet, symbol);
     if (row) { // We found the latest matching row for this symbol..
-      return ["fromId", row[0]]; // .. so use its tradeId!
+      return ["fromId", row[0]]; // .. so use its #ID value!
     }
 
     // Fallback to the oldest possible datetime (Binance launch date)
@@ -259,7 +281,7 @@ function BinDoHistoryOrders() {
       Logger.log("[BinDoHistoryOrders] Sheet '"+sheet.getName()+"' totals: "+JSON.stringify(totals));
     }
 
-    sheet.getRange("C2").setValue(new Date()); // Update last run time
+    sheet.getRange("B2").setValue(new Date()); // Update last run time
   }
 
   // Return just what's needed from outside!
@@ -267,6 +289,7 @@ function BinDoHistoryOrders() {
     tag,
     period,
     run,
+    init,
     execute
   };
 }

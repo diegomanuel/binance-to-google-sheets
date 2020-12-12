@@ -283,6 +283,7 @@ function doRefresh1m(event) {
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
+  BinDoHistoryOrders().init(); // Initialize history order sheets (if any)
   BinSetup().forceRefreshSheetFormulas("1m");
 };
 function doRefresh5m(event) {
