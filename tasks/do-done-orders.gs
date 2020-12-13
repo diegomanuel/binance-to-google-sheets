@@ -2,6 +2,7 @@
  * Runs the done orders script.
  */
 function BinDoDoneOrders() {
+  const max_items = 10; // How many items to be fetched for each symbol by default
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const delay = 250; // Delay between API calls in milliseconds
   let lock_retries = 5; // Max retries to acquire lock
@@ -21,14 +22,15 @@ function BinDoDoneOrders() {
   }
   
   /**
-   * Returns the most recent (500) filled/done orders for given symbols.
+   * Returns the most recent filled/done orders for given symbols (10 per symbol by default).
    *
    * @param {["BTC","ETH"..]} range_or_cell REQUIRED! Will fetch recent done orders for given symbols only.
-   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, headers: false"
+   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, headers: false, max: 100"
    * @return The list of all current done orders for all or given symbols/tickers.
    */
   function run(range_or_cell, options) {
     const ticker_against = options["ticker"];
+    const limit = _getMaxItems(options); // Get max items limit
     Logger.log("[BinDoDoneOrders] Running..");
     if (!range_or_cell) {
       throw new Error("A range with crypto names must be given!");
@@ -44,7 +46,7 @@ function BinDoDoneOrders() {
       "retries": range.length
     };
     const data = range.reduce(function(rows, crypto) {
-      const qs = "symbol="+crypto+ticker_against;
+      const qs = "limit="+limit+"&symbol="+crypto+ticker_against;
       Utilities.sleep(delay); // Add some waiting time to avoid 418 responses!
       const crypto_data = BinRequest(opts).get("api/v3/myTrades", qs, "");
       return rows.concat(crypto_data);
@@ -56,8 +58,9 @@ function BinDoDoneOrders() {
     return parsed;
   }
 
-  function parse(data, {headers: show_headers}) {
-    const header = ["#ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"];
+  function parse(data, options) {
+    const limit = _getMaxItems(options); // Get max items limit
+    const header = ["#ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total", "Viewing last "+limit+" orders per symbol"];
     const parsed = data.reduce(function(rows, order) {
       const price = BinUtils().parsePrice(order.price);
       const amount = parseFloat(order.qty);
@@ -75,9 +78,13 @@ function BinDoDoneOrders() {
       ];
       rows.push(row);
       return rows;
-    }, BinUtils().parseBool(show_headers) ? [header] : []);
+    }, BinUtils().parseBool(options["headers"]) ? [header] : []);
 
     return BinUtils().sortResults(parsed, 1, true);
+  }
+
+  function _getMaxItems(options) {
+    return Math.max(1, Math.min(1000, parseInt(options["max"]||max_items))); // Cap between 1 and 1000 items per symbol
   }
 
   // Return just what's needed from outside!
