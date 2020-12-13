@@ -118,7 +118,8 @@ So far, these are the **available operations**:
 `=BINANCE("orders/done", A1:A3)` will return a list with your latest (`10` by default) done/finished orders for given symbols from Binance.
 * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
 * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
-* `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 100")` Optionally you can give more options like not returning table headers and fetching latest `100` orders per given symbol (defaults to `10`).
+* `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 100")` Optionally you can give more options like not returning table headers and fetching latest `100` orders per given symbol.
+* Values for `max` allowed between `1` and `1000` (defaults to `10`).
 ### Operation: `"orders/table"` (private)
 `=BINANCE("orders/table", MySheet!A1:A3)` will **transform** the current sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance.
 * This formula **must always** be placed at `A1` in any new blank sheet into your spreadsheet.
@@ -173,9 +174,6 @@ No personal data collect and/or usage is done in any way, that's why this `add-o
 The only _sensitive scopes_ according to **Google** are:
 * `script.external_request` :: Needed to **fetch data from Binance API** into the spreadsheet (GET requests only).
 * `script.scriptapp` :: Needed to **install and run 3 triggers** to keep data updated in the spreadsheet (every 1, 5 and 10 minutes).
-
-The script, and in the end, myself, don't need/want/wish any personal information like name, email and so on.  
-**I am firmly committed to honor this pact from now and forever!**
 
 **NOTE:** This is an _open-source_ project, so you will always be available to keep and eye to the code and audit it.  
 If you have any concerns, please feel free to open a ticket in the [issues](https://github.com/diegomanuel/binance-to-google-sheets/issues) section or email me.
