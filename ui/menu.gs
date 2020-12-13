@@ -38,7 +38,7 @@ function BinMenu(ui, auth_mode) {
     menu.addToUi(); // Add resultant menu items to the spreadsheet main menu
 
     if (is_auth_enough) { // Show welcome/acknownledge toast
-      BinUtils().toast("I just started working at this spreadsheet. Enjoy it!  =]");
+      BinUtils().toast("Hi there! I'm installed and working at this spreadsheet. Enjoy it!  =]");
     } else if (auth_mode !== ScriptApp.AuthMode.NONE) { // Show enable/authorize toast
       BinUtils().toast("The BINANCE() formula  WON'T be available until you **enable and authorize** the add-on.", "", 30);
     }
