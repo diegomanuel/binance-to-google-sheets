@@ -169,15 +169,17 @@ function BinDoTableOrders() {
     sheet.getRange("G2").setValue("Records:");
     sheet.getRange("I2").setValue("Pairs:");
 
-    if (!sheet.getRange("E2").getValue()) { // Init first status
-      _setStatus(sheet, "waiting for 1st poll run");
-    }
+    // Set initial stats values
+    _initCellValue(sheet, "B2");
+    _initCellValue(sheet, "E2", "waiting for 1st poll run");
+    _initCellValue(sheet, "H2");
+    _initCellValue(sheet, "J2");
 
     // Remove extra rows (if any)
     const row_min = Math.max(header_size+1, sheet.getLastRow());
     const row_diff = sheet.getMaxRows() - row_min;
     if (row_diff > 0) {
-      sheet.deleteRows(row_min, row_diff);
+      sheet.deleteRows(row_min+1, row_diff);
     }
     // Remove extra colums (if any)
     const col_diff = sheet.getMaxColumns() - header.length;
@@ -286,6 +288,12 @@ function BinDoTableOrders() {
     }
 
     sheet.getRange("B2").setValue(new Date()); // Update last run time
+  }
+
+  function _initCellValue(sheet, cell, emptyval) {
+    if (!sheet.getRange(cell).getValue()) {
+      sheet.getRange(cell).setValue(emptyval !== undefined ? emptyval : "-");
+    }
   }
 
   // Return just what's needed from outside!
