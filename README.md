@@ -6,13 +6,15 @@ This `add-on` is basically an **API client** specially hand-crafted to work betw
 By using the `BINANCE()` formula in your spreadsheet, you can get data fetched from Binance API like:  
 * Current crypto prices
 * 24h stats
-* Open and Done orders
-* Account info
+* All current open orders
+* Latest done/finished orders
+* Historical orders table
+* Account general info
 * Last update time
 * ..and many more to come!
 
 At first glance, **NO Binance API key** is needed to call public endpoints like current crypto prices and 24h stats.  
-It **only** requires a [Binance API key](#binance-api-key) for account info and open/done orders lists, but a **READ-ONLY** API key is enough for everything to work.  
+It **only** requires a [Binance API key](#binance-api-key) for account info and open/done/table orders lists, but a **READ-ONLY** API key is enough for everything to work.  
 In deed, I _personally recommend_ to generate a **READ-ONLY** API key at Binance site [here](https://www.binance.com/en/usercenter/settings/api-management).  
 It does **NOT need** write/trade access **in ANY way** to properly work with all its features, so don't give extra permissions if they aren't needed!
 
@@ -98,13 +100,17 @@ So far, these are the available operations:
     * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
     * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
     * `=BINANCE("stats/24h", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
-* `=BINANCE("orders/done", A1:A3)` will return a list with your latest finished BUY/SELL orders for given symbols from Binance (**private**, API keys required).
-    * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-    * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
-    * `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
-* `=BINANCE("orders/open")` will return a list with all your pending BUY/SELL orders from Binance (**private**, API keys required).
+* `=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance (**private**, API keys required).
     * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a full ticker to filter the results.
     * `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
+* `=BINANCE("orders/done", A1:A3)` will return a list with your latest (`10` by default) done/finished orders for given symbols from Binance (**private**, API keys required).
+    * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
+    * `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 100")` Optionally you can give more options like not returning table headers and fetching latest `100` orders per given symbol (defaults to `10`).
+* `=BINANCE("orders/table", A1:A3)` will **transform** the sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance (**private**, API keys required).
+    * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+    * Do **NOT** alter the table data by hand! It will poll for data every 10 minutes.
+    * `=BINANCE("orders/table", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
 * `=BINANCE("account")` will return account info from Binance (**private**, API keys required).
     * `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
@@ -147,7 +153,7 @@ Therefore, you will agree upon your own fully responsibility at the very moment 
 No personal data collect and/or usage is done in any way, that's why this `add-on` doesn't require any _"controversial"_ permission from your side.  
 The only _sensitive scopes_ according to **Google** are:
 * `script.external_request` :: Needed to **fetch data from Binance API** into the spreadsheet (GET requests only).
-* `script.scriptapp` :: Needed to **install and run 2 triggers** to keep data updated in the spreadsheet (every 1 and 5 minutes).
+* `script.scriptapp` :: Needed to **install and run 3 triggers** to keep data updated in the spreadsheet (every 1, 5 and 10 minutes).
 
 The script, and in the end, myself, don't need/want/wish any personal information like name, email and so on.  
 **I am firmly committed to honor this pact from now and forever!**

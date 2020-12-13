@@ -29,6 +29,7 @@ function BinDoTableOrders() {
    *
    * @param {["BTC","ETH"..]} range_or_cell REQUIRED! Will fetch ALL historic orders for given symbols only.
    * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, stats: false"
+   * @TODO Implement "stats: false" option
    * @return The list of all orders for all or given symbols/tickers.
    */
   function run(range_or_cell, options) {
