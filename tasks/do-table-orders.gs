@@ -1,7 +1,7 @@
 /**
- * Runs the history orders script.
+ * Runs the table orders script.
  */
-function BinDoHistoryOrders() {
+function BinDoTableOrders() {
   const header_size = 3; // How many rows the header will have
   const max_items = 100; // How many items to be fetched on each run
   const delay = 500; // Delay between API calls in milliseconds
@@ -11,7 +11,7 @@ function BinDoHistoryOrders() {
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
    */
   function tag() {
-    return "orders/history";
+    return "orders/table";
   }
 
   /**
@@ -22,17 +22,17 @@ function BinDoHistoryOrders() {
   }
   
   /**
-   * Establishes the current sheet as the orders history "table" for given symbols.
+   * Establishes the current sheet as the orders table for given symbols.
    * 
    * IMPORTANT: Data written into this sheet/table should never be altered by hand!
    * You may ONLY REMOVE records from the bottom of the sheet (as many as you want, even all of them).
    *
-   * @param {["BTC","ETH"..]} range_or_cell REQUIRED! Will fetch orders history for given symbols only.
+   * @param {["BTC","ETH"..]} range_or_cell REQUIRED! Will fetch ALL historic orders for given symbols only.
    * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, stats: false"
    * @return The list of all orders for all or given symbols/tickers.
    */
   function run(range_or_cell, options) {
-    Logger.log("[BinDoHistoryOrders] Running..");
+    Logger.log("[BinDoTableOrders] Running..");
     if (!range_or_cell) {
       throw new Error("A range with crypto symbols must be given!");
     }
@@ -42,8 +42,8 @@ function BinDoHistoryOrders() {
       throw new Error("This formula must be placed at 'A1'!");
     }
     const names = _sheetNames(sheets);
-    Logger.log("[BinDoHistoryOrders] Currently active at '"+names.length+"' sheets: "+JSON.stringify(names));
-    Logger.log("[BinDoHistoryOrders] Done!");
+    Logger.log("[BinDoTableOrders] Currently active at '"+names.length+"' sheets: "+JSON.stringify(names));
+    Logger.log("[BinDoTableOrders] Done!");
 
     return [
       ["Do **NOT** add/remove/alter this table data by hand! --- Polling "+max_items+" items every "+period()+" --- Patience, you may hide this row"]
@@ -66,7 +66,7 @@ function BinDoHistoryOrders() {
    * Executes a poll session to download and save historic order records for each currently active sheets
    */
   function execute() {
-    Logger.log("[BinDoHistoryOrders] Running..");
+    Logger.log("[BinDoTableOrders] Running..");
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return execute();
@@ -74,7 +74,7 @@ function BinDoHistoryOrders() {
 
     const sheets = _findSheets();
     const names = _sheetNames(sheets);
-    Logger.log("[BinDoHistoryOrders] Processing '"+names.length+"' sheets: "+JSON.stringify(names));
+    Logger.log("[BinDoTableOrders] Processing '"+names.length+"' sheets: "+JSON.stringify(names));
     sheets.map(function(sheet) { // Go through each sheet found
       try {
         _initSheet(sheet); // Ensure the sheet is initialized
@@ -86,11 +86,11 @@ function BinDoHistoryOrders() {
     });
 
     lock.releaseLock();
-    Logger.log("[BinDoHistoryOrders] Done!");
+    Logger.log("[BinDoTableOrders] Done!");
   }
 
   function _fetchAndSave(sheet) {
-    Logger.log("[BinDoHistoryOrders] Processing sheet: "+sheet.getName());
+    Logger.log("[BinDoTableOrders] Processing sheet: "+sheet.getName());
     const [range_or_cell, options] = _parseFormula(sheet);
     const ticker_against = options["ticker"];
     if (!range_or_cell) {
@@ -109,7 +109,7 @@ function BinDoHistoryOrders() {
     const data = range.reduce(function(rows, crypto) {
       const symbol = crypto+ticker_against;
       if (rows.length > max_items) {
-        Logger.log("[BinDoHistoryOrders] Max items cap! ["+rows.length+"/"+max_items+"] => Skipping fetch for: "+symbol);
+        Logger.log("[BinDoTableOrders] Max items cap! ["+rows.length+"/"+max_items+"] => Skipping fetch for: "+symbol);
         return rows;
       }
 
@@ -121,14 +121,14 @@ function BinDoHistoryOrders() {
       if (fkey === "fromId") { // Skip the first result if we used fromId to filter
         crypto_data.shift();
       }
-      Logger.log("[BinDoHistoryOrders] Fetched "+crypto_data.length+" records for: "+symbol);
+      Logger.log("[BinDoTableOrders] Fetched "+crypto_data.length+" records for: "+symbol);
       return rows.concat(crypto_data);
     }, []);
   
     // Parse and save collected data
     const parsed = _parseData(data.slice(0, max_items)); // Enforce max items cap
     _setStatus(sheet, "saving "+parsed.length+" records..");
-    Logger.log("[BinDoHistoryOrders] Saving "+parsed.length+" downloaded records into '"+sheet.getName()+"' sheet..");
+    Logger.log("[BinDoTableOrders] Saving "+parsed.length+" downloaded records into '"+sheet.getName()+"' sheet..");
     parsed.map(function(row) {
       sheet.appendRow(row);
     });
@@ -140,7 +140,7 @@ function BinDoHistoryOrders() {
 
   function _findSheets() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const self = BinDoHistoryOrders();
+    const self = BinDoTableOrders();
 
     return ss.getSheets().filter(function(sheet) {
       const formula = _getFormula(sheet);
@@ -187,7 +187,10 @@ function BinDoHistoryOrders() {
     // Set styles & formats
     const bold = SpreadsheetApp.newTextStyle().setBold(true).build();
     const italic = SpreadsheetApp.newTextStyle().setItalic(true).build();
-    sheet.getRange("A1:J"+header_size).setTextStyle(bold);
+    sheet.getRange("A1:J"+header_size) // Styles for the whole header
+      .setHorizontalAlignment("center")
+      .setVerticalAlignment("middle")
+      .setTextStyle(bold);
     sheet.getRange("E2").setTextStyle(italic);
     sheet.getRange("B2").setNumberFormat("ddd d hh:mm");
   }
@@ -227,7 +230,7 @@ function BinDoHistoryOrders() {
 
   function _parseFormula(sheet) {
     const formula = _getFormula(sheet);
-    const self = BinDoHistoryOrders();
+    const self = BinDoTableOrders();
     const [range_or_cell, options] = BinUtils().extractFormulaParams(self, formula);
     if (DEBUG) {
       Logger.log("Parsed formula range: "+JSON.stringify(range_or_cell));
@@ -278,7 +281,7 @@ function BinDoHistoryOrders() {
 
       sheet.getRange("H2").setValue(count);
       sheet.getRange("J2").setValue(Object.keys(totals).length);
-      Logger.log("[BinDoHistoryOrders] Sheet '"+sheet.getName()+"' totals: "+JSON.stringify(totals));
+      Logger.log("[BinDoTableOrders] Sheet '"+sheet.getName()+"' totals: "+JSON.stringify(totals));
     }
 
     sheet.getRange("B2").setValue(new Date()); // Update last run time

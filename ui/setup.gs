@@ -163,7 +163,7 @@ function BinSetup() {
    */
   function configTriggers() {
     // Time-based triggers config (everyMinutes: 1, 5, 10, 15 or 30)
-    const triggers = {"doRefresh1m": 1, "doRefresh5m": 5, "doHistory": 10};
+    const triggers = {"doRefresh1m": 1, "doRefresh5m": 5, "doTablesPoll": 10};
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return configTriggers();
@@ -283,7 +283,7 @@ function doRefresh1m(event) {
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
-  BinDoHistoryOrders().init(); // Initialize history order sheets (if any)
+  BinDoTableOrders().init(); // Initialize orders table sheets (if any)
   BinSetup().forceRefreshSheetFormulas("1m");
 };
 function doRefresh5m(event) {
@@ -298,10 +298,10 @@ function doRefresh1h(event) {
   }
   BinSetup().forceRefreshSheetFormulas(); // Refresh'em all!
 };
-function doHistory(event) {
+function doTablesPoll(event) {
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
 
-  BinDoHistoryOrders().execute();
+  BinDoTableOrders().execute();
 }
