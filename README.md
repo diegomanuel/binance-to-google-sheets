@@ -1,6 +1,6 @@
 # Binance to Google Sheets!
 
-A lightweight **Google Spreadsheets** `add-on` to GET data _directly_ from **Binance API** _without_ any intermediaries!
+A lightweight **Google Spreadsheets Add-On** to GET data _directly_ from **Binance API** _without_ any intermediaries!
 
 This `add-on` is basically an **API client** specially hand-crafted to work between Google Spreadsheets and Binance.  
 By using the `BINANCE()` formula in your spreadsheet, you can get data fetched from Binance API like:  
@@ -62,7 +62,7 @@ You will need [node](https://nodejs.org) and [clasp](https://github.com/google/c
 
 ### Binance API Key
 
-Only needed if you **also want** to have account info, open/pending and done/finished orders listing working in your spreadsheet.  
+Only needed if you **also want** to have account info, open/pending, done/finished and historical orders listing working in your spreadsheet.  
 To get your keys, go to [Binance API panel](https://www.binance.com/en/usercenter/settings/api-management) and create a new one:
 
 1. Enter a label like `Binance to Google Sheets` and click the `Create` button.
