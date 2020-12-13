@@ -83,37 +83,56 @@ Once you have the `add-on` already installed/enabled on your desired Google Spre
 
 ## OK, I have it installed! How do I use it at my spreadsheet?
 
-**NOTE:** Check the `Examples` sheet in the [live DEMO](https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg/edit#gid=1522299933)  spreadsheet for more details.
+**NOTE:** Check the **`Examples` sheet** in the **[live DEMO](https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg/edit#gid=1522299933)  spreadsheet** for more details.
 
-You just need to call the `=BINANCE()` formula in a cell.  
-So far, these are the available operations:
+You just need to call the `=BINANCE()` formula in a cell!  
+Some operations are **public**, meaning that you don't need a **Binance API key** to call them.  
+Some operations are **private**, meaning that they do **require a Binance API key** to call them.
 
-* `=BINANCE("last_update")` will return the timestamp of the last request to Binance API (**public**, no API keys needed).
-* `=BINANCE("prices")` will return a list with the latest ticker prices from Binance (**public**, no API keys needed).
-    * `=BINANCE("prices", "BTC")` Optionally you can give a symbol to just return its price (against `USDT` by default).
-    * `=BINANCE("prices", "BNB", "BTC")` Optionally you can give a ticker to compare against and to just return its price.
-    * `=BINANCE("prices", A1:A3)` Optionally you can give a ticker range to return a list of symbols and prices.
-        * Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-    * `=BINANCE("prices", A1:A3, "headers: false")` Optionally you can give more options like not returning table headers.
-    * `=BINANCE("prices", A1:A3, "ticker: BNB, prices: true")` Optionally you can return only the prices (and give a ticker in the meantime).
-* `=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance (**public**, no API keys needed).
-    * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-    * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
-    * `=BINANCE("stats/24h", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
-* `=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance (**private**, API keys required).
-    * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a full ticker to filter the results.
-    * `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
-* `=BINANCE("orders/done", A1:A3)` will return a list with your latest (`10` by default) done/finished orders for given symbols from Binance (**private**, API keys required).
-    * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-    * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
-    * `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 100")` Optionally you can give more options like not returning table headers and fetching latest `100` orders per given symbol (defaults to `10`).
-* `=BINANCE("orders/table", A1:A3)` will **transform** the sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance (**private**, API keys required).
-    * A single value or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-    * Do **NOT** alter the table data by hand! It will poll for data every 10 minutes.
-    * `=BINANCE("orders/table", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
-* `=BINANCE("account")` will return account info from Binance (**private**, API keys required).
-    * `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
-* `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
+So far, these are the **available operations**:
+
+### Operation: `"version"` (public)
+`=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
+* Be sure to check the [latest release](https://github.com/diegomanuel/binance-to-google-sheets/releases/latest) and update yours if needed.
+### Operation: `"last_update"` (public)
+`=BINANCE("last_update")` will return the timestamp of the last request/response from Binance API.
+* The timestamp is updated every time we get a valid response from Binance API (status `200`, no matter what operation triggered it).
+### Operation: `"prices"` (public)
+`=BINANCE("prices")` will return a list with the latest prices from Binance.
+* `=BINANCE("prices", "BTC")` Optionally you can give a symbol to just return its price (against `USDT` by default).
+* `=BINANCE("prices", "BNB", "BTC")` Optionally you can give a ticker to compare against and to just return its price.
+* `=BINANCE("prices", A1:A3)` Optionally you can give a ticker range to return a list of symbols and prices.
+    * Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+* `=BINANCE("prices", A1:A3, "headers: false")` Optionally you can give more options like not returning table headers.
+* `=BINANCE("prices", A1:A3, "ticker: BNB, prices: true")` Optionally you can return only the prices (and give a ticker in the meantime).
+### Operation: `"stats/24h"` (public)
+`=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance.
+* A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+* `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
+* `=BINANCE("stats/24h", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
+### Operation: `"orders/open"` (private)
+`=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance.
+* `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a **full ticker** to filter the results.
+* `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
+### Operation: `"orders/done"` (private)
+`=BINANCE("orders/done", A1:A3)` will return a list with your latest (`10` by default) done/finished orders for given symbols from Binance.
+* A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+* `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
+* `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 100")` Optionally you can give more options like not returning table headers and fetching latest `100` orders per given symbol (defaults to `10`).
+### Operation: `"orders/table"` (private)
+`=BINANCE("orders/table", MySheet!A1:A3)` will **transform** the current sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance.
+* This formula **must always** be placed at `A1` in any new blank sheet into your spreadsheet.
+* A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `MySheet!A1="BTC"`, `MySheet!A2="ETH"` and `MySheet!A3="LTC"`.
+* Be patient! It will adjust sheet's cols/rows and initialize a table header for you.
+* Do **NOT** alter the table data by hand! It will **poll for data** every `10` minutes automatically.
+* `=BINANCE("orders/table", MySheet!A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
+
+**NOTE:** You can have **multiple sheets** with this formula on. They will be all polled every `10` minutes, but take into account that if you have too much sheets to update, it could become really slow and even unresponsive.  
+Google Spreadsheets has a very poor performance for adding rows to a sheet, so that's why each poll session is limited to `100` items only.  
+If you have **many** assets and/or orders to fetch, it's recommended to have only `1` or `2` sheets at most, with a range that contains all your asset's symbols.
+### Operation: `"account"` (private)
+`=BINANCE("account")` will return general account stats from Binance.
+* `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
 
 
 ## See it working live!
