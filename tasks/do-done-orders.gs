@@ -59,8 +59,7 @@ function BinDoDoneOrders() {
   }
 
   function parse(data, options) {
-    const limit = _getMaxItems(options); // Get max items limit
-    const header = ["#ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total", "Viewing last "+limit+" orders per symbol"];
+    const header = ["#ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"];
     const parsed = data.reduce(function(rows, order) {
       const price = BinUtils().parsePrice(order.price);
       const amount = parseFloat(order.qty);

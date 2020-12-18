@@ -86,10 +86,10 @@ Once you have the `add-on` already installed/enabled on your desired Google Spre
 **NOTE:** Check the **`Examples` sheet** in the **[live DEMO](https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg/edit#gid=1522299933)  spreadsheet** for more details.
 
 You just need to call the `=BINANCE()` formula in a cell!  
-Some operations are **public**, meaning that you don't need a **Binance API key** to call them.  
-Some operations are **private**, meaning that they do **require a Binance API key** to call them.
+Some operations are **public**, meaning they **don't need a Binance API key** to call'em.  
+Some operations are **private**, meaning they **do require a Binance API key** to call'em.
 
-So far, these are the **available operations**:
+**So far, these are the available operations:**
 
 ### Operation: `"version"` (public)
 `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
@@ -115,7 +115,7 @@ So far, these are the **available operations**:
 * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a **full ticker** to filter the results.
 * `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
 ### Operation: `"orders/done"` (private)
-`=BINANCE("orders/done", A1:A3)` will return a list with your latest (`10` by default) done/finished orders for given symbols from Binance.
+`=BINANCE("orders/done", A1:A3)` will return a list with your most recent (`10` per symbol by default) done/finished orders for given symbols from Binance.
 * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
 * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
 * `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 100")` Optionally you can give more options like not returning table headers and fetching latest `100` orders per given symbol.
@@ -142,7 +142,6 @@ A spreadsheet example using the `BINANCE()` formula:
 https://docs.google.com/spreadsheets/d/1AcOcPFsncrDB_ve3wWMHwfiFql6A4hmG1sFc01LLTDg
 
 <img src="img/screenshot-crypto-prices-list.png" alt="Binance to Google Sheets DEMO - Prices list" title="Binance to Google Sheets DEMO - Prices list" width="400"/>
-<img src="img/screenshot-crypto-24h-stats.png" alt="Binance to Google Sheets DEMO - 24h stats" title="Binance to Google Sheets DEMO - 24h stats" width="800"/>
 
 
 ## Some background: Why this tool had ever to come alive?!
