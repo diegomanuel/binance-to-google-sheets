@@ -1,7 +1,7 @@
 /**
  * Runs the table orders script.
  */
-function BinDoTableOrders() {
+function BinDoOrdersTable() {
   const header_size = 3; // How many rows the header will have
   const max_items = 100; // How many items to be fetched on each run
   const delay = 500; // Delay between API calls in milliseconds
@@ -33,7 +33,7 @@ function BinDoTableOrders() {
    * @return The list of all orders for all or given symbols/tickers.
    */
   function run(range_or_cell, options) {
-    Logger.log("[BinDoTableOrders] Running..");
+    Logger.log("[BinDoOrdersTable] Running..");
     if (!range_or_cell) {
       throw new Error("A range with crypto symbols must be given!");
     }
@@ -43,8 +43,8 @@ function BinDoTableOrders() {
       throw new Error("This formula must be placed at 'A1'!");
     }
     const names = _sheetNames(sheets);
-    Logger.log("[BinDoTableOrders] Currently active at '"+names.length+"' sheets: "+JSON.stringify(names));
-    Logger.log("[BinDoTableOrders] Done!");
+    Logger.log("[BinDoOrdersTable] Currently active at '"+names.length+"' sheets: "+JSON.stringify(names));
+    Logger.log("[BinDoOrdersTable] Done!");
 
     return [
       ["Do **NOT** add/remove/alter this table data by hand! --- Polling "+max_items+" items every "+period()+" --- Patience, you may hide this row"]
@@ -67,7 +67,7 @@ function BinDoTableOrders() {
    * Executes a poll session to download and save historic order records for each currently active sheets
    */
   function execute() {
-    Logger.log("[BinDoTableOrders] Running..");
+    Logger.log("[BinDoOrdersTable] Running..");
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return execute();
@@ -75,7 +75,7 @@ function BinDoTableOrders() {
 
     const sheets = _findSheets();
     const names = _sheetNames(sheets);
-    Logger.log("[BinDoTableOrders] Processing '"+names.length+"' sheets: "+JSON.stringify(names));
+    Logger.log("[BinDoOrdersTable] Processing '"+names.length+"' sheets: "+JSON.stringify(names));
     sheets.map(function(sheet) { // Go through each sheet found
       try {
         _initSheet(sheet); // Ensure the sheet is initialized
@@ -87,11 +87,11 @@ function BinDoTableOrders() {
     });
 
     lock.releaseLock();
-    Logger.log("[BinDoTableOrders] Done!");
+    Logger.log("[BinDoOrdersTable] Done!");
   }
 
   function _fetchAndSave(sheet) {
-    Logger.log("[BinDoTableOrders] Processing sheet: "+sheet.getName());
+    Logger.log("[BinDoOrdersTable] Processing sheet: "+sheet.getName());
     const [range_or_cell, options] = _parseFormula(sheet);
     const ticker_against = options["ticker"];
     if (!range_or_cell) {
@@ -110,7 +110,7 @@ function BinDoTableOrders() {
     const data = range.reduce(function(rows, crypto) {
       const symbol = crypto+ticker_against;
       if (rows.length > max_items) {
-        Logger.log("[BinDoTableOrders] Max items cap! ["+rows.length+"/"+max_items+"] => Skipping fetch for: "+symbol);
+        Logger.log("[BinDoOrdersTable] Max items cap! ["+rows.length+"/"+max_items+"] => Skipping fetch for: "+symbol);
         return rows;
       }
 
@@ -122,14 +122,14 @@ function BinDoTableOrders() {
       if (fkey === "fromId") { // Skip the first result if we used fromId to filter
         crypto_data.shift();
       }
-      Logger.log("[BinDoTableOrders] Fetched "+crypto_data.length+" records for: "+symbol);
+      Logger.log("[BinDoOrdersTable] Fetched "+crypto_data.length+" records for: "+symbol);
       return rows.concat(crypto_data);
     }, []);
   
     // Parse and save collected data
     const parsed = _parseData(data.slice(0, max_items)); // Enforce max items cap
     _setStatus(sheet, "saving "+parsed.length+" records..");
-    Logger.log("[BinDoTableOrders] Saving "+parsed.length+" downloaded records into '"+sheet.getName()+"' sheet..");
+    Logger.log("[BinDoOrdersTable] Saving "+parsed.length+" downloaded records into '"+sheet.getName()+"' sheet..");
     parsed.map(function(row) {
       sheet.appendRow(row);
     });
@@ -141,7 +141,7 @@ function BinDoTableOrders() {
 
   function _findSheets() {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    const self = BinDoTableOrders();
+    const self = BinDoOrdersTable();
 
     return ss.getSheets().filter(function(sheet) {
       const formula = _getFormula(sheet);
@@ -233,7 +233,7 @@ function BinDoTableOrders() {
 
   function _parseFormula(sheet) {
     const formula = _getFormula(sheet);
-    const self = BinDoTableOrders();
+    const self = BinDoOrdersTable();
     const [range_or_cell, options] = BinUtils().extractFormulaParams(self, formula);
     if (DEBUG) {
       Logger.log("Parsed formula range: "+JSON.stringify(range_or_cell));
@@ -284,7 +284,7 @@ function BinDoTableOrders() {
 
       sheet.getRange("H2").setValue(count);
       sheet.getRange("J2").setValue(Object.keys(totals).length);
-      Logger.log("[BinDoTableOrders] Sheet '"+sheet.getName()+"' totals: "+JSON.stringify(totals));
+      Logger.log("[BinDoOrdersTable] Sheet '"+sheet.getName()+"' totals: "+JSON.stringify(totals));
     }
 
     sheet.getRange("B2").setValue(new Date()); // Update last run time

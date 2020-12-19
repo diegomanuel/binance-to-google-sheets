@@ -283,7 +283,7 @@ function doRefresh1m(event) {
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
-  BinDoTableOrders().init(); // Initialize orders table sheets (if any)
+  BinDoOrdersTable().init(); // Initialize orders table sheets (if any)
   BinSetup().forceRefreshSheetFormulas("1m");
 };
 function doRefresh5m(event) {
@@ -303,5 +303,5 @@ function doTablesPoll(event) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
 
-  BinDoTableOrders().execute();
+  BinDoOrdersTable().execute();
 }
