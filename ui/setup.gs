@@ -261,7 +261,7 @@ function BinSetup() {
               ||
             BinUtils().isFormulaMatching(BinDoOrdersDone(), period, formula)
               ||
-            BinUtils().isFormulaMatching(BinDoOpenOrders(), period, formula)
+            BinUtils().isFormulaMatching(BinDoOrdersOpen(), period, formula)
               ||
             BinUtils().isFormulaMatching(BinDoAccountInfo(), period, formula)
               ||

@@ -1,7 +1,7 @@
 /**
  * Runs the open orders script.
  */
-function BinDoOpenOrders() {
+function BinDoOrdersOpen() {
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   let lock_retries = 5; // Max retries to acquire lock
 
@@ -27,7 +27,7 @@ function BinDoOpenOrders() {
    * @return The list of all current open orders for all or given symbol/ticker.
    */
   function run(symbol, options) {
-    Logger.log("[BinDoOpenOrders] Running..");
+    Logger.log("[BinDoOrdersOpen] Running..");
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return run(symbol, options);
@@ -38,7 +38,7 @@ function BinDoOpenOrders() {
   
     lock.releaseLock();
     const parsed = parse(symbol ? filter(data, symbol) : data, options);
-    Logger.log("[BinDoOpenOrders] Done!");
+    Logger.log("[BinDoOrdersOpen] Done!");
     return parsed;
   }
 

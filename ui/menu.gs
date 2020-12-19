@@ -100,7 +100,7 @@ function showCurrentPrices() {
  */
 function showOpenOrders() {
   const ui = SpreadsheetApp.getUi();
-  const data = BinDoOpenOrders().run(null, {});
+  const data = BinDoOrdersOpen().run(null, {});
   const formatted = (data||[]).reduce(function(out, row) {
       if (out.length > 0) {
         row[0] = Utilities.formatDate(new Date(row[0]), "UTC", "MM-dd HH:mm");

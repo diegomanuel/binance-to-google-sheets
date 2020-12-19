@@ -40,8 +40,8 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   if (operation == BinDoOrdersDone().tag()) {
     return BinDoOrdersDone().run(range_or_cell, options);
   }
-  if (operation == BinDoOpenOrders().tag()) {
-    return BinDoOpenOrders().run(range_or_cell, options);
+  if (operation == BinDoOrdersOpen().tag()) {
+    return BinDoOrdersOpen().run(range_or_cell, options);
   }
   if (operation == BinDoAccountInfo().tag()) {
     return BinDoAccountInfo().run(options);
