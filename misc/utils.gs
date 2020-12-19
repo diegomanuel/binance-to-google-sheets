@@ -175,7 +175,7 @@ function BinUtils() {
    * Returns true/false if the given period and formula matches the given module
    */
   function isFormulaMatching(module, period, formula) {
-    const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+module.tag(), "i");
+    const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+module.tag()+"\"", "i");
     return module.period() == period && regex_formula.test(formula);
 
   }

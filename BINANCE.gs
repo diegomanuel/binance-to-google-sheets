@@ -25,6 +25,9 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
     Logger.log("OPTIONS: "+JSON.stringify(options));
   }
 
+  if (operation == "version") {
+    return VERSION;
+  }
   if (operation == BinDoLastUpdate().tag()) {
     return BinDoLastUpdate().run();
   }
@@ -34,20 +37,20 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   if (operation == BinDo24hStats().tag()) {
     return BinDo24hStats().run(range_or_cell, options);
   }
-  if (operation == BinDoOrdersTable().tag()) {
-    return BinDoOrdersTable().run(range_or_cell, options);
-  }
-  if (operation == BinDoOrdersDone().tag()) {
-    return BinDoOrdersDone().run(range_or_cell, options);
+  if (operation == BinDoAccountInfo().tag()) {
+    return BinDoAccountInfo().run(options);
   }
   if (operation == BinDoOrdersOpen().tag()) {
     return BinDoOrdersOpen().run(range_or_cell, options);
   }
-  if (operation == BinDoAccountInfo().tag()) {
-    return BinDoAccountInfo().run(options);
+  if (operation == BinDoOrdersDone().tag()) {
+    return BinDoOrdersDone().run(range_or_cell, options);
   }
-  if (operation == "version") {
-    return VERSION;
+  if (operation == BinDoOrdersTable().tag()) {
+    return BinDoOrdersTable().run(range_or_cell, options);
+  }
+  if (operation == BinDoOrdersTableStats().tag()) {
+    return BinDoOrdersTableStats().run(range_or_cell, options);
   }
   
   throw new Error("Unsupported operation given: '"+operation+"'");

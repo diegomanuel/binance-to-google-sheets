@@ -110,6 +110,9 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
 * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
 * `=BINANCE("stats/24h", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
+### Operation: `"account"` (private)
+`=BINANCE("account")` will return general account stats from Binance.
+* `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
 ### Operation: `"orders/open"` (private)
 `=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance.
 * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a **full ticker** to filter the results.
@@ -131,10 +134,8 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 **NOTE:** You can have **multiple sheets** with this formula on. They will be all polled every `10` minutes, but take into account that if you have too much sheets to update, it could become really slow and even unresponsive.  
 Google Spreadsheets has a very poor performance for adding rows to a sheet, so that's why each poll session is limited to `100` items only.  
 If you have **many** assets and/or orders to fetch, it's recommended to have only `1` or `2` sheets at most, with a range that contains all your asset's symbols.
-### Operation: `"account"` (private)
-`=BINANCE("account")` will return general account stats from Binance.
-* `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
-
+### Operation: `"orders/table/stats"` (private)
+`=BINANCE("orders/table/stats", 'Orders Table'!A1:A3)` _coming soon_
 
 ## See it working live!
 
