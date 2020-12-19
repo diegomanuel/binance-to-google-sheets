@@ -1,7 +1,7 @@
 /**
  * Runs the done orders script.
  */
-function BinDoDoneOrders() {
+function BinDoOrdersDone() {
   const max_items = 10; // How many items to be fetched for each symbol by default
   const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const delay = 250; // Delay between API calls in milliseconds
@@ -31,7 +31,7 @@ function BinDoDoneOrders() {
   function run(range_or_cell, options) {
     const ticker_against = options["ticker"];
     const limit = _getMaxItems(options); // Get max items limit
-    Logger.log("[BinDoDoneOrders] Running..");
+    Logger.log("[BinDoOrdersDone] Running..");
     if (!range_or_cell) {
       throw new Error("A range with crypto names must be given!");
     }
@@ -54,7 +54,7 @@ function BinDoDoneOrders() {
   
     lock.releaseLock();
     const parsed = parse(data, options);
-    Logger.log("[BinDoDoneOrders] Done!");
+    Logger.log("[BinDoOrdersDone] Done!");
     return parsed;
   }
 
