@@ -41,6 +41,9 @@ function BinDo24hStats() {
       CACHE_TTL,
       "public": true,
       "no_cache_ok": true,
+      "validate_cache": function(data) {
+        return BinUtils().checkExpectedResults(data, range_or_cell);
+      },
       "filter": function(data) {
         return BinUtils().filterTickerSymbol(data, range_or_cell, ticker_against);
       }

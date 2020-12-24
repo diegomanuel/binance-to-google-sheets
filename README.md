@@ -8,7 +8,7 @@ By using the `BINANCE()` formula in your spreadsheet, you can get data fetched f
 * 24h stats
 * All current open orders
 * Latest done/finished orders
-* Historical orders table
+* Historical orders table + stats table
 * Account general info
 * Last update time
 * ..and many more to come!
@@ -135,7 +135,7 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 Google Spreadsheets has a very poor performance for adding rows to a sheet, so that's why each poll session is limited to `100` items only.  
 If you have **many** assets and/or orders to fetch, it's recommended to have only `1` or `2` sheets at most, with a range that contains all your asset's symbols.
 ### Operation: `"orders/table/stats"` (private)
-`=BINANCE("orders/table/stats", 'Orders Table'!A1:A3)` _coming soon_
+`=BINANCE("orders/table/stats", 'Orders Table'!A1)` _coming soon_
 
 ## See it working live!
 

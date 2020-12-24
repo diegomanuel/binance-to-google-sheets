@@ -32,18 +32,20 @@ function BinRequest(OPTIONS) {
   * Reads data from cache or sends a request to Binance API and stores the data into cache with given TTL.
   */
   function _cache(method, url, qs, payload) {
-    let data = BinCache().read(method+"_"+url+"_"+qs);
-    
-    // First check if we have a cached version
-    if (!(data && data.length > 1)) { // Fetch data from API
+    let data = BinCache().read(method+"_"+url+"_"+qs, OPTIONS["validate_cache"]);
+
+    // Check if we have valid cached data
+    if (!(data && Object.keys(data).length > 1)) { // Fetch data from API
       Logger.log("NO CACHE entry found! Loading data from API..");
       data = _request(method, url, qs, payload, OPTIONS);
-      if (data && data.length > 1) {
+      if (data && Object.keys(data).length > 1 && OPTIONS["filter"]) {
+        data = OPTIONS["filter"](data); // Apply custom data filtering before storing into cache
+      }
+      if (data && Object.keys(data).length > 1) {
         Logger.log("DONE loading data from API! Storing at cache..");
-        if (OPTIONS["filter"]) { // Apply custom data filtering before storing into cache and return it
-          data = OPTIONS["filter"](data);
-        }
         BinCache().write(method+"_"+url+"_"+qs, data, CACHE_TTL);
+      } else {
+        Logger.log("DONE loading data from API, but NO results to return!");
       }
     } else {
       Logger.log("FOUND CACHE entry!");
@@ -174,7 +176,7 @@ function BinRequest(OPTIONS) {
       .computeHmacSha256Signature(qs+(payload||""), secret)
       .reduce(function(str, chr) {
         chr = (chr < 0 ? chr + 256 : chr).toString(16);
-        return str + (chr.length==1?'0':'') + chr;
+        return str + (chr.length===1?'0':'') + chr;
       },'');
   }
 }

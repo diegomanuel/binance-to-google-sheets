@@ -10,6 +10,7 @@ function BinUtils() {
     parsePrice,
     parseBool,
     parseOptions,
+    checkExpectedResults,
     filterTickerSymbol,
     sortResults,
     obscureSecret,
@@ -60,7 +61,6 @@ function BinUtils() {
 
   /**
    * Always returns an array no matter if it's a single cell or an entire range
-   * @TODO Add "n-dimension" support
    */
   function getRangeOrCell(range_or_cell, sheet) {
     if (typeof range_or_cell !== "string") {
@@ -109,6 +109,14 @@ function BinUtils() {
   }
 
   /**
+   * Checks if given data array has the expected values from given range_or_cell (just their length)
+   * @param data Array with tickers data
+   * @param range_or_cell A range of cells or a single cell
+   */
+  function checkExpectedResults(data, range_or_cell) {
+    return (data||[]).length === (getRangeOrCell(range_or_cell)||[]).length;
+  }
+  /**
    * Filters a given data array by given range of values or a single value
    * @param data Array with tickers data
    * @param range_or_cell A range of cells or a single cell
@@ -116,29 +124,28 @@ function BinUtils() {
    */
   function filterTickerSymbol(data, range_or_cell, ticker_against) {
     ticker_against = ticker_against || TICKER_AGAINST;
+    const INITVAL = "?"; // Character used to initialize results (acts as a data placeholder)
     const cryptos = getRangeOrCell(range_or_cell);
-    const tickers = cryptos.reduce(function(tickers, crypto) { // Init tickers
-        tickers[crypto+ticker_against] = "?";
+    const tickers = cryptos.reduce(function(tickers, crypto) { // Init expected tickers to be returned
+        tickers[crypto+ticker_against] = INITVAL;
         return tickers;
       }, {});
-    if (DEBUG) {
-      Logger.log("TICKERS: "+JSON.stringify(tickers));
-    }
 
     const data_array = Array.isArray(data) ? data : (data ? [data] : []);
     const results = data_array.reduce(function(tickers, ticker) {
-      if (tickers[ticker.symbol] !== undefined) {
+      if (tickers[ticker.symbol] !== undefined) { // This ticker is one of the expected ones
         tickers[ticker.symbol] = ticker;
       }
       return tickers;
       }, tickers);
 
-    if (DEBUG) {
-      Logger.log("FILTERED: "+JSON.stringify(results));
-    }
-    return Object.keys(results).map(function(ticker) { // Return tickers values
-      return results[ticker];
-    });
+    // Only include valid records in the returned results
+    return Object.keys(results).reduce(function(retvals, ticker) {
+      if (results[ticker][0] !== INITVAL) { // Valid records shouldn't have the INITVAL (just check the 1st column)
+        retvals.push(results[ticker]); // We have a valid record!
+      }
+      return retvals;
+    }, []);
   }
   
   /**

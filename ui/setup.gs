@@ -209,11 +209,14 @@ function BinSetup() {
   function forceRefreshSheetFormulas(period) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let count = 0;
+    let lock = null;
 
     Logger.log("Refreshing spreadsheet formulas..");
-    const lock = BinUtils().getScriptLock(lock_retries--);
-    if (!lock) { // Could not acquire lock! => Retry
-      return forceRefreshSheetFormulas(period);
+    if (!period) { // Just use lock if we are going to refresh ALL formulas!
+      lock = BinUtils().getScriptLock(lock_retries--);
+      if (!lock) { // Could not acquire lock! => Retry
+        return forceRefreshSheetFormulas(period);
+      }
     }
 
     ss.getSheets().map(function(sheet) {
@@ -227,7 +230,9 @@ function BinSetup() {
       }
     });
 
-    lock.releaseLock();
+    if (lock) {
+      lock.releaseLock();
+    }
     Logger.log(count+" spreadsheet formulas were refreshed!");
     return count;
   }
