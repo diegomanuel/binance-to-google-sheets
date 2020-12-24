@@ -5,7 +5,6 @@ function BinDoOrdersTable() {
   const header_size = 3; // How many rows the header will have
   const max_items = 100; // How many items to be fetched on each run
   const delay = 500; // Delay between API calls in milliseconds
-  let lock_retries = 5; // Max retries to acquire lock
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -68,10 +67,6 @@ function BinDoOrdersTable() {
    */
   function execute() {
     Logger.log("[BinDoOrdersTable] Running..");
-    const lock = BinUtils().getUserLock(lock_retries--);
-    if (!lock) { // Could not acquire lock! => Retry
-      return execute();
-    }
 
     const sheets = _findSheets();
     const names = _sheetNames(sheets);
@@ -86,7 +81,6 @@ function BinDoOrdersTable() {
       }
     });
 
-    lock.releaseLock();
     Logger.log("[BinDoOrdersTable] Done!");
   }
 
