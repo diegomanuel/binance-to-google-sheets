@@ -91,11 +91,11 @@ function BinRequest(OPTIONS) {
       }
       if (response.getResponseCode() == 200) {
         BinDoLastUpdate().run(new Date()); // Refresh last update ts
-        const resptext = response.getContentText();
+        const data = JSON.parse(response.getContentText());
         if (!opts["no_cache_ok"]) { // Keep last OK response
-          _setLastCacheResponseOK(da_qs, da_payload, resptext);
+          _setLastCacheResponseOK(da_qs, da_payload, data);
         }
-        return JSON.parse(resptext); 
+        return data; 
       }
       if (response.getResponseCode() == 400) {
         // There might be a problem with the Binance API keys
