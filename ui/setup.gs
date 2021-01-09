@@ -27,8 +27,6 @@ function onInstall(event) {
  */
 function BinSetup() {
   const user_props = PropertiesService.getUserProperties();
-  const regex_formula = new RegExp(/=.*BINANCE\s*\(/);
-  let lock_retries = 5; // Max retries to acquire lock
 
   return {
     areAPIKeysConfigured,
@@ -38,8 +36,7 @@ function BinSetup() {
     setAPISecret,
     configAPIKeys,
     clearAPIKeys,
-    configTriggers,
-    forceRefreshSheetFormulas
+    configTriggers
   };
   
   
@@ -212,79 +209,9 @@ function BinSetup() {
     }
   }
 
-  /**
-   * Changes formulas then changes them back to force-refresh'em.
-   */
-  function forceRefreshSheetFormulas(period) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let count = 0;
-    let lock = null;
-
-    Logger.log("Refreshing spreadsheet formulas..");
-    if (!period) { // Just use lock if we are going to refresh ALL formulas!
-      lock = BinUtils().getScriptLock(lock_retries--);
-      if (!lock) { // Could not acquire lock! => Retry
-        return forceRefreshSheetFormulas(period);
-      }
-    }
-
-    ss.getSheets().map(function(sheet) {
-      const range = sheet.getDataRange();
-      const formulas = range.getFormulas();
-      const changed = _replaceRangeFormulas(period, range, formulas, "");
-      if (changed > 0) { // We have changed cell/s contents! => Set the formulas back to enforce recalculation
-        SpreadsheetApp.flush();
-        count +=_replaceRangeFormulas(period, range, formulas);
-        SpreadsheetApp.flush();
-      }
-    });
-
-    BinUtils().releaseLock(lock);
-    Logger.log(count+" spreadsheet formulas were refreshed!");
-    return count;
-  }
-
-  function _replaceRangeFormulas(period, range, formulas, formula) {
-    const num_cols = range.getNumColumns();
-    const num_rows = range.getNumRows();
-    const row_offset = range.getRow();
-    const col_offset = range.getColumn();
-    let count = 0;
-    for (let row = 0; row < num_rows ; row++) {
-      for (let col = 0; col < num_cols; col++) {
-        if (_isFormulaReplacement(period, formulas[row][col])) {
-          count++;
-          range.getCell(row+row_offset, col+col_offset).setFormula(formula === "" ? "" : formulas[row][col]);
-        }
-      }
-    }
-    return count;
-  }
-
-  function _isFormulaReplacement(period, formula) {
-    if (!(formula != "" && regex_formula.test(formula))) {
-      return false;
-    }
-    
-    return  !period
-              ||
-            BinUtils().isFormulaMatching(BinDoCurrentPrices(), period, formula)
-              ||
-            BinUtils().isFormulaMatching(BinDo24hStats(), period, formula)
-              ||
-            BinUtils().isFormulaMatching(BinDoOrdersDone(), period, formula)
-              ||
-            BinUtils().isFormulaMatching(BinDoOrdersOpen(), period, formula)
-              ||
-            BinUtils().isFormulaMatching(BinDoAccountInfo(), period, formula)
-              ||
-            BinUtils().isFormulaMatching(BinDoLastUpdate(), period, formula);
-          
-  }
-
   function _refreshUI() {
     BinMenu(SpreadsheetApp.getUi()); // Update main menu items
-    return forceRefreshSheetFormulas(); // Force refresh all formulas results!
+    return BinUtils().forceRefreshSheetFormulas(); // Force refresh all formulas!
   }
 }
 

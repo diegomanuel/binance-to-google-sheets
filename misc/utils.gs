@@ -2,6 +2,8 @@
  * General utility functions wrapper.
  */
 function BinUtils() {
+  let lock_retries = 5; // Max retries to acquire lock for formulas refreshing
+
   return {
     releaseLock,
     getDocumentLock,
@@ -18,6 +20,7 @@ function BinUtils() {
     isAuthEnough,
     isFormulaMatching,
     extractFormulaParams,
+    forceRefreshSheetFormulas,
     toast
   };
   
@@ -128,6 +131,7 @@ function BinUtils() {
   function checkExpectedResults(data, range_or_cell) {
     return (data||[]).length === (getRangeOrCell(range_or_cell)||[]).length;
   }
+
   /**
    * Filters a given data array by given range of values or a single value
    * @param data Array with tickers data
@@ -221,7 +225,78 @@ function BinUtils() {
       options = extracted[2];
     }
 
-    return [range_or_cell, BinUtils().parseOptions(options)];
+    return [range_or_cell, parseOptions(options)];
+  }
+
+  /**
+   * Force-refresh formulas for given period.
+   */
+  function forceRefreshSheetFormulas(period) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let count = 0;
+    let lock = null;
+
+    Logger.log("Refreshing spreadsheet formulas..");
+    if (!period) { // Just use lock if we are going to refresh ALL formulas!
+      lock = getScriptLock(lock_retries--);
+      if (!lock) { // Could not acquire lock! => Retry
+        return forceRefreshSheetFormulas(period);
+      }
+    }
+
+    ss.getSheets().map(function(sheet) {
+      const range = sheet.getDataRange();
+      const formulas = range.getFormulas();
+      const changed = _replaceRangeFormulas(period, range, formulas, "");
+      if (changed > 0) { // We have changed cell/s contents! => Set the formulas back to enforce recalculation
+        SpreadsheetApp.flush();
+        count +=_replaceRangeFormulas(period, range, formulas);
+        SpreadsheetApp.flush();
+      }
+    });
+
+    releaseLock(lock);
+    Logger.log(count+" spreadsheet formulas were refreshed!");
+    return count;
+  }
+
+  function _replaceRangeFormulas(period, range, formulas, formula) {
+    const num_cols = range.getNumColumns();
+    const num_rows = range.getNumRows();
+    const row_offset = range.getRow();
+    const col_offset = range.getColumn();
+    let count = 0;
+    for (let row = 0; row < num_rows ; row++) {
+      for (let col = 0; col < num_cols; col++) {
+        if (_isFormulaReplacement(period, formulas[row][col])) {
+          count++;
+          range.getCell(row+row_offset, col+col_offset).setFormula(formula === "" ? "" : formulas[row][col]);
+        }
+      }
+    }
+    return count;
+  }
+
+  function _isFormulaReplacement(period, formula) {
+    const regex_formula = new RegExp(/=.*BINANCE\s*\(/);
+    if (!(formula != "" && regex_formula.test(formula))) {
+      return false;
+    }
+    
+    return  !period
+              ||
+            isFormulaMatching(BinDoCurrentPrices(), period, formula)
+              ||
+            isFormulaMatching(BinDo24hStats(), period, formula)
+              ||
+            isFormulaMatching(BinDoOrdersDone(), period, formula)
+              ||
+            isFormulaMatching(BinDoOrdersOpen(), period, formula)
+              ||
+            isFormulaMatching(BinDoAccountInfo(), period, formula)
+              ||
+            isFormulaMatching(BinDoLastUpdate(), period, formula);
+          
   }
 
   /**

@@ -53,8 +53,9 @@ function BinMenu(ui, auth_mode) {
  * NOTE: Data might come from cache anyways! This function is useful only when triggers are not available to automatically update'em.
  */
 function forceRefresh() {
-  BinUtils().toast("Refreshing data, be patient..!", "", 5);
-  BinSetup().forceRefreshSheetFormulas(); // Refresh'em all!
+  const utils = BinUtils();
+  utils.toast("Refreshing data, be patient..!", "", 5);
+  utils.forceRefreshSheetFormulas(); // Refresh'em all!
 }
 
 /**
