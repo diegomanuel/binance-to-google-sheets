@@ -36,7 +36,7 @@ function BinDoOrdersOpen() {
     const opts = {CACHE_TTL};
     const data = BinRequest(opts).get("api/v3/openOrders", "", "");
   
-    lock.releaseLock();
+    BinUtils().releaseLock(lock);
     const parsed = parse(symbol ? filter(data, symbol) : data, options);
     Logger.log("[BinDoOrdersOpen] Done!");
     return parsed;

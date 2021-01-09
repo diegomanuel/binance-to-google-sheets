@@ -52,7 +52,7 @@ function BinDoOrdersDone() {
       return rows.concat(crypto_data);
     }, []);
   
-    lock.releaseLock();
+    BinUtils().releaseLock(lock);
     const parsed = parse(data, options);
     Logger.log("[BinDoOrdersDone] Done!");
     return parsed;

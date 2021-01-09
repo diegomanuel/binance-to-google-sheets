@@ -3,6 +3,7 @@
  */
 function BinUtils() {
   return {
+    releaseLock,
     getDocumentLock,
     getScriptLock,
     getUserLock,
@@ -20,6 +21,17 @@ function BinUtils() {
     toast
   };
   
+  /**
+  * Releases a lock (failsafe).
+  */
+  function releaseLock(lock) {
+    try {
+      return lock ? lock.releaseLock() : false;
+    } catch (err) {
+      Logger.error("Can't release lock: "+JSON.stringify(err));
+    }
+  }
+
   /**
   * Gets a lock that prevents any user of the current document from concurrently running a section of code.
   */

@@ -35,7 +35,7 @@ function BinDoAccountInfo() {
     const opts = {CACHE_TTL};
     const data = BinRequest(opts).get("api/v3/account", "", "");
   
-    lock.releaseLock();
+    BinUtils().releaseLock(lock);
     const parsed = parse(data, options);
     Logger.log("[BinDoAccountInfo] Done!");
     return parsed;

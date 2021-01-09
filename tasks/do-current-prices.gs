@@ -35,7 +35,7 @@ function BinDoCurrentPrices() {
 
     const opts = {CACHE_TTL, "public": true};
     const data = BinRequest(opts).get("api/v3/ticker/price", "", "");
-    lock.releaseLock();
+    BinUtils().releaseLock(lock);
     const parsed = parse(data, symbol_or_range, options);
     Logger.log("[BinDoCurrentPrices] Done!");
     return parsed;

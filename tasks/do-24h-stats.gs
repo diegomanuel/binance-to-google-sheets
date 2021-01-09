@@ -50,7 +50,7 @@ function BinDo24hStats() {
     };
     const data = BinRequest(opts).get("api/v3/ticker/24hr", "", "");
   
-    lock.releaseLock();
+    BinUtils().releaseLock(lock);
     const parsed = parse(data, range_or_cell, options);
     Logger.log("[BinDo24hStats] Done!");
     return parsed;

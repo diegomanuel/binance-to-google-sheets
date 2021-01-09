@@ -239,9 +239,7 @@ function BinSetup() {
       }
     });
 
-    if (lock) {
-      lock.releaseLock();
-    }
+    BinUtils().releaseLock(lock);
     Logger.log(count+" spreadsheet formulas were refreshed!");
     return count;
   }
