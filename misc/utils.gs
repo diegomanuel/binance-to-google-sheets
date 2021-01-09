@@ -31,7 +31,7 @@ function BinUtils() {
     try {
       return lock ? lock.releaseLock() : false;
     } catch (err) {
-      Logger.error("Can't release lock: "+JSON.stringify(err));
+      console.error("Can't release lock: "+JSON.stringify(err));
     }
   }
 
@@ -63,7 +63,11 @@ function BinUtils() {
     time = time || 5000; // Milliseconds
     sleep = sleep || 500; // Milliseconds
     const lock = LockService[lock_serv_func]();
-    if (!lock.tryLock(time) || !lock.hasLock()) {
+    try {
+      if (!lock.tryLock(time) || !lock.hasLock()) {
+        throw new Error("=["); // Couldn't acquire lock!
+      }
+    } catch(_) { // Couldn't acquire lock!
       if (retries > 0) { // We still have retries left
         Logger.log("["+retries+"] Could not acquire lock! Waiting "+sleep+"ms and retrying..");
         Utilities.sleep(sleep);
