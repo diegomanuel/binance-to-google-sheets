@@ -162,10 +162,18 @@ function BinSetup() {
    * Configs required triggers to automatically have the data updated.
    */
   function configTriggers() {
-    // Time-based triggers config (everyMinutes: 1, 5, 10, 15 or 30)
-    const triggers = {"doRefresh1m": [1, false], "doRefresh5m": [5, false], "doTablesPoll": [10, false]};
+    // Time-based triggers config
+    const triggers = {
+      "doRefresh1m": [1, false],
+      "doRefresh5m": [5, false],
+      "doRefresh10m": [10, false],
+      "doRefresh15m": [15, false],
+      "doRefresh30m": [30, false],
+      "doRefresh1h": [60, false],
+      "doTablesPoll": [10, false] // This one will have its own trigger fixed at 10m
+    };
 
-    // First, check if triggers were already created
+    // First, check which triggers were already created
     ScriptApp.getProjectTriggers().map(function(trigger) {
       if (triggers[trigger.getHandlerFunction()]) { // This trigger already exists and belongs to this add-on
         if (DEBUG) { // Remove triggers while debugging..!
@@ -181,23 +189,24 @@ function BinSetup() {
 
     try { // Create missing triggers (if any)
       return Object.keys(triggers).map(function(func) {
-        if (triggers[func][1]) { // This trigger was marked as already created!
-          Logger.log("[configTriggers] Trigger already setup every "+triggers[func][0]+"m: "+func);
+        const [triggerMinutes, triggerCreated] = triggers[func];
+        if (triggerCreated) { // This trigger was marked as already created!
+          Logger.log("[configTriggers] Trigger already setup every "+triggerMinutes+"m: "+func);
           return false; // Skip
         }
-        Logger.log("[configTriggers] Creating new trigger every "+triggers[func][0]+"m: "+func);
+        Logger.log("[configTriggers] Creating new trigger every "+triggerMinutes+"m: "+func);
         return ScriptApp.newTrigger(func)
           .timeBased()
-          .everyMinutes(triggers[func][0])
+          [triggerMinutes < 60 ? "everyMinutes" : "everyHours"](triggerMinutes < 60 ? triggerMinutes : Math.floor(triggerMinutes / 60))
           .create();
       });
     } catch (err) {
       if (err.message.match(/trigger must be at least one hour/i)) {
-        Logger.log("[configTriggers] Can't create <1h triggers! => Fallback to 1h..");
-        return ScriptApp.newTrigger("doRefresh1h")
-          .timeBased()
-          .everyHours(1)
-          .create();
+        // This can only happen if it was installed as an add-on!
+        // This is discouraged and the user should instead follow the setup steps in README.md
+        // to properly setup the fully-working code with all the needed permissions.
+        Logger.error("[configTriggers] Can't create <1h triggers!");
+        BinUtils().toast("Couldn't create triggers to keep data updated! Follow the setup steps in README.md to have it working properly.", "Uops!", 30);
       }
       throw(err);
     }
@@ -286,28 +295,35 @@ function BinSetup() {
  * because of how `ScriptApp.newTrigger` works.
  */
 function doRefresh1m(event) {
-  if (DEBUG) {
-    Logger.log("EVENT: "+JSON.stringify(event));
-  }
-  BinDoOrdersTable().init(); // Initialize orders table sheets (if any)
-  BinSetup().forceRefreshSheetFormulas("1m");
-};
+  _callScheduler(event, "1m");
+}
 function doRefresh5m(event) {
-  if (DEBUG) {
-    Logger.log("EVENT: "+JSON.stringify(event));
-  }
-  BinSetup().forceRefreshSheetFormulas("5m");
-};
+  _callScheduler(event, "5m");
+}
+function doRefresh10m(event) {
+  _callScheduler(event, "10m");
+}
+function doRefresh15m(event) {
+  _callScheduler(event, "15m");
+}
+function doRefresh30m(event) {
+  _callScheduler(event, "30m");
+}
 function doRefresh1h(event) {
-  if (DEBUG) {
-    Logger.log("EVENT: "+JSON.stringify(event));
-  }
-  BinSetup().forceRefreshSheetFormulas(); // Refresh'em all!
-};
+  _callScheduler(event, "60m");
+}
+
 function doTablesPoll(event) {
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
 
   BinDoOrdersTable().execute();
+}
+
+function _callScheduler(event, every) {
+  if (DEBUG) {
+    Logger.log("EVENT: "+JSON.stringify(event));
+  }
+  BinScheduler()["run"+every]();
 }
