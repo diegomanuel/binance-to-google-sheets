@@ -1,22 +1,23 @@
 /**
  * Adds menu items under "Binance" at main menu.
  */
-function BinMenu(ui, auth_mode) {
+function BinMenu(ui) {
   /**
    * Adds the menu items to spreadsheet's main menu
    */
   function addMenuItems(menu) {
-    const is_auth_enough = BinUtils().isAuthEnough(auth_mode);
+    const is_ready = BinSetup().isReady();
 
-    if (!is_auth_enough) { // Script is not authorized
-      menu.addItem("Enable BINANCE() formula", "showEnableFull");
+    if (!is_ready) { // Add-on is not ready (unauthorized or BinScheduler is stalled or never run)
+      menu.addItem("Authorize add-on!", "showEnableFull");
     } else {
-      menu.addItem("Refresh", "forceRefresh");
+      menu.addItem("Refresh", "forceRefresh")
+          .addItem("Clean Refresh", "forceRefreshClean");
     }
     menu.addSeparator()
         .addItem("Show API Last Update", "showAPILastUpdate")
         .addItem("Show Current Prices", "showCurrentPrices");
-    if (is_auth_enough) { // Script is installed and authorized
+    if (is_ready) { // Add-on is authorized and running fine!
       if (BinSetup().areAPIKeysConfigured()) {
         menu.addItem("Show Open Orders", "showOpenOrders")
             .addSeparator()
@@ -28,6 +29,12 @@ function BinMenu(ui, auth_mode) {
         menu.addSeparator()
             .addItem("Setup API Keys", "showAPIKeysSetup");
       }
+      menu.addSubMenu(ui.createMenu("Update Intervals")
+            .addSubMenu(addTriggerIntervalItems("Prices", "Prices", BinDoCurrentPrices()))
+            .addSubMenu(addTriggerIntervalItems("24h Stats", "24hStats", BinDo24hStats()))
+            .addSubMenu(addTriggerIntervalItems("Account Info", "AccountInfo", BinDoAccountInfo()))
+            .addSubMenu(addTriggerIntervalItems("Open Orders", "OrdersOpen", BinDoOrdersOpen()))
+            .addSubMenu(addTriggerIntervalItems("Done Orders", "OrdersDone", BinDoOrdersDone())));
       menu.addSeparator()
           .addItem("Credits", "showCredits")
           .addItem("Donate  =]", "showDonate")
@@ -35,15 +42,26 @@ function BinMenu(ui, auth_mode) {
           .addItem("Version: "+VERSION, "showVersion");
     }
     
-    menu.addToUi(); // Add resultant menu items to the spreadsheet main menu
-
-    if (is_auth_enough) { // Show welcome/acknownledge toast
-      BinUtils().toast("Hi there! I'm installed and working at this spreadsheet. Enjoy it!  =]");
-    } else if (auth_mode !== ScriptApp.AuthMode.NONE) { // Show enable/authorize toast
-      BinUtils().toast("The BINANCE() formula  WON'T be available until you **enable and authorize** the add-on.", "", 30);
-    }
+    menu.addToUi(); // Add menu items to the spreadsheet main menu
   }
-  
+
+  /**
+   * Helper to define each trigger's interval options
+   */
+  function addTriggerIntervalItems(menuText, func, module) {
+    const funcName = "setIntervalFor"+func;
+    const sch = BinScheduler();
+    const schSelected = (interval) => sch.getSchedule(module.tag()) === interval ? "[X] " : "";
+    return ui.createMenu(menuText+" ("+sch.getSchedule(module.tag())+")")
+      .addItem(schSelected("1m")+"1 minute", funcName+"1m")
+      .addItem(schSelected("5m")+"5 minutes", funcName+"5m")
+      .addItem(schSelected("10m")+"10 minutes", funcName+"10m")
+      .addItem(schSelected("15m")+"15 minutes", funcName+"15m")
+      .addItem(schSelected("30m")+"30 minutes", funcName+"30m")
+      .addItem(schSelected("60m")+"1 hour", funcName+"60m");
+  }
+
+  // Add the menu to the UI
   addMenuItems(ui.createMenu("Binance"));
   addMenuItems(ui.createAddonMenu());
 }
@@ -59,17 +77,38 @@ function forceRefresh() {
 }
 
 /**
+ * Same as `forceRefresh()` but cleaning the cache first to ensure getting fresh data from Binance API
+ */
+function forceRefreshClean() {
+  const utils = BinUtils();
+  utils.toast("Cleaning cache and fetching fresh data from API, be patient..!", "", 5);
+  BinCache().clean(); // Clean cache!
+  utils.forceRefreshSheetFormulas(); // Refresh'em all!
+}
+
+/**
  * Displays a modal to tell the user to enable/authorize the add-on.
  */
 function showEnableFull() {
+  if (BinSetup().isReady()) { // Add-on is ready!
+    Logger.log("The add-on is authorized, enjoy!");
+    BinUtils().toast("The add-on is authorized and running, enjoy!", "Ready to rock", 10);
+    BinUtils().refreshMenu(); // Refresh add-on's main menu items
+    return;
+  }
+
+  Logger.log("The add-on is NOT authorized!");
   const ui = SpreadsheetApp.getUi();
   ui.alert("Enable Binance to Google Sheets!",
-           "You first need to **enable and authorize** the add-on in order to\n"+
-           "get the 'BINANCE()' formula available on this spreadsheet.\n"+
+           "You first need to **authorize** the add-on in order to\n"+
+           "get the 'BINANCE()' formula available on this spreadsheet\n"+
+           "and to automatically keep the data updated in the background.\n"+
            "\n"+
-           "Unlock the power and enjoy!\n"+
+           "Once authorized, just refresh/reload (hit F5) your browser!\n"+
+           "\n"+
+           "Enjoy,\n"+
            "Diego"
-           ,ui.ButtonSet.OK);
+           , ui.ButtonSet.OK);
 }
 
 /**
@@ -232,4 +271,128 @@ function showDonate() {
                "Diego.";
   ui.alert(title, body, ui.ButtonSet.OK);
   Logger.log("[Donate] Buy me a beer!  =]");
+}
+
+/**
+ * Below here, all the functions to configure trigger intervals
+ */
+function _setIntervalFor(task, interval) {
+  Logger.log("TASK: "+task+" ("+interval+")");
+  BinScheduler().setSchedule(task, interval);
+  BinUtils().refreshMenu(); // Refresh main menu items
+}
+
+// PRICES
+function _setIntervalForPrices(interval) {
+  _setIntervalFor(BinDoCurrentPrices().tag(), interval);
+}
+function setIntervalForPrices1m() {
+  _setIntervalForPrices("1m");
+}
+function setIntervalForPrices5m() {
+  _setIntervalForPrices("5m");
+}
+function setIntervalForPrices10m() {
+  _setIntervalForPrices("10m");
+}
+function setIntervalForPrices15m() {
+  _setIntervalForPrices("15m");
+}
+function setIntervalForPrices30m() {
+  _setIntervalForPrices("30m");
+}
+function setIntervalForPrices60m() {
+  _setIntervalForPrices("60m");
+}
+
+// 24H STATS
+function _setIntervalFor24hStats(interval) {
+  _setIntervalFor(BinDo24hStats().tag(), interval);
+}
+function setIntervalFor24hStats1m() {
+  _setIntervalFor24hStats("1m");
+}
+function setIntervalFor24hStats5m() {
+  _setIntervalFor24hStats("5m");
+}
+function setIntervalFor24hStats10m() {
+  _setIntervalFor24hStats("10m");
+}
+function setIntervalFor24hStats15m() {
+  _setIntervalFor24hStats("15m");
+}
+function setIntervalFor24hStats30m() {
+  _setIntervalFor24hStats("30m");
+}
+function setIntervalFor24hStats60m() {
+  _setIntervalFor24hStats("60m");
+}
+
+// ACCOUNT INFO
+function _setIntervalForAccountInfo(interval) {
+  _setIntervalFor(BinDoAccountInfo().tag(), interval);
+}
+function setIntervalForAccountInfo1m() {
+  _setIntervalForAccountInfo("1m");
+}
+function setIntervalForAccountInfo5m() {
+  _setIntervalForAccountInfo("5m");
+}
+function setIntervalForAccountInfo10m() {
+  _setIntervalForAccountInfo("10m");
+}
+function setIntervalForAccountInfo15m() {
+  _setIntervalForAccountInfo("15m");
+}
+function setIntervalForAccountInfo30m() {
+  _setIntervalForAccountInfo("30m");
+}
+function setIntervalForAccountInfo60m() {
+  _setIntervalForAccountInfo("60m");
+}
+
+// OPEN ORDERS
+function _setIntervalForOrdersOpen(interval) {
+  _setIntervalFor(BinDoOrdersOpen().tag(), interval);
+}
+function setIntervalForOrdersOpen1m() {
+  _setIntervalForOrdersOpen("1m");
+}
+function setIntervalForOrdersOpen5m() {
+  _setIntervalForOrdersOpen("5m");
+}
+function setIntervalForOrdersOpen10m() {
+  _setIntervalForOrdersOpen("10m");
+}
+function setIntervalForOrdersOpen15m() {
+  _setIntervalForOrdersOpen("15m");
+}
+function setIntervalForOrdersOpen30m() {
+  _setIntervalForOrdersOpen("30m");
+}
+function setIntervalForOrdersOpen60m() {
+  _setIntervalForOrdersOpen("60m");
+}
+
+// DONE ORDERS
+function _setIntervalForOrdersDone(interval) {
+  _setIntervalFor(BinDoOrdersDone().tag(), interval);
+}
+function setIntervalForOrdersDone1m() {
+  _setIntervalForOrdersDone("1m");
+}
+function setIntervalForOrdersDone5m() {
+  _setIntervalForOrdersDone("5m");
+}
+function setIntervalForOrdersDone10m() {
+  _setIntervalForOrdersDone("10m");
+}
+function setIntervalForOrdersDone15m() {
+  _setIntervalForOrdersDone("15m");
+}
+function setIntervalForOrdersDone30m() {
+  _setIntervalForOrdersDone("30m");
+}
+function setIntervalForOrdersDone60m() {
+  _setIntervalForOrdersDone("60m");
 }

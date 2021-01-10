@@ -5,10 +5,14 @@ function onOpen(event) {
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
-  const auth_mode = event && event.authMode ? event.authMode : ScriptApp.AuthMode.NONE;
-  BinMenu(SpreadsheetApp.getUi(), auth_mode); // Add items to main menu
-  if (BinUtils().isAuthEnough(auth_mode)) {
-    BinSetup().configTriggers(); // Automatically keep the formulas updated!
+  const setup = BinSetup();
+  BinMenu(SpreadsheetApp.getUi()); // Add items to main menu
+  if (setup.isReady()) { // Add-on is ready!
+    setup.configTriggers(); // Create triggers to automatically keep the formulas updated
+    BinUtils().toast("Hi there! I'm installed and working at this spreadsheet. Enjoy it!  =]");
+  } else { // Add-on is not ready! It might be due to missing authorization or permissions removal (BinScheduler is stalled or never run)
+    Logger.log("The add-on is NOT authorized!");
+    BinUtils().toast("The add-on is NOT authorized! Click 'Authorize add-on!' button on 'Binance' menu and hit F5 after to reload your browser.", "", 600);
   }
 
   Logger.log("Welcome to 'Binance to Google Sheets' by Diego Manuel, enjoy!  =]");
@@ -29,6 +33,7 @@ function BinSetup() {
   const user_props = PropertiesService.getUserProperties();
 
   return {
+    isReady,
     areAPIKeysConfigured,
     getAPIKey,
     setAPIKey,
@@ -38,8 +43,19 @@ function BinSetup() {
     clearAPIKeys,
     configTriggers
   };
-  
-  
+
+
+  /**
+   * Returns true if the add-on is setup and ready to rock!
+   */
+  function isReady() {
+    const isStalled = BinScheduler().isStalled();
+    const authFull = ScriptApp.getAuthorizationInfo(ScriptApp.AuthMode.FULL).getAuthorizationStatus();
+    const authLimited = ScriptApp.getAuthorizationInfo(ScriptApp.AuthMode.LIMITED).getAuthorizationStatus();
+    return !isStalled &&
+      (authFull === ScriptApp.AuthorizationStatus.NOT_REQUIRED || authLimited === ScriptApp.AuthorizationStatus.NOT_REQUIRED);
+  }
+
   /**
    * Returns true is API keys are configured
    */
@@ -202,15 +218,15 @@ function BinSetup() {
         // This can only happen if it was installed as an add-on!
         // This is discouraged and the user should instead follow the setup steps in README.md
         // to properly setup the fully-working code with all the needed permissions.
-        Logger.error("[configTriggers] Can't create <1h triggers!");
-        BinUtils().toast("Couldn't create triggers to keep data updated! Follow the setup steps in README.md to have it working properly.", "Uops!", 30);
+        console.error("[configTriggers] Can't create <1h triggers!");
+        BinUtils().toast("Couldn't create triggers to keep data updated! Follow the setup steps in README.md to have it working properly.", "", 30);
       }
       throw(err);
     }
   }
 
   function _refreshUI() {
-    BinMenu(SpreadsheetApp.getUi()); // Update main menu items
+    BinUtils().refreshMenu(); // Refresh main menu items
     return BinUtils().forceRefreshSheetFormulas(); // Force refresh all formulas!
   }
 }

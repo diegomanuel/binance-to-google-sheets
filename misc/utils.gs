@@ -17,10 +17,10 @@ function BinUtils() {
     filterTickerSymbol,
     sortResults,
     obscureSecret,
-    isAuthEnough,
     isFormulaMatching,
     extractFormulaParams,
     forceRefreshSheetFormulas,
+    refreshMenu,
     toast
   };
   
@@ -192,13 +192,6 @@ function BinUtils() {
   }
 
   /**
-   * Returns true is the current auth mode is enough to the add-on requirements
-   */
-  function isAuthEnough(auth_mode) {
-    return auth_mode === ScriptApp.AuthMode.FULL || auth_mode === ScriptApp.AuthMode.LIMITED;
-  }
-
-  /**
    * Returns true/false if the given period and formula matches the given module
    */
   function isFormulaMatching(module, period, formula) {
@@ -301,6 +294,14 @@ function BinUtils() {
               ||
             isFormulaMatching(BinDoLastUpdate(), period, formula);
           
+  }
+
+  /**
+   * Refreshes "Binance" main menu items
+   * @TODO This one should be at `BinMenu`
+   */
+  function refreshMenu() {
+    return BinMenu(SpreadsheetApp.getUi());
   }
 
   /**
