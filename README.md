@@ -37,7 +37,11 @@ Just [download the latest **BINANCE.gs**](https://github.com/diegomanuel/binance
     * It should open a new page with a `Code.gs` file containing an empty function.
 2. Remove any contents from `Code.gs` and paste the contents from the downloaded `BINANCE.gs` file.
 3. Save the project at `File -> Save`. Give any name you want.
-4. Refresh/reload your Google Spreadsheet (hit `F5`) and voila!
+4. Refresh/reload your Google Spreadsheet (hit `F5` on the browser).
+5. Go to `Binance` item at your spreadsheet's main menu and click on the `Authorize add-on!` item.
+6. A Google's dialog should appear asking for permissions, proceed with all the steps and click `Allow`.
+    * The popup will close and nothing will change on your spreadsheet yet!
+7. Once the add-on is authorized, just refresh/reload your Google Spreadsheet again (hit `F5`) and voila!
 
 ### If you are a developer  =]
 
