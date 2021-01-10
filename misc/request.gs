@@ -32,7 +32,8 @@ function BinRequest(OPTIONS) {
   * Reads data from cache or sends a request to Binance API and stores the data into cache with given TTL.
   */
   function _cache(method, url, qs, payload) {
-    let data = BinCache().read(method+"_"+url+"_"+qs, OPTIONS["validate_cache"]);
+    const CACHE_KEY = method+"_"+url+"_"+qs;
+    let data = BinCache().read(CACHE_KEY, OPTIONS["validate_cache"]);
 
     // Check if we have valid cached data
     if (!(data && Object.keys(data).length > 1)) { // Fetch data from API
@@ -43,7 +44,7 @@ function BinRequest(OPTIONS) {
       }
       if (data && Object.keys(data).length > 1) {
         Logger.log("DONE loading data from API! Storing at cache..");
-        BinCache().write(method+"_"+url+"_"+qs, data, CACHE_TTL);
+        BinCache().write(CACHE_KEY, data, CACHE_TTL);
       } else {
         Logger.log("DONE loading data from API, but NO results to return!");
       }
@@ -61,6 +62,7 @@ function BinRequest(OPTIONS) {
   * Sends a request to Binance API with given parameters.
   */
   function _request(method, url, qs, payload, opts) {
+    const CACHE_OK_KEY = method+"_"+url+"_"+qs;
     const need_auth = !opts["public"]; // Calling a private endpoint
     const headers = opts["headers"] || {};
     const da_payload = payload ? JSON.stringify(payload) : "";
@@ -93,7 +95,7 @@ function BinRequest(OPTIONS) {
         BinDoLastUpdate().run(new Date()); // Refresh last update ts
         const data = JSON.parse(response.getContentText());
         if (!opts["no_cache_ok"]) { // Keep last OK response
-          _setLastCacheResponseOK(da_qs, da_payload, data);
+          _setLastCacheResponseOK(CACHE_OK_KEY, da_payload, data);
         }
         return data; 
       }
@@ -122,7 +124,7 @@ function BinRequest(OPTIONS) {
         }
       }
 
-      const cache_response = _getLastCacheResponseOK(da_qs, da_payload);
+      const cache_response = _getLastCacheResponseOK(CACHE_OK_KEY, da_payload);
       if (cache_response) { // Fallback to last cached OK response (if any)
         Logger.log("Couldn't get an OK response from Binance API! Fallback to last cached OK response..  =0");
         return cache_response;
