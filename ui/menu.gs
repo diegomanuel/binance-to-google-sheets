@@ -59,7 +59,9 @@ function BinMenu(ui) {
       .addItem(intervalSelected("10m")+"10 minutes", funcName+"10m")
       .addItem(intervalSelected("15m")+"15 minutes", funcName+"15m")
       .addItem(intervalSelected("30m")+"30 minutes", funcName+"30m")
-      .addItem(intervalSelected("60m")+"1 hour", funcName+"60m");
+      .addItem(intervalSelected("60m")+"1 hour", funcName+"60m")
+      .addSeparator()
+      .addItem(intervalSelected("off")+"OFF!", funcName+"Off");
   }
 
   // Add the menu to the UI
@@ -298,6 +300,9 @@ function _setIntervalFor(task, interval) {
 function _setIntervalForPrices(interval) {
   _setIntervalFor(BinDoCurrentPrices().tag(), interval);
 }
+function setIntervalForPricesOff() {
+  _setIntervalForPrices("off");
+}
 function setIntervalForPrices1m() {
   _setIntervalForPrices("1m");
 }
@@ -320,6 +325,9 @@ function setIntervalForPrices60m() {
 // 24H STATS
 function _setIntervalFor24hStats(interval) {
   _setIntervalFor(BinDo24hStats().tag(), interval);
+}
+function setIntervalFor24hStatsOff() {
+  _setIntervalFor24hStats("off");
 }
 function setIntervalFor24hStats1m() {
   _setIntervalFor24hStats("1m");
@@ -344,6 +352,9 @@ function setIntervalFor24hStats60m() {
 function _setIntervalForAccountInfo(interval) {
   _setIntervalFor(BinDoAccountInfo().tag(), interval);
 }
+function setIntervalForAccountInfoOff() {
+  _setIntervalForAccountInfo("off");
+}
 function setIntervalForAccountInfo1m() {
   _setIntervalForAccountInfo("1m");
 }
@@ -367,6 +378,9 @@ function setIntervalForAccountInfo60m() {
 function _setIntervalForOrdersOpen(interval) {
   _setIntervalFor(BinDoOrdersOpen().tag(), interval);
 }
+function setIntervalForOrdersOpenOff() {
+  _setIntervalForOrdersOpen("off");
+}
 function setIntervalForOrdersOpen1m() {
   _setIntervalForOrdersOpen("1m");
 }
@@ -389,6 +403,9 @@ function setIntervalForOrdersOpen60m() {
 // DONE ORDERS
 function _setIntervalForOrdersDone(interval) {
   _setIntervalFor(BinDoOrdersDone().tag(), interval);
+}
+function setIntervalForOrdersDoneOff() {
+  _setIntervalForOrdersDone("off");
 }
 function setIntervalForOrdersDone1m() {
   _setIntervalForOrdersDone("1m");
