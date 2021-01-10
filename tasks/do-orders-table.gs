@@ -17,7 +17,7 @@ function BinDoOrdersTable() {
    * Returns this function period (the one that's used by the refresh triggers)
    */
   function period() {
-    return "10m";
+    return BinScheduler().getSchedule(tag()) || "10m";
   }
   
   /**

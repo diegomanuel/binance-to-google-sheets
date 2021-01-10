@@ -3,6 +3,7 @@
  */
 function BinScheduler(OPTIONS) {
   OPTIONS = OPTIONS || {}; // Init options
+  const SCHEDULES_PROP_NAME = "BIN_SCHEDULER_ENTRIES";
   const LAST_RUN_PROP_NAME = "BIN_SCHEDULER_LAST_RUN";
 
   return {
@@ -14,6 +15,7 @@ function BinScheduler(OPTIONS) {
     run60m,
     getSchedule,
     setSchedule,
+    cleanSchedules,
     isStalled
   };
 
@@ -67,19 +69,31 @@ function BinScheduler(OPTIONS) {
   }
 
   /**
-   * Returns the scheduled interval for given task
+   * Returns the scheduled interval for given task (or all schedules if no task given)
    */
   function getSchedule(task) {
-    //Logger.log("GET SCHEDULE: "+task);
-    return "1m";
+    const props = _getDocPropService().getProperty(SCHEDULES_PROP_NAME);
+    const schedules = props ? JSON.parse(props) : {};
+    return task ? schedules[task] : schedules;
   }
 
   /**
    * Sets the scheduled interval for given task
    */
   function setSchedule(task, interval) {
-    //Logger.log("SET SCHEDULE: "+task+" ("+interval+")");
-    return "";
+    const schedules = getSchedule(); // Get all current schedules
+    schedules[task] = interval; // Set the given schedule
+    Logger.log("Setting new schedule for ["+task+"] at: "+interval);
+    Logger.log("Updated schedules: "+JSON.stringify(schedules));
+    return _getDocPropService().setProperty(SCHEDULES_PROP_NAME, JSON.stringify(schedules));
+  }
+
+  /**
+   * Cleans ALL the scheduled intervals
+   */
+  function cleanSchedules() {
+    Logger.log("Cleaning ALL schedules:\n"+JSON.stringify(getSchedule()));
+    return _getDocPropService().setProperty(SCHEDULES_PROP_NAME, JSON.stringify({}));
   }
 
   /**
@@ -95,5 +109,9 @@ function BinScheduler(OPTIONS) {
    */
   function _updateLastRun() {
     return PropertiesService.getDocumentProperties().setProperty(LAST_RUN_PROP_NAME, (new Date()).getTime());
+  }
+
+  function _getDocPropService() {
+    return PropertiesService.getDocumentProperties();
   }
 }

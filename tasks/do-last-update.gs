@@ -16,7 +16,7 @@ function BinDoLastUpdate() {
    * Returns this function period (the one that's used by the refresh triggers)
    */
   function period() {
-    return "1m";
+    return BinScheduler().getSchedule(tag()) || "1m";
   }
 
   /**

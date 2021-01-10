@@ -34,7 +34,9 @@ function BinMenu(ui) {
             .addSubMenu(addTriggerIntervalItems("24h Stats", "24hStats", BinDo24hStats()))
             .addSubMenu(addTriggerIntervalItems("Account Info", "AccountInfo", BinDoAccountInfo()))
             .addSubMenu(addTriggerIntervalItems("Open Orders", "OrdersOpen", BinDoOrdersOpen()))
-            .addSubMenu(addTriggerIntervalItems("Done Orders", "OrdersDone", BinDoOrdersDone())));
+            .addSubMenu(addTriggerIntervalItems("Done Orders", "OrdersDone", BinDoOrdersDone()))
+            .addSeparator()
+            .addItem("Reset to Defaults", "resetTriggersIntervalConfig"));
       menu.addSeparator()
           .addItem("Credits", "showCredits")
           .addItem("Donate  =]", "showDonate")
@@ -50,15 +52,14 @@ function BinMenu(ui) {
    */
   function addTriggerIntervalItems(menuText, func, module) {
     const funcName = "setIntervalFor"+func;
-    const sch = BinScheduler();
-    const schSelected = (interval) => sch.getSchedule(module.tag()) === interval ? "[X] " : "";
-    return ui.createMenu(menuText+" ("+sch.getSchedule(module.tag())+")")
-      .addItem(schSelected("1m")+"1 minute", funcName+"1m")
-      .addItem(schSelected("5m")+"5 minutes", funcName+"5m")
-      .addItem(schSelected("10m")+"10 minutes", funcName+"10m")
-      .addItem(schSelected("15m")+"15 minutes", funcName+"15m")
-      .addItem(schSelected("30m")+"30 minutes", funcName+"30m")
-      .addItem(schSelected("60m")+"1 hour", funcName+"60m");
+    const intervalSelected = (interval) => module.period() === interval ? "[X] " : "";
+    return ui.createMenu(menuText+" ("+module.period()+")")
+      .addItem(intervalSelected("1m")+"1 minute", funcName+"1m")
+      .addItem(intervalSelected("5m")+"5 minutes", funcName+"5m")
+      .addItem(intervalSelected("10m")+"10 minutes", funcName+"10m")
+      .addItem(intervalSelected("15m")+"15 minutes", funcName+"15m")
+      .addItem(intervalSelected("30m")+"30 minutes", funcName+"30m")
+      .addItem(intervalSelected("60m")+"1 hour", funcName+"60m");
   }
 
   // Add the menu to the UI
@@ -273,12 +274,23 @@ function showDonate() {
   Logger.log("[Donate] Buy me a beer!  =]");
 }
 
+function resetTriggersIntervalConfig() {
+  const ui = SpreadsheetApp.getUi();
+  const text = "Proceed to reset your intervals configuration for triggers to default values?";
+  const result = ui.alert("Confirm reset to defaults", text, ui.ButtonSet.OK_CANCEL);
+  if (result == ui.Button.OK) {
+    BinScheduler().cleanSchedules();
+    BinUtils().toast("Intervals configuration for triggers were reset to its defaults!");
+    BinUtils().refreshMenu(); // Refresh main menu items
+  }
+}
+
 /**
  * Below here, all the functions to configure trigger intervals
  */
 function _setIntervalFor(task, interval) {
-  Logger.log("TASK: "+task+" ("+interval+")");
   BinScheduler().setSchedule(task, interval);
+  BinUtils().toast("Configured schedule for ["+task+"] every ["+interval+"]");
   BinUtils().refreshMenu(); // Refresh main menu items
 }
 

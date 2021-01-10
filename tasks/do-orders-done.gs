@@ -18,7 +18,7 @@ function BinDoOrdersDone() {
    * Returns this function period (the one that's used by the refresh triggers)
    */
   function period() {
-    return "5m";
+    return BinScheduler().getSchedule(tag()) || "5m";
   }
   
   /**
