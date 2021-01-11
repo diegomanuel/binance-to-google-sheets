@@ -3,7 +3,7 @@
  */
 function BinRequest(OPTIONS) {
   OPTIONS = OPTIONS || {}; // Init options
-  const CACHE_TTL = OPTIONS["CACHE_TTL"] || 60 * 60; // Defaults to 1 hour, in seconds
+  const CACHE_TTL = OPTIONS["CACHE_TTL"] || false; // Cache disabled by default
   const retry_delay = 1000; // Delay between API calls when it fails in milliseconds
   const retry_max_attempts = 5; // Max number of attempts when the API responses with status != 200
 
@@ -22,7 +22,7 @@ function BinRequest(OPTIONS) {
    * Reads data from cache or Binance API
    */
   function _fetch(method, url, qs, payload) {
-    if (OPTIONS["no_cache"]) { // Cache is disabled on purpose for this call
+    if (!OPTIONS["CACHE_TTL"]) { // Cache is disabled on purpose for this call
       return _request(method, url, qs, payload, OPTIONS); // Send request to Binance API
     }
     return _cache(method, url, qs, payload); // Maybe cache or Binance API

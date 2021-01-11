@@ -2,7 +2,6 @@
  * Runs the open orders script.
  */
 function BinDoOrdersOpen() {
-  const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   let lock_retries = 5; // Max retries to acquire lock
 
   /**
@@ -33,7 +32,7 @@ function BinDoOrdersOpen() {
       return run(symbol, options);
     }
     
-    const opts = {CACHE_TTL};
+    const opts = {CACHE_TTL: 55};
     const data = BinRequest(opts).get("api/v3/openOrders", "", "");
   
     BinUtils().releaseLock(lock);

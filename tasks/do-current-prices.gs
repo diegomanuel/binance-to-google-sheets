@@ -2,7 +2,6 @@
  * Runs the current prices script.
  */
 function BinDoCurrentPrices() {
-  const CACHE_TTL = 55; // In seconds
   let lock_retries = 5; // Max retries to acquire lock
 
   /**
@@ -33,7 +32,7 @@ function BinDoCurrentPrices() {
       return run(symbol_or_range, options);
     }
 
-    const opts = {CACHE_TTL, "public": true};
+    const opts = {CACHE_TTL: 55, "public": true};
     const data = BinRequest(opts).get("api/v3/ticker/price", "", "");
     BinUtils().releaseLock(lock);
     const parsed = parse(data, symbol_or_range, options);

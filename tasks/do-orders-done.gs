@@ -3,7 +3,6 @@
  */
 function BinDoOrdersDone() {
   const max_items = 10; // How many items to be fetched for each symbol by default
-  const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   const delay = 250; // Delay between API calls in milliseconds
   let lock_retries = 5; // Max retries to acquire lock
 
@@ -42,7 +41,7 @@ function BinDoOrdersDone() {
     
     const range = BinUtils().getRangeOrCell(range_or_cell) || [];
     const opts = {
-      CACHE_TTL,
+      CACHE_TTL: 55,
       "retries": range.length
     };
     const data = range.reduce(function(rows, crypto) {

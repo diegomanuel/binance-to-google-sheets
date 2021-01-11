@@ -2,7 +2,6 @@
  * Runs the 24h stats script.
  */
 function BinDo24hStats() {
-  const CACHE_TTL = 60 * 60 * 4 - 60 * 5; // 3:55 hours, in seconds
   let lock_retries = 5; // Max retries to acquire lock
 
   /**
@@ -38,7 +37,7 @@ function BinDo24hStats() {
     }
   
     const opts = {
-      CACHE_TTL,
+      CACHE_TTL: 55,
       "public": true,
       "no_cache_ok": true,
       "validate_cache": function(data) {

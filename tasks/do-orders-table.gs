@@ -95,7 +95,6 @@ function BinDoOrdersTable() {
     _setStatus(sheet, "fetching data..");
     const range = BinUtils().getRangeOrCell(range_or_cell, sheet) || [];
     const opts = {
-      "no_cache": true,
       "no_cache_ok": true,
       "retries": range.length
     };

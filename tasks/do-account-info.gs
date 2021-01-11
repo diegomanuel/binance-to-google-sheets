@@ -2,7 +2,6 @@
  * Runs the account info script.
  */
 function BinDoAccountInfo() {
-  const CACHE_TTL = 60 * 5 - 10; // 4:50 minutes, in seconds
   let lock_retries = 5; // Max retries to acquire lock
 
   /**
@@ -32,7 +31,7 @@ function BinDoAccountInfo() {
       return run(options);
     }
     
-    const opts = {CACHE_TTL};
+    const opts = {CACHE_TTL: 55};
     const data = BinRequest(opts).get("api/v3/account", "", "");
   
     BinUtils().releaseLock(lock);
