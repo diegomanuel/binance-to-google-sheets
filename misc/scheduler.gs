@@ -7,6 +7,7 @@ function BinScheduler(OPTIONS) {
   const LAST_RUN_PROP_NAME = "BIN_SCHEDULER_LAST_RUN";
 
   return {
+    init,
     run1m,
     run5m,
     run10m,
@@ -18,6 +19,13 @@ function BinScheduler(OPTIONS) {
     cleanSchedules,
     isStalled
   };
+
+  /**
+   * Mark the scheduler as initialized (ugly workaround)
+   */
+  function init() {
+    _updateLastRun();
+  }
 
   /**
    * Runs the scheduled functions for 1m
@@ -97,18 +105,18 @@ function BinScheduler(OPTIONS) {
   }
 
   /**
-   * Returns true if the scheduler didn't run in the last 10 minutes
+   * Returns true if the scheduler didn't run in the last 5 minutes
    */
   function isStalled() {
-    const lastRun = PropertiesService.getDocumentProperties().getProperty(LAST_RUN_PROP_NAME) || null;
-    return !lastRun || lastRun < (new Date()).getTime() - 1000*60*10; // 10 minutes in milliseconds
+    const lastRun = _getDocPropService().getProperty(LAST_RUN_PROP_NAME) || null;
+    return !lastRun || lastRun < (new Date()).getTime() - 1000*60*5; // 5 minutes in milliseconds
   }
 
   /**
    * Updates the last run timestamp
    */
   function _updateLastRun() {
-    return PropertiesService.getDocumentProperties().setProperty(LAST_RUN_PROP_NAME, (new Date()).getTime());
+    return _getDocPropService().setProperty(LAST_RUN_PROP_NAME, (new Date()).getTime());
   }
 
   function _getDocPropService() {

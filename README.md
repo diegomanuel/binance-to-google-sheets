@@ -38,10 +38,11 @@ Just [download the latest **BINANCE.gs**](https://github.com/diegomanuel/binance
 2. Remove any contents from `Code.gs` and paste the contents from the downloaded `BINANCE.gs` file.
 3. Save the project at `File -> Save`. Give any name you want.
 4. Refresh/reload your Google Spreadsheet (hit `F5` on the browser).
+    * Once reloaded, you should see a little message box (toast) at the bottom-right corner.
 5. Go to `Binance` item at your spreadsheet's main menu and click on the `Authorize add-on!` item.
 6. A Google's dialog should appear asking for permissions, proceed with all the steps and click `Allow`.
     * The popup will close and nothing will change on your spreadsheet yet!
-7. Once the add-on is authorized, just refresh/reload your Google Spreadsheet again (hit `F5`) and voila!
+7. Once the add-on is authorized, repeat step `5` (click `Authorize add-on!` again) and voila!
 
 ### If you are a developer  =]
 
@@ -59,7 +60,12 @@ You will need [node](https://nodejs.org) and [clasp](https://github.com/google/c
 5. Now you can run `make push` (or just `make` alone) to upload/apply local code to your desired Google Spreadsheet!
     * From now on, you can just run `make` to keep applying changes to the same configured spreadsheet.
     * **TIP:** You can run `make update` to pull latest changes from this repo and push them to your configured spreadsheet.
-6. Refresh/reload your Google Spreadsheet (hit `F5`) and voila!
+6. Refresh/reload your Google Spreadsheet (hit `F5` on the browser).
+    * Once reloaded, you should see a little message box (toast) at the bottom-right corner.
+7. Go to `Binance` item at your spreadsheet's main menu and click on the `Authorize add-on!` item.
+8. A Google's dialog should appear asking for permissions, proceed with all the steps and click `Allow`.
+    * The popup will close and nothing will change on your spreadsheet yet!
+9. Once the add-on is authorized, repeat step `7` (click `Authorize add-on!` again) and voila!
 
 **Windows users:** You can download and use `make` from [here](https://sourceforge.net/projects/gnuwin32/files/make/3.81/) or even the entire [GnuWin](https://sourceforge.net/projects/gnuwin32/) toolset.
 

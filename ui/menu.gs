@@ -9,7 +9,7 @@ function BinMenu(ui) {
     const is_ready = BinSetup().isReady();
 
     if (!is_ready) { // Add-on is not ready (unauthorized or BinScheduler is stalled or never run)
-      menu.addItem("Authorize add-on!", "showEnableFull");
+      menu.addItem("Authorize add-on!", "authorizeMe");
     } else {
       menu.addItem("Refresh", "forceRefresh")
           .addItem("Clean Refresh", "forceRefreshClean");
@@ -90,28 +90,11 @@ function forceRefreshClean() {
 }
 
 /**
- * Displays a modal to tell the user to enable/authorize the add-on.
+ * Triggers the modal to enable/authorize the add-on.
+ * If this function gets executed, it means that the user has authorized the add-on!
  */
-function showEnableFull() {
-  if (BinSetup().isReady()) { // Add-on is ready!
-    Logger.log("The add-on is authorized, enjoy!");
-    BinUtils().toast("The add-on is authorized and running, enjoy!", "Ready to rock", 10);
-    BinUtils().refreshMenu(); // Refresh add-on's main menu items
-    return;
-  }
-
-  Logger.log("The add-on is NOT authorized!");
-  const ui = SpreadsheetApp.getUi();
-  ui.alert("Enable Binance to Google Sheets!",
-           "You first need to **authorize** the add-on in order to\n"+
-           "get the 'BINANCE()' formula available on this spreadsheet\n"+
-           "and to automatically keep the data updated in the background.\n"+
-           "\n"+
-           "Once authorized, just refresh/reload (hit F5) your browser!\n"+
-           "\n"+
-           "Enjoy,\n"+
-           "Diego"
-           , ui.ButtonSet.OK);
+function authorizeMe() {
+  BinSetup().authorize();
 }
 
 /**

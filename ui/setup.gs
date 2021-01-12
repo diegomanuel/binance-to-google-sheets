@@ -12,7 +12,7 @@ function onOpen(event) {
     BinUtils().toast("Hi there! I'm installed and working at this spreadsheet. Enjoy it!  =]");
   } else { // Add-on is not ready! It might be due to missing authorization or permissions removal (BinScheduler is stalled or never run)
     Logger.log("The add-on is NOT authorized!");
-    BinUtils().toast("The add-on is NOT authorized! Click 'Authorize add-on!' button on 'Binance' menu and hit F5 after to reload your browser.", "", 600);
+    BinUtils().toast("The add-on is NOT authorized! Click 'Authorize add-on!' button on 'Binance' menu TWICE.", "", 600);
   }
 
   Logger.log("Welcome to 'Binance to Google Sheets' by Diego Manuel, enjoy!  =]");
@@ -33,6 +33,7 @@ function BinSetup() {
   const user_props = PropertiesService.getUserProperties();
 
   return {
+    authorize,
     isReady,
     areAPIKeysConfigured,
     getAPIKey,
@@ -44,6 +45,19 @@ function BinSetup() {
     configTriggers
   };
 
+  /**
+   * Sadly, we can't detect from whitin the code when the user authorizes the add-on
+   * since there is NO `onAuthorize` trigger or something like that (basically a mechanism to let the code know when it gets authorized).
+   * The `onInstall` trigger only works when the add-on is installed from the Google Marketplace, but
+   * this is not our case (and besides, marketplace add-ons can't have triggers smaller than 1 hour.. so totally discarded).
+   * So, this is an "ugly workaround" to try to help the user to get things working in the initial setup!
+   */
+  function authorize() {
+    BinScheduler().init();
+    Logger.log("The add-on is authorized, enjoy!");
+    BinUtils().toast("The add-on is authorized and running, enjoy!", "Ready to rock", 10);
+    BinUtils().refreshMenu(); // Refresh add-on's main menu items
+  }
 
   /**
    * Returns true if the add-on is setup and ready to rock!
