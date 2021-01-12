@@ -229,26 +229,22 @@ function showDonate() {
                "\n"+
                "If your love is strong enough, feel free to share it with me!  =D\n"+
                "I will much appreciate any contribution and support to keep working on it.\n"+
+               "I have several ideas for new features, so much more could come!\n"+
                "\n"+
-               "I have plenty of ideas for new features and improvements.\n"+
-               "So far, this is just the first acceptable release, but much more could come..!\n"+
+               "\n"+
+               "You can send any token through the Binance Smart Chain (BSC/BEP20) to:\n"+
+               "0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
+               "\n"+
+               "But you can also use:\n"+
+               "[BTC] BTC: 1FsN54WNibhhPhRt4vnAPRGgzaVeeFvEnM\n"+
+               "[BTC] SegWit: bc1qanxn2ycp9em50hj5p7en6wxe962zj4umqvs7q9\n"+
+               "[ETH] ERC20: 0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
+               "[LTC] LTC: LZ8URuChzyuuy272isMCrts7R7UKtwnj6a\n"+
                "\n"+
                "------------------------------------------------\n"+
                "Don't you have a Binance account yet?\n"+
                "Register using the referal link below and get a 5% discount on fees for all your trades!\n"+
                "https://www.binance.com/en/register?ref=NJE1D9CS\n"+
-               "------------------------------------------------\n"+
-               "[BTC] Bitcoin donate address:\n"+
-               "1FsN54WNibhhPhRt4vnAPRGgzaVeeFvEnM\n"+
-               "\n"+
-               "[ETH] Ethereum donate address:\n"+
-               "0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
-               "\n"+
-               "[LTC] Litecoin donate address:\n"+
-               "LZ8URuChzyuuy272isMCrts7R7UKtwnj6a\n"+
-               "\n"+
-               "[BNB] Binance Coin donate address:\n"+
-               "0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
                "------------------------------------------------\n"+
                "\n"+
                "This software was published and released under the GPL-3.0 License.\n"+

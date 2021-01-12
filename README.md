@@ -218,21 +218,21 @@ Thank you for using Binance to Google Sheets add-on!
 I really hope you enjoyed and loved it as much as I love to use it everyday.
 
 If your love is strong enough, feel free to share it with me!  =D  
-I will much appreciate any contribution and support to keep working on it.
+I will much appreciate any contribution and support to keep working on it.  
+I have several ideas for new features, so much more could come!
 
-I have plenty of ideas for new features and improvements.  
-So far, this is just the first acceptable release, but much more could come..!
+You can send any token through the **Binance Smart Chain** (BSC/BEP20) to the address:  
+`0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97`
 
----
-
-**[BTC] Bitcoin donate address** | **[ETH] Ethereum donate address** | **[LTC] Litecoin donate address** | **[BNB] Binance Coin donate address**
-:---:|:---:|:---:|:---:
-![Bitcoin donate address](img/BTC-donate-address.png "Bitcoin donate address") | ![Ethereum donate address](img/ETH-donate-address.png "Ethereum donate address") | ![Litecoin donate address](img/LTC-donate-address.png "Litecoin donate address") | ![Binance Coin donate address](img/BNB-donate-address.png "Binance Coin donate address")
-1FsN54WNibhhPhRt4vnAPRGgzaVeeFvEnM | 0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97 | LZ8URuChzyuuy272isMCrts7R7UKtwnj6a | 0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97
+But you can also use:
+* **[BTC] BTC:** `1FsN54WNibhhPhRt4vnAPRGgzaVeeFvEnM`
+* **[BTC] SegWit:** `bc1qanxn2ycp9em50hj5p7en6wxe962zj4umqvs7q9`
+* **[ETH] ERC20:** `0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97`
+* **[LTC] LTC:** `LZ8URuChzyuuy272isMCrts7R7UKtwnj6a`
 
 ---
 
 This software was published and released under the **GPL-3.0 License**.
 
-Use it wisely, happy trading!  
+Use it wisely, happy trading! :beers:  
 Diego.
