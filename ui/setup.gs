@@ -54,6 +54,7 @@ function BinSetup() {
    */
   function authorize() {
     BinScheduler().init();
+    BinSetup().configTriggers(); // Create triggers to automatically keep the formulas updated
     Logger.log("The add-on is authorized, enjoy!");
     BinUtils().toast("The add-on is authorized and running, enjoy!", "Ready to rock", 10);
     BinUtils().refreshMenu(); // Refresh add-on's main menu items
