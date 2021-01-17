@@ -269,9 +269,9 @@ function resetTriggersIntervalConfig() {
 /**
  * Below here, all the functions to configure trigger intervals
  */
-function _setIntervalFor(task, interval) {
-  BinScheduler().setSchedule(task, interval);
-  BinUtils().toast("Configured schedule for ["+task+"] every ["+interval+"]");
+function _setIntervalFor(operation, interval) {
+  BinScheduler().setSchedule(operation, interval);
+  BinUtils().toast("Configured schedule for ["+operation+"] every ["+interval+"]");
   BinUtils().refreshMenu(); // Refresh main menu items
 }
 

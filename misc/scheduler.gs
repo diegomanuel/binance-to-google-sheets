@@ -17,6 +17,7 @@ function BinScheduler(OPTIONS) {
     getSchedule,
     setSchedule,
     cleanSchedules,
+    rescheduleFailed,
     isStalled
   };
 
@@ -77,21 +78,21 @@ function BinScheduler(OPTIONS) {
   }
 
   /**
-   * Returns the scheduled interval for given task (or all schedules if no task given)
+   * Returns the scheduled interval for given operation (or all schedules if no operation given)
    */
-  function getSchedule(task) {
+  function getSchedule(operation) {
     const props = _getDocPropService().getProperty(SCHEDULES_PROP_NAME);
     const schedules = props ? JSON.parse(props) : {};
-    return task ? schedules[task] : schedules;
+    return operation ? schedules[operation] : schedules;
   }
 
   /**
-   * Sets the scheduled interval for given task
+   * Sets the scheduled interval for given operation
    */
-  function setSchedule(task, interval) {
+  function setSchedule(operation, interval) {
     const schedules = getSchedule(); // Get all current schedules
-    schedules[task] = interval; // Set the given schedule
-    Logger.log("Setting new schedule for ["+task+"] at: "+interval);
+    schedules[operation] = interval; // Set the given schedule
+    Logger.log("Setting new schedule for ["+operation+"] at: "+interval);
     Logger.log("Updated schedules: "+JSON.stringify(schedules));
     return _getDocPropService().setProperty(SCHEDULES_PROP_NAME, JSON.stringify(schedules));
   }
@@ -102,6 +103,13 @@ function BinScheduler(OPTIONS) {
   function cleanSchedules() {
     Logger.log("Cleaning ALL schedules:\n"+JSON.stringify(getSchedule()));
     return _getDocPropService().setProperty(SCHEDULES_PROP_NAME, JSON.stringify({}));
+  }
+
+  /**
+   * Re-schedule failed executions so they can be retried ASAP (at 1 minute trigger)
+   */
+  function rescheduleFailed(operation) {
+    // @TODO WIP!
   }
 
   /**

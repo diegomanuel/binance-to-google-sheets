@@ -17,6 +17,7 @@ function BinDoOrdersTable() {
    * Returns this function period (the one that's used by the refresh triggers)
    */
   function period() {
+    // @TODO Verify if it's still running and cancel if it is!
     return BinScheduler().getSchedule(tag()) || "10m";
   }
   

@@ -229,8 +229,6 @@ function BinUtils() {
    * Force-refresh formulas for given period.
    */
   function forceRefreshSheetFormulas(period) {
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    let count = 0;
     let lock = null;
 
     Logger.log("Refreshing spreadsheet formulas..");
@@ -241,37 +239,56 @@ function BinUtils() {
       }
     }
 
-    ss.getSheets().map(function(sheet) {
-      const range = sheet.getDataRange();
-      const formulas = range.getFormulas();
-      const changed = _replaceRangeFormulas(period, range, formulas, "");
-      if (changed > 0) { // We have changed cell/s contents! => Set the formulas back to enforce recalculation
-        SpreadsheetApp.flush();
-        count +=_replaceRangeFormulas(period, range, formulas);
-        SpreadsheetApp.flush();
+    const sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
+    const affectedFormulas = sheets.reduce(function(formulas, sheet) {
+      const formulaCells = _findAffectedSheetFormulaCells(period, sheet);
+      formulas.push(...formulaCells); // Add formulas to be refreshed (if any)
+      return formulas;
+    }, []);
+    const count = affectedFormulas.length;
+    if (DEBUG) {
+      Logger.log("FORMULAS TO REFRESH: "+JSON.stringify(affectedFormulas));
+    }
+
+    if (count) { // We have formulas to refresh!
+      try { // Sadly, this is the only way we have to refresh formula's results on the spreadsheet.. (clear, flush, restore, flush)
+        for (const {cell} of affectedFormulas) {
+          cell.setFormula(""); // Clear the formula
+        }
+        SpreadsheetApp.flush(); // Force the spreadsheet to take the changes
+        for (const {cell, formula} of affectedFormulas) {
+          cell.setFormula(formula); // Set the formula back
+        }
+      } catch (e) { // Make sure to don't lose the formulas!
+        console.error("ERROR while refreshing formulas: "+JSON.stringify(e));
+        for (const {cell, formula} of affectedFormulas) {
+          cell.setFormula(formula); // Set the formula back
+        }
       }
-    });
+      SpreadsheetApp.flush(); // Force the spreadsheet to take the changes again..
+    }
 
     releaseLock(lock);
     Logger.log(count+" spreadsheet formulas were refreshed!");
     return count;
   }
 
-  function _replaceRangeFormulas(period, range, formulas, formula) {
+  function _findAffectedSheetFormulaCells(period, sheet) {
+    const range = sheet.getDataRange();
+    const formulas = range.getFormulas();
     const num_cols = range.getNumColumns();
     const num_rows = range.getNumRows();
     const row_offset = range.getRow();
     const col_offset = range.getColumn();
-    let count = 0;
+    let affectedFormulas = [];
     for (let row = 0; row < num_rows ; row++) {
       for (let col = 0; col < num_cols; col++) {
         if (_isFormulaReplacement(period, formulas[row][col])) {
-          count++;
-          range.getCell(row+row_offset, col+col_offset).setFormula(formula === "" ? "" : formulas[row][col]);
+          affectedFormulas.push({cell: range.getCell(row+row_offset, col+col_offset), formula: formulas[row][col]});
         }
       }
     }
-    return count;
+    return affectedFormulas;
   }
 
   function _isFormulaReplacement(period, formula) {
