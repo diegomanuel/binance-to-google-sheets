@@ -124,10 +124,12 @@ function BinRequest(OPTIONS) {
         }
       }
 
-      const cache_response = _getLastCacheResponseOK(CACHE_OK_KEY, da_payload);
-      if (cache_response) { // Fallback to last cached OK response (if any)
-        Logger.log("Couldn't get an OK response from Binance API! Fallback to last cached OK response..  =0");
-        return cache_response;
+      if (!opts["no_cache_ok"]) { // Use last OK response
+        const cache_response = _getLastCacheResponseOK(CACHE_OK_KEY, da_payload);
+        if (cache_response) { // Fallback to last cached OK response (if any)
+          Logger.log("Couldn't get an OK response from Binance API! Fallback to last cached OK response..  =0");
+          return cache_response;
+        }
       }
       throw new Error("Request failed with status: "+response.getResponseCode());
     }

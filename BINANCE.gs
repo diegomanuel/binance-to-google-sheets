@@ -55,3 +55,14 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   
   throw new Error("Unsupported operation given: '"+operation+"'");
 }
+
+/**
+ * This is just a dummy function, use `BINANCE` instead!
+ * It only serves to help to [R]efresh (the "R" from there) spreadsheet formulas
+ * by switching between `BINANCE` and `BINANCER`.
+ * 
+ * @customfunction
+ */
+function BINANCER(operation, range_or_cell, opts, force_refresh_cell) {
+  return BINANCE(operation, range_or_cell, opts, force_refresh_cell);
+}

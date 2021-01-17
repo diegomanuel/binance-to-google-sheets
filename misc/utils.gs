@@ -195,17 +195,16 @@ function BinUtils() {
    * Returns true/false if the given period and formula matches the given module
    */
   function isFormulaMatching(module, period, formula) {
-    const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+module.tag()+"\"", "i");
-    return module.period() == period && regex_formula.test(formula);
-
+    const regex_formula = "=.*BINANCE[R]?\\s*\\(\\s*\""+module.tag()+"\"";
+    return module.period() == period && new RegExp(regex_formula, "i").test(formula);
   }
 
   /**
    * Extract parameters from the formula string for the given module
    */
   function extractFormulaParams(module, formula) {
-    const regex_formula = new RegExp("=.*BINANCE\\s*\\(\\s*\""+module.tag()+"\"\\s*,\\s*\"?([^\"\\)]+)\"?(?:\\s*,\\s*\"([^\"]+)\")?", "ig");
-    const extracted = regex_formula.exec(formula);
+    const regex_formula = "=.*BINANCE[R]?\\s*\\(\\s*\""+module.tag()+"\"\\s*,\\s*\"?([^\"\\)]+)\"?(?:\\s*,\\s*\"([^\"]+)\")?";
+    const extracted = new RegExp(regex_formula, "ig").exec(formula);
     let [range_or_cell, options] = ["", ""];
 
     if (DEBUG) {
@@ -240,37 +239,28 @@ function BinUtils() {
     }
 
     const sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-    const affectedFormulas = sheets.reduce(function(formulas, sheet) {
+    const affectedFormulaCells = sheets.reduce(function(formulas, sheet) {
       const formulaCells = _findAffectedSheetFormulaCells(period, sheet);
       formulas.push(...formulaCells); // Add formulas to be refreshed (if any)
       return formulas;
     }, []);
-    const count = affectedFormulas.length;
     if (DEBUG) {
-      Logger.log("FORMULAS TO REFRESH: "+JSON.stringify(affectedFormulas));
+      Logger.log("FORMULAS TO REFRESH: "+JSON.stringify(affectedFormulaCells));
     }
 
-    if (count) { // We have formulas to refresh!
-      try { // Sadly, this is the only way we have to refresh formula's results on the spreadsheet.. (clear, flush, restore, flush)
-        for (const {cell} of affectedFormulas) {
-          cell.setFormula(""); // Clear the formula
-        }
-        SpreadsheetApp.flush(); // Force the spreadsheet to take the changes
-        for (const {cell, formula} of affectedFormulas) {
-          cell.setFormula(formula); // Set the formula back
-        }
-      } catch (e) { // Make sure to don't lose the formulas!
-        console.error("ERROR while refreshing formulas: "+JSON.stringify(e));
-        for (const {cell, formula} of affectedFormulas) {
-          cell.setFormula(formula); // Set the formula back
-        }
+    const regexIsFormulaRefresh = new RegExp("BINANCER\\(", "i");
+    for (const cell of affectedFormulaCells) {
+      const formula = cell.getFormula();
+      if (formula.match(regexIsFormulaRefresh)) {
+        cell.setFormula(formula.replace(/BINANCER\(/i, "BINANCE("));
+      } else {
+        cell.setFormula(formula.replace(/BINANCE\(/i, "BINANCER("));
       }
-      SpreadsheetApp.flush(); // Force the spreadsheet to take the changes again..
     }
 
     releaseLock(lock);
-    Logger.log(count+" spreadsheet formulas were refreshed!");
-    return count;
+    Logger.log(affectedFormulaCells.length+" spreadsheet formulas were refreshed!");
+    return affectedFormulaCells.length;
   }
 
   function _findAffectedSheetFormulaCells(period, sheet) {
@@ -278,22 +268,21 @@ function BinUtils() {
     const formulas = range.getFormulas();
     const num_cols = range.getNumColumns();
     const num_rows = range.getNumRows();
-    const row_offset = range.getRow();
-    const col_offset = range.getColumn();
-    let affectedFormulas = [];
+    let affectedFormulaCells = [];
     for (let row = 0; row < num_rows ; row++) {
       for (let col = 0; col < num_cols; col++) {
         if (_isFormulaReplacement(period, formulas[row][col])) {
-          affectedFormulas.push({cell: range.getCell(row+row_offset, col+col_offset), formula: formulas[row][col]});
+          const row_offset = range.getRow();
+          const col_offset = range.getColumn();
+          affectedFormulaCells.push(range.getCell(row+row_offset, col+col_offset));
         }
       }
     }
-    return affectedFormulas;
+    return affectedFormulaCells;
   }
 
   function _isFormulaReplacement(period, formula) {
-    const regex_formula = new RegExp(/=.*BINANCE\s*\(/);
-    if (!(formula != "" && regex_formula.test(formula))) {
+    if (!(formula != "" && new RegExp(/=.*BINANCE[R]?\s*\(/).test(formula))) {
       return false;
     }
     
