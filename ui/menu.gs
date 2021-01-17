@@ -11,8 +11,7 @@ function BinMenu(ui) {
     if (!is_ready) { // Add-on is not ready (unauthorized or BinScheduler is stalled or never run)
       menu.addItem("Authorize add-on!", "authorizeMe");
     } else {
-      menu.addItem("Refresh", "forceRefresh")
-          .addItem("Clean Refresh", "forceRefreshClean");
+      menu.addItem("Refresh", "forceRefreshFormulas");
     }
     menu.addSeparator()
         .addItem("Show API Last Update", "showAPILastUpdate")
@@ -71,20 +70,11 @@ function BinMenu(ui) {
 
 /**
  * Forces all BINANCE() formulas recalculation on the current spreadsheet.
- * NOTE: Data might come from cache anyways! This function is useful only when triggers are not available to automatically update'em.
+ * Cleans the cache first to ensure getting fresh data from Binance API!
  */
-function forceRefresh() {
+function forceRefreshFormulas() {
   const utils = BinUtils();
   utils.toast("Refreshing data, be patient..!", "", 5);
-  utils.forceRefreshSheetFormulas(); // Refresh'em all!
-}
-
-/**
- * Same as `forceRefresh()` but cleaning the cache first to ensure getting fresh data from Binance API
- */
-function forceRefreshClean() {
-  const utils = BinUtils();
-  utils.toast("Cleaning cache and fetching fresh data from API, be patient..!", "", 5);
   BinCache().clean(); // Clean cache!
   utils.forceRefreshSheetFormulas(); // Refresh'em all!
 }
