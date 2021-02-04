@@ -15,7 +15,7 @@ function BinDoAccountInfo() {
    * Returns this function period (the one that's used by the refresh triggers)
    */
   function period() {
-    return BinScheduler().getSchedule(tag()) || "5m";
+    return BinScheduler().getSchedule(tag()) || "15m";
   }
   
   /**
@@ -25,10 +25,21 @@ function BinDoAccountInfo() {
    * @return A list with account information
    */
   function run(options) {
+    const bs = BinScheduler();
+    try {
+      bs.clearFailed(tag());
+      return execute(options);
+    } catch(err) { // Re-schedule this failed run!
+      bs.rescheduleFailed(tag());
+      throw err;
+    }
+  }
+
+  function execute(options) {
     Logger.log("[BinDoAccountInfo] Running..");
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
-      return run(options);
+      return execute(options);
     }
     
     const opts = {CACHE_TTL: 55};

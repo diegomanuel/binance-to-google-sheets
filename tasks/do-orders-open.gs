@@ -26,10 +26,21 @@ function BinDoOrdersOpen() {
    * @return The list of all current open orders for all or given symbol/ticker.
    */
   function run(symbol, options) {
+    const bs = BinScheduler();
+    try {
+      bs.clearFailed(tag());
+      return execute(symbol, options);
+    } catch(err) { // Re-schedule this failed run!
+      bs.rescheduleFailed(tag());
+      throw err;
+    }
+  }
+
+  function execute(symbol, options) {
     Logger.log("[BinDoOrdersOpen] Running..");
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
-      return run(symbol, options);
+      return execute(symbol, options);
     }
     
     const opts = {CACHE_TTL: 55};

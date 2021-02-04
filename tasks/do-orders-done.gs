@@ -28,6 +28,17 @@ function BinDoOrdersDone() {
    * @return The list of all current done orders for all or given symbols/tickers.
    */
   function run(range_or_cell, options) {
+    const bs = BinScheduler();
+    try {
+      bs.clearFailed(tag());
+      return execute(range_or_cell, options);
+    } catch(err) { // Re-schedule this failed run!
+      bs.rescheduleFailed(tag());
+      throw err;
+    }
+  }
+
+  function execute(range_or_cell, options) {
     const ticker_against = options["ticker"];
     const limit = _getMaxItems(options); // Get max items limit
     Logger.log("[BinDoOrdersDone] Running..");
@@ -36,7 +47,7 @@ function BinDoOrdersDone() {
     }
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
-      return run(range_or_cell, options);
+      return execute(range_or_cell, options);
     }
     
     const range = BinUtils().getRangeOrCell(range_or_cell) || [];

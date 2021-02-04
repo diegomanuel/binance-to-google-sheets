@@ -233,8 +233,8 @@ function showDonate() {
                "\n"+
                "------------------------------------------------\n"+
                "Don't you have a Binance account yet?\n"+
-               "Register using the referal link below and get a 5% discount on fees for all your trades!\n"+
-               "https://www.binance.com/en/register?ref=NJE1D9CS\n"+
+               "Register using the referal link below and get a 10% discount on fees for all your trades!\n"+
+               "https://www.binance.com/en/register?ref=SM93PRAV\n"+
                "------------------------------------------------\n"+
                "\n"+
                "This software was published and released under the GPL-3.0 License.\n"+

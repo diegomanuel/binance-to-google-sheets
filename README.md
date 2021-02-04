@@ -183,7 +183,7 @@ Therefore, you will agree upon your own fully responsibility at the very moment 
 No personal data collect and/or usage is done in any way, that's why this `add-on` doesn't require any _"controversial"_ permission from your side.  
 The only _sensitive scopes_ according to **Google** are:
 * `script.external_request` :: Needed to **fetch data from Binance API** into the spreadsheet (GET requests only).
-* `script.scriptapp` :: Needed to **install and run 3 triggers** to keep data updated in the spreadsheet (every 1, 5 and 10 minutes).
+* `script.scriptapp` :: Needed to **install and run triggers** to keep data updated in the spreadsheet.
 
 **NOTE:** This is an _open-source_ project, so you will always be available to keep and eye to the code and audit it.  
 If you have any concerns, please feel free to open a ticket in the [issues](https://github.com/diegomanuel/binance-to-google-sheets/issues) section or email me.
@@ -203,13 +203,12 @@ No other service acts as an intermediary between your Google spreadsheet and Bin
 **NOTE:** If you have any concerns, please feel free to open a ticket in the [issues](https://github.com/diegomanuel/binance-to-google-sheets/issues) section or email me.
 
 
-## Binance Account - Get 5% discount on fees!
+## Binance Account - Get 10% discount on fees!
 
 Don't you have a **Binance** account yet?  
-Register using the **referal link** below and get a **5% discount on fees** for **all** your trades!
+Register using the **referal link** below and get a **10% discount on fees** for **all** your trades!
 
-[**https://www.binance.com/en/register?ref=NJE1D9CS**](https://www.binance.com/en/register?ref=NJE1D9CS)  
-<a href="https://www.binance.com/en/register?ref=NJE1D9CS" target="_blank"><img src="img/binance-join.png" alt="Join to Binance!" title="Join to Binance!"/></a>
+[**https://www.binance.com/en/register?ref=SM93PRAV**](https://www.binance.com/en/register?ref=SM93PRAV)  
 
 
 ## Enjoy - Donate - Buy me a beer!  =]

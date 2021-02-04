@@ -26,10 +26,21 @@ function BinDoCurrentPrices() {
    * @return The list of current prices for all or given symbols/tickers.
    */
   function run(symbol_or_range, options) {
+    const bs = BinScheduler();
+    try {
+      bs.clearFailed(tag());
+      return execute(symbol_or_range, options);
+    } catch(err) { // Re-schedule this failed run!
+      bs.rescheduleFailed(tag());
+      throw err;
+    }
+  }
+
+  function execute(symbol_or_range, options) {
     Logger.log("[BinDoCurrentPrices] Running..");
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
-      return run(symbol_or_range, options);
+      return execute(symbol_or_range, options);
     }
 
     const opts = {CACHE_TTL: 55, "public": true};

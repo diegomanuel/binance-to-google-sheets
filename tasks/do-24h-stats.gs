@@ -15,7 +15,7 @@ function BinDo24hStats() {
    * Returns this function period (the one that's used by the refresh triggers)
    */
   function period() {
-    return BinScheduler().getSchedule(tag()) || "5m";
+    return BinScheduler().getSchedule(tag()) || "30m";
   }
   
   /**
@@ -26,6 +26,17 @@ function BinDo24hStats() {
    * @return The list of 24hs stats for given symbols
    */
   function run(range_or_cell, options) {
+    const bs = BinScheduler();
+    try {
+      bs.clearFailed(tag());
+      return execute(range_or_cell, options);
+    } catch(err) { // Re-schedule this failed run!
+      bs.rescheduleFailed(tag());
+      throw err;
+    }
+  }
+
+  function execute(range_or_cell, options) {
     const ticker_against = options["ticker"];
     Logger.log("[BinDo24hStats] Running..");
     if (!range_or_cell) { // @TODO This limitation could be removed if cache is changed by other storage
@@ -33,7 +44,7 @@ function BinDo24hStats() {
     }
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
-      return run(range_or_cell, options);
+      return execute(range_or_cell, options);
     }
   
     const opts = {
