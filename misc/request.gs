@@ -66,6 +66,7 @@ function BinRequest(OPTIONS) {
     const need_auth = !opts["public"]; // Calling a private endpoint
     const headers = opts["headers"] || {};
     const da_payload = payload ? JSON.stringify(payload) : "";
+    let da_qs = qs || "";
     let options = {
       "method": method,
       "contentType": "application/json",
@@ -74,69 +75,63 @@ function BinRequest(OPTIONS) {
       "muteHttpExceptions": true,
       "validateHttpsCertificates": true
     };
-    
-    try {
-      let da_qs = qs || "";
-      if (need_auth) { // Calling a private endpoint
-        if (!BinSetup().areAPIKeysConfigured()) { // Do not allow to continue if API keys aren't set!
-          throw new Error("Binance API keys are required to call this operation!");
-        }
-        options["headers"]["X-MBX-APIKEY"] = BinSetup().getAPIKey();
-        da_qs += (da_qs?"&":"")+"timestamp="+(new Date()).getTime()+"&recvWindow=30000";
-        da_qs += "&signature="+_computeSignature(da_qs, da_payload);
-      }
-      const da_url = BASE_URL+"/"+url+"?"+da_qs;
-      const response = UrlFetchApp.fetch(da_url, options);
-      if (DEBUG) {
-        Logger.log("QUERY: "+da_url);
-        Logger.log("RESPONSE: "+response.getResponseCode());
-      }
-      if (response.getResponseCode() == 200) {
-        BinDoLastUpdate().run(new Date()); // Refresh last update ts
-        const data = JSON.parse(response.getContentText());
-        if (!opts["no_cache_ok"]) { // Keep last OK response
-          _setLastCacheResponseOK(CACHE_OK_KEY, da_payload, data);
-        }
-        return data; 
-      }
-      if (response.getResponseCode() == 400) {
-        // There might be a problem with the Binance API keys
-        throw new Error("Got 400 from Binance API! The request seems to be wrong.");
-      }
-      if (response.getResponseCode() == 401) {
-        // There might be a problem with the Binance API keys
-        throw new Error("Got 401 from Binance API! The keys aren't set or they are not valid anymore.");
-      }
-      if (response.getResponseCode() == 418) {
-        // The IP has been auto-banned for continuing to send requests after receiving 429 codes
-        Logger.log("Got 418 from Binance API! We are banned for a while..  =/");
-        const options = _canRetryRequest(418, opts);
-        if (options) { // Somewhat "weird" function, it acts as a bool helper and opts updater at once.. but whatever..!
-          return _request(method, url, qs, payload, options);
-        }
-      }
-      if (response.getResponseCode() == 429) {
-        // Binance is telling us that we are sending too many requests
-        Logger.log("Got 429 from Binance API! We are sending too many requests from our IP..  =/");
-        const options = _canRetryRequest(429, opts);
-        if (options) { // Somewhat "weird" function, it acts as a bool helper and opts updater at once.. but whatever..!
-          return _request(method, url, qs, payload, options);
-        }
-      }
 
-      if (!opts["no_cache_ok"]) { // Use last OK response
-        const cache_response = _getLastCacheResponseOK(CACHE_OK_KEY, da_payload);
-        if (cache_response) { // Fallback to last cached OK response (if any)
-          Logger.log("Couldn't get an OK response from Binance API! Fallback to last cached OK response..  =0");
-          return cache_response;
-        }
+    if (need_auth) { // Calling a private endpoint
+      if (!BinSetup().areAPIKeysConfigured()) { // Do not allow to continue if API keys aren't set!
+        throw new Error("Binance API keys are required to call this operation!");
       }
-      throw new Error("Request failed with status: "+response.getResponseCode());
+      options["headers"]["X-MBX-APIKEY"] = BinSetup().getAPIKey();
+      da_qs += (da_qs?"&":"")+"timestamp="+(new Date()).getTime()+"&recvWindow=30000";
+      da_qs += "&signature="+_computeSignature(da_qs, da_payload);
     }
-    catch (err) {
-      console.error(err);
-      throw err;
+    const da_url = BASE_URL+"/"+url+"?"+da_qs;
+    const response = UrlFetchApp.fetch(da_url, options);
+    if (DEBUG) {
+      Logger.log("QUERY: "+da_url);
+      Logger.log("RESPONSE: "+response.getResponseCode());
     }
+    if (response.getResponseCode() == 200) {
+      BinDoLastUpdate().run(new Date()); // Refresh last update ts
+      const data = JSON.parse(response.getContentText());
+      if (!opts["no_cache_ok"]) { // Keep last OK response
+        _setLastCacheResponseOK(CACHE_OK_KEY, da_payload, data);
+      }
+      return data; 
+    }
+    if (response.getResponseCode() == 400) {
+      // There might be a problem with the Binance API keys
+      throw new Error("Got 400 from Binance API! The request seems to be wrong.");
+    }
+    if (response.getResponseCode() == 401) {
+      // There might be a problem with the Binance API keys
+      throw new Error("Got 401 from Binance API! The keys aren't set or they are not valid anymore.");
+    }
+    if (response.getResponseCode() == 418) {
+      // The IP has been auto-banned for continuing to send requests after receiving 429 codes
+      Logger.log("Got 418 from Binance API! We are banned for a while..  =/");
+      const options = _canRetryRequest(418, opts);
+      if (options) { // Somewhat "weird" function, it acts as a bool helper and opts updater at once.. but whatever..!
+        return _request(method, url, qs, payload, options);
+      }
+    }
+    if (response.getResponseCode() == 429) {
+      // Binance is telling us that we are sending too many requests
+      Logger.log("Got 429 from Binance API! We are sending too many requests from our IP..  =/");
+      const options = _canRetryRequest(429, opts);
+      if (options) { // Somewhat "weird" function, it acts as a bool helper and opts updater at once.. but whatever..!
+        return _request(method, url, qs, payload, options);
+      }
+    }
+
+    if (!opts["no_cache_ok"]) { // Fallback to last cached OK response data (if any)
+      const cached_data = _getLastCacheResponseOK(CACHE_OK_KEY, da_payload);
+      if (cached_data && Object.keys(cached_data).length > 1) {
+        Logger.log("Couldn't get an OK response from Binance API! Fallback to last cached OK response data..  =0");
+        return cached_data;
+      }
+    }
+
+    throw new Error("Request failed with status: "+response.getResponseCode());
   }
 
   /**
