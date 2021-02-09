@@ -12,6 +12,13 @@ function BinDoCurrentPrices() {
   }
 
   /**
+   * Returns true if the given operation belongs to this code
+   */
+  function is(operation) {
+    return operation === tag();
+  }
+
+  /**
    * Returns this function period (the one that's used by the refresh triggers)
    */
   function period() {
@@ -74,6 +81,7 @@ function BinDoCurrentPrices() {
   // Return just what's needed from outside!
   return {
     tag,
+    is,
     period,
     run
   };

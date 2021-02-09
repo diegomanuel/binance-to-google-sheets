@@ -28,28 +28,28 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   if (operation == "version") {
     return VERSION;
   }
-  if (operation == BinDoLastUpdate().tag()) {
+  if (BinDoLastUpdate().is(operation)) {
     return BinDoLastUpdate().run();
   }
-  if (operation == BinDoCurrentPrices().tag()) {
+  if (BinDoCurrentPrices().is(operation)) {
     return BinDoCurrentPrices().run(range_or_cell, options);
   }
-  if (operation == BinDo24hStats().tag()) {
+  if (BinDo24hStats().is(operation)) {
     return BinDo24hStats().run(range_or_cell, options);
   }
-  if (operation == BinDoAccountInfo().tag()) {
-    return BinDoAccountInfo().run(options);
+  if (BinDoAccountInfo().is(operation)) {
+    return BinDoAccountInfo().run(range_or_cell, options);
   }
-  if (operation == BinDoOrdersOpen().tag()) {
+  if (BinDoOrdersOpen().is(operation)) {
     return BinDoOrdersOpen().run(range_or_cell, options);
   }
-  if (operation == BinDoOrdersDone().tag()) {
+  if (BinDoOrdersDone().is(operation)) {
     return BinDoOrdersDone().run(range_or_cell, options);
   }
-  if (operation == BinDoOrdersTable().tag()) {
+  if (BinDoOrdersTable().is(operation)) {
     return BinDoOrdersTable().run(range_or_cell, options);
   }
-  if (operation == BinDoOrdersTableStats().tag()) {
+  if (BinDoOrdersTableStats().is(operation)) {
     return BinDoOrdersTableStats().run(range_or_cell, options);
   }
   
