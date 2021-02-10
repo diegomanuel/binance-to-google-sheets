@@ -187,30 +187,33 @@ function BinDoAccountInfo() {
     const account = ["Isolated Margin", data.totalAssetOfBtc, data.totalLiabilityOfBtc, data.totalNetAssetOfBtc, new Date()];
     const general = show_headers ? [header1, account] : [account];
 
+    const pairs = [];
     const assets = [];
-    const balances = (data.assets || []).reduce(function(rows, r) {
+    const balances = (data.assets || []).reduce(function(rows, a) {
+      pairs.push(a); // Add isolated pair to wallet
       if (show_headers) {
         rows.push(["Symbol", "Margin Level", "Margin Ratio", "Index Price", "Liquidate Price", "Liquidate Rate"]);
       }
-      const marginLevel = parseFloat(r.marginLevel);
-      const marginRatio = parseFloat(r.marginRatio);
-      const indexPrice = parseFloat(r.indexPrice);
-      const liquidatePrice = parseFloat(r.liquidatePrice);
-      const liquidateRate = parseFloat(r.liquidateRate);
-      rows.push([r.symbol, marginLevel, marginRatio, indexPrice, liquidatePrice, liquidateRate]);
+      const marginLevel = parseFloat(a.marginLevel);
+      const marginRatio = parseFloat(a.marginRatio);
+      const indexPrice = parseFloat(a.indexPrice);
+      const liquidatePrice = parseFloat(a.liquidatePrice);
+      const liquidateRate = parseFloat(a.liquidateRate);
+      rows.push([a.symbol, marginLevel, marginRatio, indexPrice, liquidatePrice, liquidateRate]);
       if (show_headers) {
         rows.push(["Asset", "Free", "Locked", "Borrowed", "Interest", "Total", "Net", "Net BTC"]);
       }
-      const baseAsset = wallet.parseIsolatedMarginAsset(r.baseAsset);
-      const quoteAsset = wallet.parseIsolatedMarginAsset(r.quoteAsset);
-      assets.push(baseAsset);
-      assets.push(quoteAsset);
+      const baseAsset = wallet.parseIsolatedMarginAsset(a.baseAsset);
+      const quoteAsset = wallet.parseIsolatedMarginAsset(a.quoteAsset);
+      assets.push(baseAsset); // Add base asset to wallet
+      assets.push(quoteAsset); // Add quote asset to wallet
       rows.push(parseIsolatedMarginAssetRow(baseAsset));
       rows.push(parseIsolatedMarginAssetRow(quoteAsset));
       return rows;
     }, []);
 
-    // Save assets to wallet
+    // Save isolated pairs and assets to wallet
+    wallet.setIsolatedPairs(pairs);
     wallet.setIsolatedAssets(assets);
 
     return [...general, ...balances];

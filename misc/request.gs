@@ -36,13 +36,13 @@ function BinRequest(OPTIONS) {
     let data = BinCache().read(CACHE_KEY, OPTIONS["validate_cache"]);
 
     // Check if we have valid cached data
-    if (!(data && Object.keys(data).length > 1)) { // Fetch data from API
+    if (!(data && Object.keys(data).length)) { // Fetch data from API
       Logger.log("NO CACHE entry found! Loading data from API..");
       data = _request(method, url, qs, payload, OPTIONS);
-      if (data && Object.keys(data).length > 1 && OPTIONS["filter"]) {
+      if (data && Object.keys(data).length && OPTIONS["filter"]) {
         data = OPTIONS["filter"](data); // Apply custom data filtering before storing into cache
       }
-      if (data && Object.keys(data).length > 1) {
+      if (data && Object.keys(data).length) {
         Logger.log("DONE loading data from API! Storing at cache..");
         BinCache().write(CACHE_KEY, data, CACHE_TTL);
       } else {
@@ -100,10 +100,16 @@ function BinRequest(OPTIONS) {
     }
     if (response.getResponseCode() == 400) {
       // There might be a problem with the Binance API keys
+      if (opts["discard_40x"]) {
+        return null; // Return a null response when discarding 40x errors!
+      }
       throw new Error("Got 400 from Binance API! The request seems to be wrong.");
     }
     if (response.getResponseCode() == 401) {
       // There might be a problem with the Binance API keys
+      if (opts["discard_40x"]) {
+        return null; // Return a null response when discarding 40x errors!
+      }
       throw new Error("Got 401 from Binance API! The keys aren't set or they are not valid anymore.");
     }
     if (response.getResponseCode() == 418) {
@@ -125,7 +131,7 @@ function BinRequest(OPTIONS) {
 
     if (!opts["no_cache_ok"]) { // Fallback to last cached OK response data (if any)
       const cached_data = _getLastCacheResponseOK(CACHE_OK_KEY, da_payload);
-      if (cached_data && Object.keys(cached_data).length > 1) {
+      if (cached_data && Object.keys(cached_data).length) {
         Logger.log("Couldn't get an OK response from Binance API! Fallback to last cached OK response data..  =0");
         return cached_data;
       }

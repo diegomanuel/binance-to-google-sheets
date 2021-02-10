@@ -12,6 +12,8 @@ function BinWallet(OPTIONS) {
     setSpotAssets,
     setCrossAssets,
     setIsolatedAssets,
+    getIsolatedPairs,
+    setIsolatedPairs,
     parseSpotAsset,
     parseCrossMarginAsset,
     parseIsolatedMarginAsset,
@@ -75,6 +77,28 @@ function BinWallet(OPTIONS) {
 
     return PropertiesService.getScriptProperties()
       .setProperty(WALLET_PROP_NAME+"_"+type.toUpperCase(), JSON.stringify(assets));
+  }
+
+  /**
+   * Gets pairs data for ISOLATED MARGIN
+   */
+  function getIsolatedPairs(symbol) {
+    const data = PropertiesService.getScriptProperties().getProperty(WALLET_PROP_NAME+"_ISOLATED_PAIRS");
+    const pairs =  data ? JSON.parse(data) : {};
+    return symbol ? pairs[symbol] : pairs;
+  }
+
+  /**
+   * Sets pairs data for ISOLATED MARGIN
+   */
+  function setIsolatedPairs(data) {
+    const pairs = data.reduce(function(acc, pair) {
+      acc[pair.symbol] = pair;
+      return acc;
+    }, {});
+
+    return PropertiesService.getScriptProperties()
+      .setProperty(WALLET_PROP_NAME+"_ISOLATED_PAIRS", JSON.stringify(pairs));
   }
 
   function parseSpotAsset(asset) {

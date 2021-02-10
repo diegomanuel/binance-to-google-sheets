@@ -7,7 +7,7 @@ By using the `BINANCE()` formula in your spreadsheet, you can get data fetched f
 * Current crypto prices
 * 24h stats
 * Total account assets from Binance wallets (SPOT + CROSS + ISOLATED for now)
-* All current open orders (SPOT for now)
+* All current open orders (SPOT + CROSS + ISOLATED for now)
 * Latest done/finished orders (SPOT for now)
 * Historical orders table + stats table (SPOT for now)
 * Last update time
@@ -127,7 +127,7 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 * `=BINANCE("account", "isolated")` Display assets summary for ISOLATED wallet.
 * `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
 ### Operation: `"orders/open"` (private)
-`=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance.
+`=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance  (SPOT + CROSS + ISOLATED).
 * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a **full ticker** to filter the results.
 * `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
 ### Operation: `"orders/done"` (private)

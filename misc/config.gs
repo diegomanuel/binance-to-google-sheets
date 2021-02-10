@@ -2,7 +2,7 @@
  * App config params.
  */
 
-const DEBUG = false;
+let DEBUG = false;
 const VERSION = "v0.4.0";
 const REPO_URL = "https://github.com/diegomanuel/binance-to-google-sheets";
 const API_KEY_NAME = "BIN_API_KEY";
