@@ -73,9 +73,17 @@ function BinDoCurrentPrices() {
       const row = prices_only ? price : [ticker.symbol, price];
       rows.push(row);
       return rows;
-    }, !prices_only && show_headers ? [header] : []);
+    }, []);
 
-    return symbol_or_range ? parsed : BinUtils().sortResults(parsed);
+    if (prices_only) { // Return as it is if we only want to display prices
+      return parsed;
+    }
+    if (symbol_or_range) { // Return as it is if we have a symbol or range to display
+      return show_headers ? [header, ...parsed] : parsed;
+    }
+    // Return sorted results
+    const sorted = BinUtils().sortResults(parsed);
+    return show_headers ? [header, ...sorted] : sorted;
   }
 
   // Return just what's needed from outside!

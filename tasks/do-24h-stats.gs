@@ -73,7 +73,7 @@ function BinDo24hStats() {
     return parsed;
   }
 
-  function parse(data, range_or_cell, {headers: show_headers}) {
+  function parse(data, range_or_cell, options) {
     const header = ["Date", "Symbol", "Price", "Ask", "Bid", "Open", "High", "Low", "Prev Close", "$ Change 24h", "% Change 24h", "Volume"];
     const parsed = data.reduce(function(rows, ticker) {
       if (ticker === "?") {
@@ -110,9 +110,15 @@ function BinDo24hStats() {
       ];
       rows.push(row);
       return rows;
-    }, BinUtils().parseBool(show_headers) ? [header] : []);
+    }, []);
 
-    return range_or_cell ? parsed : BinUtils().sortResults(parsed, 1, false);
+    const show_headers = BinUtils().parseBool(options.headers);
+    if (range_or_cell) { // Return as it is if we have a cell or range to display
+      return show_headers ? [header, ...parsed] : parsed;
+    }
+    // Return sorted results
+    const sorted = BinUtils().sortResults(parsed, 1);
+    return show_headers ? [header, ...sorted] : sorted;
   }
 
   // Return just what's needed from outside!

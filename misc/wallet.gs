@@ -17,8 +17,8 @@ function BinWallet(OPTIONS) {
     parseSpotAsset,
     parseCrossMarginAsset,
     parseIsolatedMarginAsset,
-    calculateAssets,
-    refreshAssets
+    refreshAssets,
+    calculateAssets
   };
 
   /**
@@ -72,7 +72,7 @@ function BinWallet(OPTIONS) {
   function setAssetsData(type, data) {
     Logger.log("[BinWallet] Updating wallet assets for: "+type.toUpperCase());
     const assets = data.reduce(function(acc, asset) {
-      return accAssetHelper(acc, asset.symbol, asset);
+      return _accAssetHelper(acc, asset.symbol, asset);
     }, {});
 
     return PropertiesService.getScriptProperties()
@@ -144,38 +144,6 @@ function BinWallet(OPTIONS) {
     };
   }
 
-  function calculateAssets() {
-    let totals = {};
-    
-    const spot = getSpotAssets();
-    totals = Object.keys(spot).reduce(function (acc, symbol) {
-      return accAssetHelper(acc, symbol, spot[symbol]);
-    }, totals);
-    const cross = getCrossAssets();
-    totals = Object.keys(cross).reduce(function (acc, symbol) {
-      return accAssetHelper(acc, symbol, cross[symbol]);
-    }, totals);
-    const isolated = getIsolatedAssets();
-    totals = Object.keys(isolated).reduce(function (acc, symbol) {
-      return accAssetHelper(acc, symbol, isolated[symbol]);
-    }, totals);
-
-    return totals;
-  }
-
-  function accAssetHelper(acc, symbol, asset) {
-    acc[symbol] = {
-      free: asset.free + (acc[symbol] ? acc[symbol].free : 0),
-      locked: asset.locked + (acc[symbol] ? acc[symbol].locked : 0),
-      borrowed: asset.borrowed + (acc[symbol] ? acc[symbol].borrowed : 0),
-      interest: asset.interest + (acc[symbol] ? acc[symbol].interest : 0),
-      total: asset.total + (acc[symbol] ? acc[symbol].total : 0),
-      net: asset.net + (acc[symbol] ? acc[symbol].net : 0),
-      netBTC: asset.netBTC + (acc[symbol] ? acc[symbol].netBTC : 0)
-    };
-    return acc;
-  }
-
   /**
    * Fetches fresh data for each implemented Binance wallet so far..
    * that will be parsed and saved inside each `BinDoAccountInfo.run/2` call
@@ -186,5 +154,41 @@ function BinWallet(OPTIONS) {
     accinfo.run("spot", opts);
     accinfo.run("cross", opts);
     accinfo.run("isolated", opts);
+  }
+
+  /**
+   * Returns a summary object whose keys are the asset name/symbol
+   * and the values are the sum of each asset from all implemented wallets
+   */
+  function calculateAssets() {
+    let totals = {};
+    
+    const spot = getSpotAssets();
+    totals = Object.keys(spot).reduce(function (acc, symbol) {
+      return _accAssetHelper(acc, symbol, spot[symbol]);
+    }, totals);
+    const cross = getCrossAssets();
+    totals = Object.keys(cross).reduce(function (acc, symbol) {
+      return _accAssetHelper(acc, symbol, cross[symbol]);
+    }, totals);
+    const isolated = getIsolatedAssets();
+    totals = Object.keys(isolated).reduce(function (acc, symbol) {
+      return _accAssetHelper(acc, symbol, isolated[symbol]);
+    }, totals);
+
+    return totals;
+  }
+
+  function _accAssetHelper(acc, symbol, asset) {
+    acc[symbol] = {
+      free: asset.free + (acc[symbol] ? acc[symbol].free : 0),
+      locked: asset.locked + (acc[symbol] ? acc[symbol].locked : 0),
+      borrowed: asset.borrowed + (acc[symbol] ? acc[symbol].borrowed : 0),
+      interest: asset.interest + (acc[symbol] ? acc[symbol].interest : 0),
+      total: asset.total + (acc[symbol] ? acc[symbol].total : 0),
+      net: asset.net + (acc[symbol] ? acc[symbol].net : 0),
+      netBTC: asset.netBTC + (acc[symbol] ? acc[symbol].netBTC : 0)
+    };
+    return acc;
   }
 }

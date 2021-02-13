@@ -94,9 +94,10 @@ function BinDoOrdersDone() {
       ];
       rows.push(row);
       return rows;
-    }, BinUtils().parseBool(options["headers"]) ? [header] : []);
+    }, []);
 
-    return BinUtils().sortResults(parsed, 1, true);
+    const sorted = BinUtils().sortResults(parsed, 1, true);
+    return BinUtils().parseBool(options["headers"]) ? [header, ...sorted] : sorted;
   }
 
   function _getMaxItems(options) {

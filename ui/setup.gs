@@ -8,7 +8,7 @@ function onOpen(event) {
   const setup = BinSetup();
   BinMenu(SpreadsheetApp.getUi()); // Add items to main menu
   if (setup.isReady()) { // Add-on is ready!
-    setup.configTriggers(); // Create triggers to automatically keep the formulas updated
+    setup.init();
     BinUtils().toast("Hi there! I'm installed and working at this spreadsheet. Enjoy it!  =]");
   } else { // Add-on is not ready! It might be due to missing authorization or permissions removal (BinScheduler is stalled or never run)
     Logger.log("The add-on is NOT authorized!");
@@ -20,6 +20,7 @@ function onOpen(event) {
 
 /**
  * Initialization on add-on install.
+ * This would never happen since the add-on isn't installed from marketplace.. but whatever..!
  */
 function onInstall(event) {
   Logger.log("Binance to Google Sheets was installed!");
@@ -33,6 +34,7 @@ function BinSetup() {
   const user_props = PropertiesService.getUserProperties();
 
   return {
+    init,
     authorize,
     isReady,
     areAPIKeysConfigured,
@@ -41,20 +43,26 @@ function BinSetup() {
     getAPISecret,
     setAPISecret,
     configAPIKeys,
-    clearAPIKeys,
-    configTriggers
+    clearAPIKeys
   };
 
   /**
-   * Sadly, we can't detect from whitin the code when the user authorizes the add-on
+   * Runs initialization tasks
+   */
+  function init() {
+    BinScheduler().init(); // Mark the scheduler as initialized
+    configTriggers(); // Create triggers to automatically keep the formulas updated
+  }
+
+  /**
+   * Sadly, we can't detect from within the code when the user authorizes the add-on
    * since there is NO `onAuthorize` trigger or something like that (basically a mechanism to let the code know when it gets authorized).
    * The `onInstall` trigger only works when the add-on is installed from the Google Marketplace, but
    * this is not our case (and besides, marketplace add-ons can't have triggers smaller than 1 hour.. so totally discarded).
    * So, this is an "ugly workaround" to try to help the user to get things working in the initial setup!
    */
   function authorize() {
-    BinScheduler().init();
-    BinSetup().configTriggers(); // Create triggers to automatically keep the formulas updated
+    init();
     Logger.log("The add-on is authorized, enjoy!");
     BinUtils().toast("The add-on is authorized and running, enjoy!", "Ready to rock", 10);
     BinUtils().refreshMenu(); // Refresh add-on's main menu items
@@ -273,8 +281,9 @@ function doTablesPoll(event) {
   if (DEBUG) {
     Logger.log("EVENT: "+JSON.stringify(event));
   }
-
-  BinDoOrdersTable().execute();
+  if (BinSetup().areAPIKeysConfigured()) {
+    BinDoOrdersTable().execute();
+  }
 }
 
 function _callScheduler(event, every) {

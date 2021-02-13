@@ -2,9 +2,11 @@
  * Runs the table orders script.
  */
 function BinDoOrdersTable() {
+  const ASSETS_PROP_NAME = "BIN_ASSETS_ORDERS_TABLE";
   const header_size = 3; // How many rows the header will have
-  const max_items = 100; // How many items to be fetched on each run
+  const max_items = 1000; // How many items to be fetched on each run
   const delay = 500; // Delay between API calls in milliseconds
+  let failed_assets = {}; // Ugly global index of failed assets (used to be sure to try again in next run)
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -58,6 +60,10 @@ function BinDoOrdersTable() {
     ];
   }
 
+  /**
+   * Initializes all found sheets that were set as orders table.
+   * It will re-generate the table header and remove any extra blank rows from the bottom.
+   */
   function init() {
     return _findSheets().map(function(sheet) { // Go through each sheet found
       try {
@@ -76,13 +82,25 @@ function BinDoOrdersTable() {
   function execute() {
     Logger.log("[BinDoOrdersTable] Running..");
 
+    let assets = {};
     const sheets = _findSheets();
     const names = _sheetNames(sheets);
     Logger.log("[BinDoOrdersTable] Processing '"+names.length+"' sheets: "+JSON.stringify(names));
+
+    if (sheets.length) { // Refresh and get wallet assets only if we have sheets to update!
+      const bw = BinWallet();
+      bw.refreshAssets();
+      assets = {
+        last: _getLastAssets(),
+        current: bw.calculateAssets()
+      };
+    }
+
     sheets.map(function(sheet) { // Go through each sheet found
       try {
         _initSheet(sheet); // Ensure the sheet is initialized
-        _fetchAndSave(sheet);
+        _fetchAndSave(assets, sheet); // Fetch data just for changed assets
+        _updateLastAssets(assets.current); // Update the latest asset balances for next run
       } catch (err) {
         _setStatus(sheet, "ERROR: "+err.message);
         console.error(err);
@@ -92,7 +110,7 @@ function BinDoOrdersTable() {
     Logger.log("[BinDoOrdersTable] Done!");
   }
 
-  function _fetchAndSave(sheet) {
+  function _fetchAndSave(assets, sheet) {
     Logger.log("[BinDoOrdersTable] Processing sheet: "+sheet.getName());
     const [range_or_cell, options] = _parseFormula(sheet);
     const ticker_against = options["ticker"];
@@ -104,40 +122,122 @@ function BinDoOrdersTable() {
     const range = BinUtils().getRangeOrCell(range_or_cell, sheet) || [];
     const opts = {
       "no_cache_ok": true,
+      "discard_40x": true, // Discard 40x errors for disabled wallets!
       "retries": range.length
     };
 
     // Fetch data for given symbols in range
-    const data = range.reduce(function(rows, crypto) {
-      const symbol = crypto+ticker_against;
-      if (rows.length > max_items) {
-        Logger.log("[BinDoOrdersTable] Max items cap! ["+rows.length+"/"+max_items+"] => Skipping fetch for: "+symbol);
+    const data = range.reduce(function(rows, asset) {
+      const numrows = rows.length;
+      const symbol = asset + ticker_against;
+      if (numrows > max_items) { // Skip data fetch if we hit max items cap!
+        Logger.log("[BinDoOrdersTable] Max items cap! ["+numrows+"/"+max_items+"] => Skipping fetch for: "+symbol);
+        return rows;
+      }
+      if (_isUnchangedAsset(assets, asset)) { // Skip data fetch if the asset hasn't changed from last run!
+        Logger.log("[BinDoOrdersTable] Skipping unchanged asset: "+asset);
         return rows;
       }
 
-      const [fkey, fval] = _parseFilterQS(sheet, symbol);
-      const limit = max_items - rows.length + (fkey === "fromId" ? 1 : 0); // Add 1 more result since it's going to be skipped
-      const qs = "limit="+limit+"&symbol="+symbol+"&"+fkey+"="+fval;
-      Utilities.sleep(delay); // Add some waiting time to avoid 418 responses!
-      const crypto_data = BinRequest(opts).get("api/v3/myTrades", qs, "");
-      if (fkey === "fromId") { // Skip the first result if we used fromId to filter
-        crypto_data.shift();
-      }
-      Logger.log("[BinDoOrdersTable] Fetched "+crypto_data.length+" records for: "+symbol);
-      return rows.concat(crypto_data);
+      const symbol_data = _fetch(numrows, sheet, asset, ticker_against, opts);
+      Logger.log("[BinDoOrdersTable] Fetched "+symbol_data.length+" records for: "+symbol);
+      return rows.concat(symbol_data);
     }, []);
   
     // Parse and save collected data
-    const parsed = _parseData(data.slice(0, max_items)); // Enforce max items cap
-    _setStatus(sheet, "saving "+parsed.length+" records..");
-    Logger.log("[BinDoOrdersTable] Saving "+parsed.length+" downloaded records into '"+sheet.getName()+"' sheet..");
-    parsed.map(function(row) {
-      sheet.appendRow(row);
-    });
+    const parsed = _parseData(data);
+    if (parsed.length) {
+      Logger.log("[BinDoOrdersTable] Saving "+parsed.length+" downloaded records into '"+sheet.getName()+"' sheet..");
+      _setStatus(sheet, "saving "+parsed.length+" records..");
+      _insertData(sheet, parsed);
+    } else {
+      Logger.log("[BinDoOrdersTable] No records downloaded for sheet: "+sheet.getName());
+    }
 
     // Update some stats on sheet
     _setStatus(sheet, "done / waiting");
     _updateStats(sheet, parsed);
+  }
+
+  /**
+   * Returns true if the given asset was changed its "net" property from last run
+   * If it's unchanged and returns false, it will skip fetching orders for it!
+   */
+  function _isUnchangedAsset({last, current}, asset) {
+    return (last[asset] ? last[asset].net : undefined) === (current[asset] ? current[asset].net : undefined);
+  }
+
+  function _fetch(numrows, sheet, asset, ticker, opts) {
+    const data_spot = _fetchOrders("spot", numrows, sheet, asset, ticker, opts); // Get SPOT orders
+    numrows += data_spot.length;
+    const data_cross = _fetchOrders("cross", numrows, sheet, asset, ticker, opts); // Get CROSS MARGIN orders
+    numrows += data_cross.length;
+    const data_isolated = _fetchOrders("isolated", numrows, sheet, asset, ticker, opts); // Get ISOLATED MARGIN orders
+    return [...data_spot, ...data_cross, ...data_isolated];
+  }
+
+  function _fetchOrders(type, numrows, sheet, asset, ticker, opts) {
+    const symbol = asset + ticker;
+    const [fkey, fval] = _parseFilterQS(sheet, symbol, type);
+    const limit = max_items - numrows + (fkey === "fromId" ? 1 : 0); // Add 1 more result since it's going to be skipped
+    const qs = "limit="+limit+"&symbol="+symbol+"&"+fkey+"="+fval;
+    let data = [];
+
+    if (limit < 1) { // Skip data fetch if we hit max items cap!
+      Logger.log("[BinDoOrdersTable]["+type.toUpperCase()+"] Max items cap! ["+numrows+"/"+max_items+"] => Skipping fetch for: "+symbol);
+      return [];
+    }
+
+    try {
+      Utilities.sleep(delay); // Add some waiting time to avoid 418 responses!
+      Logger.log("[BinDoOrdersTable]["+type.toUpperCase()+"] Fetching orders for '"+symbol+"'..");
+      if (type === "spot") { // Get SPOT orders
+        data = _fetchSpotOrders(opts, qs);
+      } else if (type === "cross") { // Get CROSS MARGIN orders
+        data = _fetchCrossOrders(opts, qs);
+      } else if (type === "isolated") { // Get ISOLATED MARGIN orders
+        if (BinWallet().getIsolatedPairs(symbol)) {
+          data = _fetchIsolatedOrders(opts, qs); // Only fetch if the symbol has a pair created in isolated account!
+        } else {
+          Logger.log("[BinDoOrdersTable][ISOLATED] Skipping inexistent isolated pair for: "+symbol);
+          return [];
+        }
+      } else {
+        throw new Error("Bad developer.. shame on you!  =0");
+      }
+      if (fkey === "fromId") { // Skip the first result if we used fromId to filter
+        data.shift();
+      }
+      Logger.log("[BinDoOrdersTable]["+type.toUpperCase()+"] Fetched '"+data.length+"' orders for '"+symbol+"'..");
+      return data;
+    } catch (err) { // Discard request errors and keep running!
+      console.error("[BinDoOrdersTable]["+type.toUpperCase()+"] Couldn't fetch orders for '"+symbol+"': "+err.message);
+      failed_assets[asset] = symbol; // Mark this failed asset!
+      return [];
+    }
+  }
+
+  function _fetchSpotOrders(opts, qs) {
+    // The default/generic implementation works fine for SPOT
+    return _fetchOrdersForType("spot", opts, "api/v3/myTrades", qs);
+  }
+
+  function _fetchCrossOrders(opts, qs) {
+    // The default/generic implementation works fine for CROSS
+    return _fetchOrdersForType("cross", opts, "sapi/v1/margin/myTrades", qs);
+  }
+
+  function _fetchIsolatedOrders(opts, qs) {
+    // The default/generic implementation works fine for ISOLATED
+    return _fetchOrdersForType("isolated", opts, "sapi/v1/margin/myTrades", "isIsolated=true&"+qs);
+  }
+
+  function _fetchOrdersForType(type, opts, url, qs) {
+    const orders = BinRequest(opts).get(url, qs);
+    return (orders||[]).map(function(order) {
+      order.market = type.toUpperCase(); // NOTE: Very important to be added for future last row #ID matching!
+      return order;
+    });
   }
 
   function _findSheets() {
@@ -199,9 +299,9 @@ function BinDoOrdersTable() {
     sheet.getRange("B2").setNumberFormat("ddd d hh:mm");
   }
 
-  function _parseFilterQS(sheet, symbol) {
-    const row = _findLastRowData(sheet, symbol);
-    if (row) { // We found the latest matching row for this symbol..
+  function _parseFilterQS(sheet, symbol, type) {
+    const row = _findLastRowData(sheet, symbol, type);
+    if (row) { // We found the latest matching row for this symbol and type..
       return ["fromId", row[0]]; // .. so use its #ID value!
     }
 
@@ -210,22 +310,39 @@ function BinDoOrdersTable() {
     return ["startTime", Math.floor(start_time / 1000)];
   }
 
-  function _findLastRowData(sheet, symbol) {
+  function _findLastRowData(sheet, symbol, type) {
     const last_row = sheet.getLastRow();
     const last_col = sheet.getLastColumn();
 
     for (let row_idx = last_row; row_idx >= header_size+1 ; row_idx--) {
       const range = sheet.getRange(row_idx, 1, 1, last_col);
       const [row] = range.getValues();
-      if (row[3] === symbol) { // We found the latest matching row for this symbol
+      if (_isRowMatching(row, symbol, type)) { // We found the latest matching row!
         if (DEBUG) {
-          Logger.log("Found last row data at idx ["+row_idx+"] for '"+symbol+"' with: "+JSON.stringify(row));
+          Logger.log("Found last row data at idx ["+row_idx+"] for '"+symbol+"@"+type+"' with: "+JSON.stringify(row));
         }
         return row;
       }
     }
 
     return null;
+  }
+
+  /**
+   * WARNING: This function is CRUCIAL to find the right #ID to be used to fetch orders starting from it!
+   * If it returns the wrong answer, a wrong ID will be used and it could cause to fetch and save
+   * duplicated orders (ones that were already saved in previous poll runs) because it doesn't check
+   * for duplicates when inserting rows into the sheet.. and mainly, because it could be a process-expensive check to do
+   * if we already have LOTS of rows in the sheet (@TODO: but maybe I should do the duplicates check anyways, just in case..?)
+   */
+  function _isRowMatching(row, symbol, type) {
+    return row[3] === symbol // Matches the symbol?
+      // Matches the market type?
+      && (row[4].match(/\s\-\s/)
+        // The row has a type with " - " in it => It should exactly match the given type
+        ? new RegExp(type+"\\s\\-\\s", "i").test(row[4])
+        // The row has NOT a type with " - " in it => Backward compatibility: consider as SPOT
+        : (type === "spot")); // @TODO This could be removed in a few future releases
   }
 
   function _getFormula(sheet) {
@@ -245,16 +362,16 @@ function BinDoOrdersTable() {
   }
 
   function _parseData(data) {
-    const parsed = data.reduce(function(rows, order) {
+    return data.reduce(function(rows, order) {
       const price = BinUtils().parsePrice(order.price);
       const amount = parseFloat(order.qty);
       const commission = BinUtils().parsePrice(order.commission);
       const row = [
-        order.id,
+        order.id, // NOTE: Used for future last row #ID matching!
         order.orderId,
         new Date(parseInt(order.time)),
-        order.symbol,
-        order.isMaker ? "LIMIT" : "STOP-LIMIT",
+        order.symbol, // NOTE: Used for future last row #ID matching!
+        order.market + " - " + (order.isMaker ? "LIMIT" : "STOP-LIMIT"), // NOTE: Used for future last row #ID matching!
         order.isBuyer ? "BUY" : "SELL",
         price,
         amount,
@@ -264,8 +381,19 @@ function BinDoOrdersTable() {
       rows.push(row);
       return rows;
     }, []);
+  }
 
-    return parsed;
+  function _insertData(sheet, data) {
+    const last_row = Math.max(sheet.getLastRow(), header_size);
+    const last_col = sheet.getLastColumn();
+    const dlen = data.length;
+
+    sheet.insertRowsAfter(last_row, dlen);
+    const range = sheet.getRange(last_row+1, 1, dlen, last_col);
+    range.setValues(data);
+
+    // Sort ALL sheet rows!
+    sheet.getRange(header_size+1, 1, sheet.getLastRow()-header_size, last_col).sort(3);
   }
 
   function _setStatus(sheet, status) {
@@ -273,20 +401,19 @@ function BinDoOrdersTable() {
   }
 
   function _updateStats(sheet, saved_data) {
-    if (saved_data.length) { // Only update counters if data was saved
-      const pairs = sheet.getRange("D"+(header_size+1)+":D"+sheet.getLastRow()).getValues();
-      const [count, totals] = pairs.reduce(function([count, acc], [pair]) {
-        if (pair) {
-          acc[pair] = 1 + (acc[pair]||0);
-          count += 1;
-        }
-        return [count, acc];
-      }, [0, {}]);
+    // Calculate total orders per pair
+    const pairs = sheet.getRange("D"+(header_size+1)+":D"+sheet.getLastRow()).getValues();
+    const [count, totals] = pairs.reduce(function([count, acc], [pair]) {
+      if (pair) {
+        acc[pair] = 1 + (acc[pair]||0);
+        count += 1;
+      }
+      return [count, acc];
+    }, [0, {}]);
 
-      sheet.getRange("H2").setValue(count);
-      sheet.getRange("J2").setValue(Object.keys(totals).length);
-      Logger.log("[BinDoOrdersTable] Sheet '"+sheet.getName()+"' totals: "+JSON.stringify(totals));
-    }
+    sheet.getRange("H2").setValue(count);
+    sheet.getRange("J2").setValue(Object.keys(totals).length);
+    Logger.log("[BinDoOrdersTable] Sheet '"+sheet.getName()+"' total orders per pair:\n"+JSON.stringify(totals));
 
     sheet.getRange("B2").setValue(new Date()); // Update last run time
   }
@@ -295,6 +422,23 @@ function BinDoOrdersTable() {
     if (!sheet.getRange(cell).getValue()) {
       sheet.getRange(cell).setValue(emptyval !== undefined ? emptyval : "-");
     }
+  }
+
+  function _getLastAssets() {
+    const assets = PropertiesService.getScriptProperties().getProperty(ASSETS_PROP_NAME);
+    return assets ? JSON.parse(assets) : {};
+  }
+
+  function _updateLastAssets(assets) {
+    // UGLY but it works..! Remove failed assets to be sure to try again in next run
+    const updated_assets = Object.keys(failed_assets).reduce(function (acc, asset) {
+      if (acc[asset]) {
+        delete acc[asset];
+      }
+      return acc;
+    }, assets);
+
+    return PropertiesService.getScriptProperties().setProperty(ASSETS_PROP_NAME, JSON.stringify(updated_assets));
   }
 
   // Return just what's needed from outside!

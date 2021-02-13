@@ -116,7 +116,7 @@ function BinDoAccountInfo() {
       ];
     }, []);
 
-    const [_, ...sorted] = BinUtils().sortResults(["placeholder", ...balances]);
+    const sorted = BinUtils().sortResults(balances);
     return show_headers ? [headers, ...sorted] : sorted;
   }
 
@@ -145,7 +145,7 @@ function BinDoAccountInfo() {
     // Save assets to wallet
     wallet.setSpotAssets(assets);
 
-    const [_, ...sorted] = BinUtils().sortResults(["placeholder", ...balances]);
+    const sorted = BinUtils().sortResults(balances);
     return [...general, ...sorted];
   }
 
@@ -177,7 +177,7 @@ function BinDoAccountInfo() {
     // Save assets to wallet
     wallet.setCrossAssets(assets);
 
-    const [_, ...sorted] = BinUtils().sortResults(["placeholder", ...balances]);
+    const sorted = BinUtils().sortResults(balances);
     return [...general, ...sorted];
   }
 

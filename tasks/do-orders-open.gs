@@ -123,9 +123,10 @@ function BinDoOrdersOpen() {
       ];
       rows.push(row);
       return rows;
-    }, BinUtils().parseBool(show_headers) ? [header] : []);
+    }, []);
 
-    return BinUtils().sortResults(parsed, 0, true);
+    const sorted = BinUtils().sortResults(parsed, 0, true);
+    return BinUtils().parseBool(show_headers) ? [header, ...sorted] : sorted;
   }
 
   // Return just what's needed from outside!

@@ -169,13 +169,12 @@ function BinUtils() {
   }
   
   /**
-  * Sorts a results array by given index (default 0) but keeping the first row as headers.
+  * Sorts a results array by given index (default 0) and direction (default ASC)
   */
-  function sortResults([header, ...results], index, reverse) {
-    const sorted = (results||[]).sort(function(v1, v2) {
+  function sortResults(results, index, reverse) {
+    return (results||[]).sort(function(v1, v2) {
       return (v1[index||0] > v2[index||0] ? 1 : -1) * (reverse ? -1 : 1);
     });
-    return [header, ...sorted];
   }
   
   /**

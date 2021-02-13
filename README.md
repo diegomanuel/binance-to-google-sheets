@@ -4,17 +4,17 @@ A lightweight **Google Spreadsheets Add-On** to GET data _directly_ from **Binan
 
 This `add-on` is basically an **API client** specially hand-crafted to work between Google Spreadsheets and Binance.  
 By using the `BINANCE()` formula in your spreadsheet, you can get data fetched from Binance API like:  
-* Current crypto prices
-* 24h stats
-* Total account assets from Binance wallets (SPOT + CROSS + ISOLATED for now)
-* All current open orders (SPOT + CROSS + ISOLATED for now)
-* Latest done/finished orders (SPOT for now)
-* Historical orders table + stats table (SPOT for now)
-* Last update time
+* Current market [prices](#operation-prices-public)
+* Last [24h stats](#operation-stats24h-public)
+* Total [account assets](#operation-account-private) from Binance wallets (SPOT + CROSS + ISOLATED for now)
+* All current [open orders](#operation-ordersopen-private) (SPOT + CROSS + ISOLATED for now)
+* Latest [done/finished orders](#operation-ordersdone-private) (SPOT for now)
+* Historical [orders table + stats](#operation-orderstable-private) (SPOT + CROSS + ISOLATED for now)
+* Last data [update time](#operation-last_update-public) and current [add-on version](#operation-version-public) being used
 * ..and many more to come!
 
-At first glance, **NO Binance API key** is needed to call public endpoints like current crypto prices and 24h stats.  
-It **only** requires a [Binance API key](#binance-api-key) for account info and open/done/table orders lists, but a **READ-ONLY** API key is enough for everything to work.  
+At first glance, **NO Binance API key** is needed to call **public endpoints** like [current prices](#operation-prices-public) and [24h stats](#operation-stats24h-public).   
+It **only** requires a [Binance API key](#binance-api-key) for **private endpoints** like [account info](#operation-account-private) and [open/done/table orders](#operation-ordersopen-private), but a **READ-ONLY** API key is enough for everything to work.  
 In deed, I _personally recommend_ to generate a **READ-ONLY** API key at Binance site [here](https://www.binance.com/en/usercenter/settings/api-management).  
 It does **NOT need** write/trade access **in ANY way** to properly work with all its features, so don't give extra permissions if they aren't needed!
 
@@ -27,7 +27,7 @@ Enjoy, cheers! :beers:
 First of all, open your desired Google Spreadsheet and configure it properly:
 1. Go to `File -> Spreadsheet settings`.
 2. Under the `Calculation` tab set the `Recalculation` combobox to `On change and every minute`.
-3. Hit `Save settings` button and that's it!
+3. Hit `Save settings` button and continue with the steps below!
 
 ### The quick'n easy way for everybody
 
@@ -72,7 +72,7 @@ You will need [node](https://nodejs.org) and [clasp](https://github.com/google/c
 
 ### Binance API Key
 
-Only needed if you **also want** to have account info, open/pending, done/finished and historical orders listing working in your spreadsheet.  
+Only needed if you **also want** to call **private endpoints** from your spreadsheet.  
 To get your keys, go to [Binance API panel](https://www.binance.com/en/usercenter/settings/api-management) and create a new one:
 
 1. Enter a label like `Binance to Google Sheets` and click the `Create` button.
@@ -124,7 +124,7 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 `=BINANCE("account")` will return total account assets from Binance wallets (SPOT + CROSS + ISOLATED).
 * `=BINANCE("account", "spot")` Display assets summary for SPOT wallet.
 * `=BINANCE("account", "cross")` Display assets summary for CROSS MARGIN wallet.
-* `=BINANCE("account", "isolated")` Display assets summary for ISOLATED wallet.
+* `=BINANCE("account", "isolated")` Display assets summary for ISOLATED MARGIN wallet.
 * `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
 ### Operation: `"orders/open"` (private)
 `=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance  (SPOT + CROSS + ISOLATED).
