@@ -104,9 +104,11 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 ### Operation: `"version"` (public)
 `=BINANCE("version")` will return the current `Binance to Google Sheets` version you are running.
 * Be sure to check the [latest release](https://github.com/diegomanuel/binance-to-google-sheets/releases/latest) and update yours if needed.
+
 ### Operation: `"last_update"` (public)
 `=BINANCE("last_update")` will return the timestamp of the last request/response from Binance API.
 * The timestamp is updated every time we get a valid response from Binance API (status `200`, no matter what operation triggered it).
+
 ### Operation: `"prices"` (public)
 `=BINANCE("prices")` will return a list with the latest prices from Binance.
 * `=BINANCE("prices", "BTC")` Optionally you can give a symbol to just return its price (against `USDT` by default).
@@ -115,38 +117,59 @@ Some operations are **private**, meaning they **do require a Binance API key** t
     * Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
 * `=BINANCE("prices", A1:A3, "headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("prices", A1:A3, "ticker: BNB, prices: true")` Optionally you can return only the prices (and give a ticker in the meantime).
+
 ### Operation: `"stats/24h"` (public)
 `=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance.
 * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
 * `=BINANCE("stats/24h", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
 * `=BINANCE("stats/24h", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
+
 ### Operation: `"account"` (private)
 `=BINANCE("account")` will return total account assets from Binance wallets (SPOT + CROSS + ISOLATED).
 * `=BINANCE("account", "spot")` Display assets summary for SPOT wallet.
 * `=BINANCE("account", "cross")` Display assets summary for CROSS MARGIN wallet.
 * `=BINANCE("account", "isolated")` Display assets summary for ISOLATED MARGIN wallet.
 * `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
+
 ### Operation: `"orders/open"` (private)
-`=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance  (SPOT + CROSS + ISOLATED).
+`=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance  (SPOT + CROSS + ISOLATED for now).
 * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a **full ticker** to filter the results.
 * `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
+
 ### Operation: `"orders/done"` (private)
 `=BINANCE("orders/done", A1:A3)` will return a list with your most recent (`10` per symbol by default) done/finished orders for given symbols from Binance.
 * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
 * `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
 * `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 100")` Optionally you can give more options like not returning table headers and fetching latest `100` orders per given symbol.
 * Values for `max` allowed between `1` and `1000` (defaults to `10`).
+
 ### Operation: `"orders/table"` (private)
-`=BINANCE("orders/table", MySheet!A1:A3)` will **transform** the current sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance.
+`=BINANCE("orders/table", MySheet!A1:A3)` will **transform** the current sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance (SPOT + CROSS + ISOLATED for now).
 * This formula **must always** be placed at `A1` in any new blank sheet into your spreadsheet.
 * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `MySheet!A1="BTC"`, `MySheet!A2="ETH"` and `MySheet!A3="LTC"`.
 * Be patient! It will adjust sheet's cols/rows and initialize a table header for you.
-* Do **NOT** alter the table data by hand! It will **poll for data** every `10` minutes automatically.
+* Do **NOT** alter the table data by hand! It will **poll for data** every `10` minutes automatically and it will keep it ordered by date.
 * `=BINANCE("orders/table", MySheet!A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
+* Make sure that **ALL** trading pairs exist on Binance platform for a better performance experience!
 
-**NOTE:** You can have **multiple sheets** with this formula on. They will be all polled every `10` minutes, but take into account that if you have too much sheets to update, it could become really slow and even unresponsive.  
-Google Spreadsheets has a very poor performance for adding rows to a sheet, so that's why each poll session is limited to `100` items only.  
-If you have **many** assets and/or orders to fetch, it's recommended to have only `1` or `2` sheets at most, with a range that contains all your asset's symbols.
+    **NOTE:** You can have **multiple sheets** with this formula on, they will be all polled every `10` minutes.  
+    If you trade against multiple pairs, it's recommended to have **one** sheet **per each** pair. Example:  
+    If you have trades for: `BTCUSDT`, `ETHUSDT`, `ETHBTC` and `BNBETH`  
+    Having this values for `MySheet!A1:A3` range: `A1="BTC"`, `A2="ETH"` and `A3="BNB"`  
+    You could create **3 sheets** like:  
+    * `=BINANCE("orders/table", MySheet!A1:A3)` will fetch orders for: `BTCUSDT`, `ETHUSDT` and `BNBUSDT` (although you didn't traded this last one)
+    * `=BINANCE("orders/table", MySheet!A2:A3, "BTC")` will fetch orders for: `ETHBTC` and `BNBBTC` (although you didn't traded this last one)
+    * `=BINANCE("orders/table", "BNB", "ETH")` will fetch orders JUST for: `BNBETH`
+    
+    You could even have **one sheet per each symbol**, like following the example above:  
+    * `=BINANCE("orders/table", "BTC", "USDT")`
+    * `=BINANCE("orders/table", "ETH", "USDT")`
+    * `=BINANCE("orders/table", "ETH", "BTC")`
+    * `=BINANCE("orders/table", "BNB", "ETH")`
+
+    But if you have _MANY_ trading symbols, I don't know how well it could behave!  
+    The best option is to try to "merge" as much as you can in a single sheet with JUST the traded symbols for each one.
+
 ### Operation: `"orders/table/stats"` (private)
 `=BINANCE("orders/table/stats", 'Orders Table'!A1)` _coming soon_
 
