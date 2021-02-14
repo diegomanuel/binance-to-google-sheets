@@ -8,8 +8,8 @@ By using the `BINANCE()` formula in your spreadsheet, you can get data fetched f
 * Last [24h stats](#operation-stats24h-public)
 * Total [account assets](#operation-account-private) from Binance wallets (SPOT + CROSS + ISOLATED for now)
 * All current [open orders](#operation-ordersopen-private) (SPOT + CROSS + ISOLATED for now)
-* Latest [done/finished orders](#operation-ordersdone-private) (SPOT for now)
-* Historical [orders table + stats](#operation-orderstable-private) (SPOT + CROSS + ISOLATED for now)
+* Latest [done/finished orders](#operation-ordersdone-private) (SPOT + CROSS + ISOLATED for now)
+* Historical [orders table](#operation-orderstable-private) (SPOT + CROSS + ISOLATED for now)
 * Last data [update time](#operation-last_update-public) and current [add-on version](#operation-version-public) being used
 * ..and many more to come!
 
@@ -136,13 +136,6 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 * `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a **full ticker** to filter the results.
 * `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
 
-### Operation: `"orders/done"` (private)
-`=BINANCE("orders/done", A1:A3)` will return a list with your most recent (`10` per symbol by default) done/finished orders for given symbols from Binance.
-* A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-* `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
-* `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 100")` Optionally you can give more options like not returning table headers and fetching latest `100` orders per given symbol.
-* Values for `max` allowed between `1` and `1000` (defaults to `10`).
-
 ### Operation: `"orders/table"` (private)
 `=BINANCE("orders/table", MySheet!A1:A3)` will **transform** the current sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance (SPOT + CROSS + ISOLATED for now).
 * This formula **must always** be placed at `A1` in any new blank sheet into your spreadsheet.
@@ -170,8 +163,15 @@ Some operations are **private**, meaning they **do require a Binance API key** t
     But if you have _MANY_ trading symbols, I don't know how well it could behave!  
     The best option is to try to "merge" as much as you can in a single sheet with JUST the traded symbols for each one.
 
-### Operation: `"orders/table/stats"` (private)
-`=BINANCE("orders/table/stats", 'Orders Table'!A1)` _coming soon_
+### Operation: `"orders/done"` (private)
+**IMPORTANT:** It now requires at least **ONE sheet** in the spreadsheet with the **`"orders/table"`** operation in it!  
+It will take **ALL** your sheets that have the **`"orders/table"`** operation (aka: "order table sheets") and it will summarize them for you in a single table.  
+* `=BINANCE("orders/done")` Will return a list with your most recent (`100` by default) done/finished orders from ALL `"orders/table"` sheets in the spreadsheet.
+<!-- * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
+* `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
+* `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 0")` Optionally you can give more options like giving a ticker, not returning table headers and displaying ALL orders. -->
+* `=BINANCE("orders/done", "", "headers: false, max: 0")` Optionally you can give more options like not returning table headers and displaying ALL orders.
+* Values for `max` allowed between `0` (unlimited/all) and `1000` (defaults to `100`).
 
 ## See it working live!
 

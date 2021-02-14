@@ -37,8 +37,7 @@ function BinDoOrdersTable() {
    * You may ONLY REMOVE records from the bottom of the sheet (as many as you want, even all of them).
    *
    * @param {["BTC","ETH"..]} range_or_cell REQUIRED! Will fetch ALL historic orders for given symbols only.
-   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, stats: false"
-   * @TODO Implement "stats: false" option
+   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT"
    * @return The list of all orders for all or given symbols/tickers.
    */
   function run(range_or_cell, options) {
@@ -263,7 +262,7 @@ function BinDoOrdersTable() {
     sheet.getRange("E2:F2").mergeAcross();
 
     // Set the table headers
-    const header = ["#ID", "Order #ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"];
+    const header = ["Trade #ID", "Order #ID", "Date", "Pair", "Type", "Side", "Price", "Amount", "Commission", "Total"];
     sheet.getRange("A3:J3").setValues([header]);
     sheet.getRange("A2").setValue("Last poll:");
     sheet.getRange("D2").setValue("Status:");
@@ -392,8 +391,8 @@ function BinDoOrdersTable() {
     const range = sheet.getRange(last_row+1, 1, dlen, last_col);
     range.setValues(data);
 
-    // Sort ALL sheet rows!
-    sheet.getRange(header_size+1, 1, sheet.getLastRow()-header_size, last_col).sort(3);
+    // Sort ALL sheet's rows!
+    _getSheetDataRange(sheet).sort(3);
   }
 
   function _setStatus(sheet, status) {
@@ -441,6 +440,23 @@ function BinDoOrdersTable() {
     return PropertiesService.getScriptProperties().setProperty(ASSETS_PROP_NAME, JSON.stringify(updated_assets));
   }
 
+  /**
+   * Get the FULL data range for given sheet
+   */
+  function _getSheetDataRange(sheet) {
+    return sheet.getRange(header_size+1, 1, sheet.getLastRow()-header_size, sheet.getLastColumn());
+  }
+
+  /**
+   * Returns ALL the rows contained in ALL defined sheets as order tables
+   */
+  function getRows() {
+    return _findSheets().reduce(function(rows, sheet) { // Go through each sheet found
+      const values = _getSheetDataRange(sheet).getValues();
+      return values && values.length ? rows.concat(values) : rows;
+    }, []);
+  }
+
   // Return just what's needed from outside!
   return {
     tag,
@@ -448,6 +464,7 @@ function BinDoOrdersTable() {
     period,
     run,
     init,
-    execute
+    execute,
+    getRows
   };
 }

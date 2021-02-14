@@ -99,10 +99,8 @@ function BinDoAccountInfo() {
   }
 
   function parseOverview(show_headers) {
-    const wallet = BinWallet();
     const headers = ["Asset", "Free", "Locked", "Borrowed", "Interest", "Total", "Net"];
-
-    const assets = wallet.calculateAssets();
+    const assets = BinWallet().calculateAssets();
     const balances = Object.keys(assets).map(function (symbol) {
       const asset = assets[symbol];
       return [

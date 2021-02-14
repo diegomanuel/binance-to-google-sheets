@@ -49,9 +49,6 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   if (BinDoOrdersTable().is(operation)) {
     return BinDoOrdersTable().run(range_or_cell, options);
   }
-  if (BinDoOrdersTableStats().is(operation)) {
-    return BinDoOrdersTableStats().run(range_or_cell, options);
-  }
   
   throw new Error("Unsupported operation given: '"+operation+"'");
 }

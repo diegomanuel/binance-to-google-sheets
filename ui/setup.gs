@@ -167,14 +167,14 @@ function BinSetup() {
 
     if (!api_key) {
       ui.alert("Binance API Key is not set!",
-               "You just need a Binance API Key if you want open/done orders list.\n\n"+
-               "It's NOT needed to get market prices and 24hr stats!",
+               "You just need a Binance API Key if you want to use private operations.\n\n"+
+               "It's NOT needed to use public operations like current market prices and 24hr stats!",
                ui.ButtonSet.OK);
     }
     if (!api_secret) {
       ui.alert("Binance API Secret Key is not set!",
-               "You just need a Binance API Secret Key if you want open/done orders.\n\n"+
-               "It's NOT needed to get market prices and 24hr stats!",
+               "You just need a Binance API Secret Key if you to use private operations.\n\n"+
+               "It's NOT needed to use public operations like current market prices and 24hr stats!",
                ui.ButtonSet.OK);
     }
   }
