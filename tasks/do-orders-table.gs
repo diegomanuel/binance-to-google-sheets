@@ -6,7 +6,7 @@ function BinDoOrdersTable() {
   const header_size = 3; // How many rows the header will have
   const max_items = 1000; // How many items to be fetched on each run
   const delay = 500; // Delay between API calls in milliseconds
-  let failed_assets = {}; // Ugly global index of failed assets (used to be sure to try again in next run)
+  let retry_assets = {}; // Ugly global index of assets to be retried in the next poll run
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -204,6 +204,9 @@ function BinDoOrdersTable() {
       } else {
         throw new Error("Bad developer.. shame on you!  =0");
       }
+      if (data.length === limit) { // We got the max possible rows number on this run, we may have more to fetch, so..
+        retry_assets[asset] = symbol; // ..mark this asset to be fetched again in the next poll run!
+      }
       if (fkey === "fromId") { // Skip the first result if we used fromId to filter
         data.shift();
       }
@@ -211,7 +214,7 @@ function BinDoOrdersTable() {
       return data;
     } catch (err) { // Discard request errors and keep running!
       console.error("[BinDoOrdersTable]["+type.toUpperCase()+"] Couldn't fetch orders for '"+symbol+"': "+err.message);
-      failed_assets[asset] = symbol; // Mark this failed asset!
+      retry_assets[asset] = symbol; // Mark this failed asset to be retried in the next poll run!
       return [];
     }
   }
@@ -429,8 +432,8 @@ function BinDoOrdersTable() {
   }
 
   function _updateLastAssets(assets) {
-    // UGLY but it works..! Remove failed assets to be sure to try again in next run
-    const updated_assets = Object.keys(failed_assets).reduce(function (acc, asset) {
+    // UGLY but it works..! Remove assets that will be retried in the next poll run
+    const updated_assets = Object.keys(retry_assets).reduce(function (acc, asset) {
       if (acc[asset]) {
         delete acc[asset];
       }
