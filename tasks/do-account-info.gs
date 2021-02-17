@@ -45,6 +45,14 @@ function BinDoAccountInfo() {
   }
 
   /**
+   * Gets the list of ALL sub-accounts
+   */
+  function listSubAccounts() {
+    const data = new BinRequest().get("wapi/v3/sub-account/list.html");
+    return data && data.subAccounts ? data.subAccounts : [];
+  }
+
+  /**
    * Returns account information for given type of wallet (or general/overview if none given).
    *
    * @param type The account wallet type to display info: -none-, "spot", "cross", "isolated"
@@ -320,6 +328,7 @@ function BinDoAccountInfo() {
     period,
     schedule,
     refresh,
+    listSubAccounts,
     run
   };
 }

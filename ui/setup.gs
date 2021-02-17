@@ -204,10 +204,18 @@ function BinSetup() {
    * Adds a sub-account
    */
   function addSubAccount(ui) {
-    // @TODO Get currently detected sub-accounts and cancel if none!
+    const available = BinDoAccountInfo().listSubAccounts().map((subacc) => subacc.email);
+    if (!available.length) {
+      ui.alert("No Sub-Accounts Available",
+               "You don't have any sub-account yet!\nYou must create one at Binance first.",
+               ui.ButtonSet.OK);
+      return false; // Cancel
+    }
+    Logger.log("[BinSetup] Available sub-accounts detected: "+available.length+"\n"+JSON.stringify(available));
+
     const subaccs = getSubAccounts();
     const text = "Please enter the sub-account email that you want to add:\n"+
-      //"\nAvailable sub-accounts detected:\n"+Object.keys(accounts).join("\n")+"\n"+
+      "\nAvailable sub-accounts detected: "+available.length+"\n"+available.join("\n")+"\n"+
       "\nCurrently added sub-accounts:\n"+(Object.keys(subaccs).join("\n")||"- none -");
     const result = ui.prompt("Add Sub-Account", text, ui.ButtonSet.OK_CANCEL);
     if (result.getSelectedButton() != ui.Button.OK) {
@@ -217,18 +225,22 @@ function BinSetup() {
     if (!email) {
       return false; // Cancel
     }
+    if (available.indexOf(email) === -1) {
+      ui.alert("Sub-Account Not Found",
+               "ERROR: The email '"+email+"' is not part of your available sub-accounts emails!\n\nAvailable sub-account emails:\n"+available.join("\n"),
+               ui.ButtonSet.OK);
+      return false; // Cancel
+    }
 
-    // @TODO Check given email as detected sub-account
-    // Logger.log("[BinSetup] Available sub-accounts detected: "+Object.keys(accounts).join(", "));
     Logger.log("[BinSetup] Adding sub-account: "+email);
     subaccs[email] = email; // @TODO Add some useful data here?
     user_props.setProperty(SUB_ACCOUNTS_NAME, JSON.stringify(subaccs));
     BinDoAccountInfo().schedule(); // Update assets in the next "1m" trigger run
     BinUtils().refreshMenu();
     Logger.log("[BinSetup] Currently added sub-accounts:\n"+JSON.stringify(Object.keys(subaccs)));
-    ui.alert("Sub-Account added",
-              "Email '"+email+"' was successfully added as sub-account!",
-              ui.ButtonSet.OK);
+    ui.alert("Sub-Account Added",
+             "Email '"+email+"' was successfully added as sub-account!\n\nAccount assets will be refreshed in the next minute..",
+             ui.ButtonSet.OK);
     return email;
   }
 
@@ -260,9 +272,9 @@ function BinSetup() {
     BinDoAccountInfo().schedule(); // Update assets in the next "1m" trigger run
     BinUtils().refreshMenu();
     Logger.log("[BinSetup] Currently added sub-accounts:\n"+JSON.stringify(Object.keys(subaccs)));
-    ui.alert("Sub-Account removed",
-              "Email '"+email+"' was successfully removed as sub-account!",
-              ui.ButtonSet.OK);
+    ui.alert("Sub-Account Removed",
+             "Email '"+email+"' was successfully removed as sub-account!\n\nAccount assets will be refreshed in the next minute..",
+             ui.ButtonSet.OK);
     return email;
   }
 
