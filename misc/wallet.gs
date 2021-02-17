@@ -9,14 +9,17 @@ function BinWallet(OPTIONS) {
     getSpotAssets,
     getCrossAssets,
     getIsolatedAssets,
+    getSubAccountAssets,
     setSpotAssets,
     setCrossAssets,
     setIsolatedAssets,
+    setSubAccountAssets,
     getIsolatedPairs,
     setIsolatedPairs,
     parseSpotAsset,
     parseCrossMarginAsset,
     parseIsolatedMarginAsset,
+    parseSubAccountAsset,
     refreshAssets,
     calculateAssets
   };
@@ -42,9 +45,16 @@ function BinWallet(OPTIONS) {
     return getAssets("isolated", symbol);
   }
 
+  /**
+   * Returns the account wallet assets for SUB-ACCOUNTS
+   */
+  function getSubAccountAssets(symbol) {
+    return getAssets("sub-accounts", symbol);
+  }
+
   function getAssets(type, symbol) {
     const data = PropertiesService.getScriptProperties().getProperty(WALLET_PROP_NAME+"_"+type.toUpperCase());
-    const assets =  data ? JSON.parse(data) : {};
+    const assets = data ? JSON.parse(data) : {};
     return symbol ? assets[symbol] : assets;
   }
 
@@ -69,6 +79,13 @@ function BinWallet(OPTIONS) {
     return setAssetsData("isolated", data);
   }
 
+  /**
+   * Sets account wallet data for SUB-ACCOUNTS
+   */
+  function setSubAccountAssets(data) {
+    return setAssetsData("sub-accounts", data);
+  }
+
   function setAssetsData(type, data) {
     Logger.log("[BinWallet] Updating wallet assets for: "+type.toUpperCase());
     const assets = data.reduce(function(acc, asset) {
@@ -84,7 +101,7 @@ function BinWallet(OPTIONS) {
    */
   function getIsolatedPairs(symbol) {
     const data = PropertiesService.getScriptProperties().getProperty(WALLET_PROP_NAME+"_ISOLATED_PAIRS");
-    const pairs =  data ? JSON.parse(data) : {};
+    const pairs = data ? JSON.parse(data) : {};
     return symbol ? pairs[symbol] : pairs;
   }
 
@@ -144,50 +161,66 @@ function BinWallet(OPTIONS) {
     };
   }
 
+  function parseSubAccountAsset(asset) {
+    const free = parseFloat(asset.free);
+    const locked = parseFloat(asset.locked);
+    return {
+      symbol: asset.asset,
+      free,
+      locked,
+      borrowed: 0,
+      interest: 0,
+      total: free + locked,
+      net: free + locked,
+      netBTC: 0 // Missing!
+    };
+  }
+
   /**
-   * Fetches fresh data for each implemented Binance wallet so far..
-   * that will be parsed and saved inside each `BinDoAccountInfo.run/2` call
+   * Refreshes the assets from ALL supported/available wallets
    */
   function refreshAssets() {
-    const accinfo = BinDoAccountInfo();
-    const opts = {headers: false};
-    accinfo.run("spot", opts);
-    accinfo.run("cross", opts);
-    accinfo.run("isolated", opts);
+    return BinDoAccountInfo().refresh();
   }
 
   /**
    * Returns a summary object whose keys are the asset name/symbol
    * and the values are the sum of each asset from all implemented wallets
    */
-  function calculateAssets() {
+  function calculateAssets(exclude_sub_accounts) {
     let totals = {};
     
     const spot = getSpotAssets();
-    totals = Object.keys(spot).reduce(function (acc, symbol) {
+    totals = Object.keys(spot).reduce(function(acc, symbol) {
       return _accAssetHelper(acc, symbol, spot[symbol]);
     }, totals);
     const cross = getCrossAssets();
-    totals = Object.keys(cross).reduce(function (acc, symbol) {
+    totals = Object.keys(cross).reduce(function(acc, symbol) {
       return _accAssetHelper(acc, symbol, cross[symbol]);
     }, totals);
     const isolated = getIsolatedAssets();
-    totals = Object.keys(isolated).reduce(function (acc, symbol) {
+    totals = Object.keys(isolated).reduce(function(acc, symbol) {
       return _accAssetHelper(acc, symbol, isolated[symbol]);
     }, totals);
+    if (!exclude_sub_accounts) { // Include sub-account assets
+      const subaccs = getSubAccountAssets();
+      totals = Object.keys(subaccs).reduce(function(acc, symbol) {
+        return _accAssetHelper(acc, symbol, subaccs[symbol]);
+      }, totals);
+    }
 
     return totals;
   }
 
   function _accAssetHelper(acc, symbol, asset) {
     acc[symbol] = {
-      free: asset.free + (acc[symbol] ? acc[symbol].free : 0),
-      locked: asset.locked + (acc[symbol] ? acc[symbol].locked : 0),
-      borrowed: asset.borrowed + (acc[symbol] ? acc[symbol].borrowed : 0),
-      interest: asset.interest + (acc[symbol] ? acc[symbol].interest : 0),
-      total: asset.total + (acc[symbol] ? acc[symbol].total : 0),
-      net: asset.net + (acc[symbol] ? acc[symbol].net : 0),
-      netBTC: asset.netBTC + (acc[symbol] ? acc[symbol].netBTC : 0)
+      free: (asset.free||0) + (acc[symbol] ? acc[symbol].free : 0),
+      locked: (asset.locked||0) + (acc[symbol] ? acc[symbol].locked : 0),
+      borrowed: (asset.borrowed||0) + (acc[symbol] ? acc[symbol].borrowed : 0),
+      interest: (asset.interest||0) + (acc[symbol] ? acc[symbol].interest : 0),
+      total: (asset.total||0) + (acc[symbol] ? acc[symbol].total : 0),
+      net: (asset.net||0) + (acc[symbol] ? acc[symbol].net : 0),
+      netBTC: (asset.netBTC||0) + (acc[symbol] ? acc[symbol].netBTC : 0)
     };
     return acc;
   }

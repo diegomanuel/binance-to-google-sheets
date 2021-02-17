@@ -63,7 +63,7 @@ function BinCache() {
     }
 
     // Clean expired keys and add the new one
-    const newKeys = Object.keys(keys).reduce(function (acc, aKey) {
+    const newKeys = Object.keys(keys).reduce(function(acc, aKey) {
       const ts = keys[aKey];
       if (now < ts) { // This key is still alive!
         acc[aKey] = ts; // Keep it with its original timestamp

@@ -91,7 +91,7 @@ function BinDoOrdersTable() {
       bw.refreshAssets();
       assets = {
         last: _getLastAssets(),
-        current: bw.calculateAssets()
+        current: bw.calculateAssets(true) // Exclude sub-account assets!
       };
     }
 
@@ -235,7 +235,7 @@ function BinDoOrdersTable() {
   }
 
   function _fetchOrdersForType(type, opts, url, qs) {
-    const orders = BinRequest(opts).get(url, qs);
+    const orders = new BinRequest(opts).get(url, qs);
     return (orders||[]).map(function(order) {
       order.market = type.toUpperCase(); // NOTE: Very important to be added for future last row #ID matching!
       return order;
@@ -433,7 +433,7 @@ function BinDoOrdersTable() {
 
   function _updateLastAssets(assets) {
     // UGLY but it works..! Remove assets that will be retried in the next poll run
-    const updated_assets = Object.keys(retry_assets).reduce(function (acc, asset) {
+    const updated_assets = Object.keys(retry_assets).reduce(function(acc, asset) {
       if (acc[asset]) {
         delete acc[asset];
       }

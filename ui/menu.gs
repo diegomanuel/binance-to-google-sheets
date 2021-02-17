@@ -20,6 +20,8 @@ function BinMenu(ui) {
       if (BinSetup().areAPIKeysConfigured()) {
         menu.addItem("Show Open Orders", "showOpenOrders")
             .addSeparator()
+            .addSubMenu(addSubAccountsMenu())
+            .addSeparator()
             .addItem("Show API Keys", "showAPIKeys")
             .addSubMenu(ui.createMenu("Setup API Keys")
               .addItem("Re-configure API Keys", "showAPIKeysSetup")
@@ -44,6 +46,24 @@ function BinMenu(ui) {
     }
     
     menu.addToUi(); // Add menu items to the spreadsheet main menu
+  }
+
+  function addSubAccountsMenu() {
+    const subaccs = BinSetup().getSubAccounts();
+    const menu = ui.createMenu("Sub-Accounts")
+      //.addItem("Show List", "showSubAccountsList") // @TODO Add sub-account list
+      .addItem("Add Sub-Account", "showSubAccountsAdd");
+
+    if (Object.keys(subaccs).length) {
+      menu.addSeparator();
+      Object.keys(subaccs).forEach(function(email) {
+        menu.addItem(email, "showSubAccountsRemove");
+      });
+      menu.addSeparator()
+        .addItem("Remove Sub-Accounts", "showSubAccountsRemove");
+    }
+
+    return menu;
   }
 
   /**
@@ -130,6 +150,20 @@ function showOpenOrders() {
     }, [])
     .join("\n");
   ui.alert("Current open orders ("+(data.length-1)+")", formatted, ui.ButtonSet.OK);
+}
+
+/**
+ * Displays a modal to add a sub-account.
+ */
+function showSubAccountsAdd() {
+  BinSetup().addSubAccount(SpreadsheetApp.getUi());
+}
+
+/**
+ * Displays a modal to remove a sub-account.
+ */
+function showSubAccountsRemove() {
+  BinSetup().removeSubAccount(SpreadsheetApp.getUi());
 }
 
 /**
@@ -245,6 +279,9 @@ function showDonate() {
   Logger.log("[Donate] Buy me a beer!  =]");
 }
 
+/**
+ * Below here, all the functions to configure trigger intervals
+ */
 function resetTriggersIntervalConfig() {
   const ui = SpreadsheetApp.getUi();
   const text = "Proceed to reset your intervals configuration for triggers to default values?";
@@ -256,9 +293,6 @@ function resetTriggersIntervalConfig() {
   }
 }
 
-/**
- * Below here, all the functions to configure trigger intervals
- */
 function _setIntervalFor(operation, interval) {
   BinScheduler().setSchedule(operation, interval);
   BinUtils().toast("Configured schedule for ["+operation+"] every ["+interval+"]");

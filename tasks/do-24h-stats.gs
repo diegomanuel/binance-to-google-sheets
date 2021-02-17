@@ -65,7 +65,7 @@ function BinDo24hStats() {
         return BinUtils().filterTickerSymbol(data, range_or_cell, ticker_against);
       }
     };
-    const data = BinRequest(opts).get("api/v3/ticker/24hr", "", "");
+    const data = new BinRequest(opts).get("api/v3/ticker/24hr", "", "");
   
     BinUtils().releaseLock(lock);
     const parsed = parse(data, range_or_cell, options);

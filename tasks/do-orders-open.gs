@@ -67,7 +67,7 @@ function BinDoOrdersOpen() {
 
   function fetchSpotOrders(opts) {
     Logger.log("[BinDoOrdersOpen][SPOT] Fetching orders..");
-    const orders = BinRequest(opts).get("api/v3/openOrders");
+    const orders = new BinRequest(opts).get("api/v3/openOrders");
     return orders.map(function(order) {
       order.market = "SPOT";
       return order;
@@ -76,7 +76,7 @@ function BinDoOrdersOpen() {
 
   function fetchCrossOrders(opts) {
     Logger.log("[BinDoOrdersOpen][CROSS] Fetching orders..");
-    const orders = BinRequest(opts).get("sapi/v1/margin/openOrders") || []; //  It may fail if wallet isn't enabled!
+    const orders = new BinRequest(opts).get("sapi/v1/margin/openOrders") || []; //  It may fail if wallet isn't enabled!
     return orders.map(function(order) {
       order.market = "CROSS";
       return order;
@@ -86,10 +86,10 @@ function BinDoOrdersOpen() {
   function fetchIsolatedOrders(opts, symbol) {
     const wallet = BinWallet();
     const symbols = symbol ? [symbol] : Object.keys(wallet.getIsolatedPairs());
-    return symbols.reduce(function (acc, symbol) {
+    return symbols.reduce(function(acc, symbol) {
       Logger.log("[BinDoOrdersOpen][ISOLATED] Fetching orders for '"+symbol+"' pair..");
       const qs = "isIsolated=true&symbol="+symbol;
-      const orders = BinRequest(opts).get("sapi/v1/margin/openOrders", qs) || []; //  It may fail if wallet isn't enabled!
+      const orders = new BinRequest(opts).get("sapi/v1/margin/openOrders", qs) || []; //  It may fail if wallet isn't enabled!
       const data = orders.map(function(order) {
         order.market = "ISOLATED";
         return order;

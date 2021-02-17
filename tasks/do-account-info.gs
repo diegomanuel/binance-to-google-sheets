@@ -24,7 +24,26 @@ function BinDoAccountInfo() {
   function period() {
     return BinScheduler().getSchedule(tag()) || "15m";
   }
-  
+
+  /**
+   * Schedules this operation to be run in the next "1m" trigger
+   */
+  function schedule() {
+    return BinScheduler().rescheduleFailed(tag());
+  }
+
+  /**
+   * Fetches fresh data for each implemented Binance wallet so far..
+   * that will be parsed and saved inside each `run/2` call.
+   */
+  function refresh() {
+    const opts = {headers: false};
+    run("spot", opts);
+    run("cross", opts);
+    run("isolated", opts);
+    run("sub", opts);
+  }
+
   /**
    * Returns account information for given type of wallet (or general/overview if none given).
    *
@@ -33,12 +52,11 @@ function BinDoAccountInfo() {
    * @return A table with account information
    */
   function run(type, options) {
-    const bs = BinScheduler();
     try {
-      bs.clearFailed(tag());
+      BinScheduler().clearFailed(tag());
       return execute(type||"overview", options);
     } catch(err) { // Re-schedule this failed run!
-      bs.rescheduleFailed(tag());
+      schedule();
       throw err;
     }
   }
@@ -59,13 +77,14 @@ function BinDoAccountInfo() {
     return parsed;
   }
 
+  // @TODO Add filter for empty assets (balance=0) at BinRequest().get() options
   function request(type, opts) {
     if (type === "overview") { // Ensure to fetch fresh data from all wallets for the overview
-      BinWallet().refreshAssets();
+      refresh();
       return; // We don't return any data here!
     }
 
-    const br = BinRequest(opts);
+    const br = new BinRequest(opts);
     if (type.toLowerCase() === "spot") {
       return br.get("api/v3/account", "", "");
     }
@@ -75,8 +94,22 @@ function BinDoAccountInfo() {
     if (type.toLowerCase() === "isolated") {
       return br.get("sapi/v1/margin/isolated/account", "", "");
     }
+    if (type.toLowerCase() === "sub") {
+      return _requestSubAccounts(opts);
+    }
 
     throw new Error("Unsupported account wallet type: "+type);
+  }
+
+  function _requestSubAccounts(opts) {
+    const subaccs = BinSetup().getSubAccounts();
+    
+    return Object.keys(subaccs).reduce(function(assets, email) {
+      const qs = "email="+email;
+      const data = new BinRequest(opts).get("wapi/v3/sub-account/assets.html", qs);
+      assets[email] = (data||{}).balances || [];
+      return assets;
+    }, {});
   }
 
   function parse(type, data, {headers: show_headers}) {
@@ -94,14 +127,17 @@ function BinDoAccountInfo() {
     if (type.toLowerCase() === "isolated") {
       return parseIsolatedMargin(data, show_headers);
     }
+    if (type.toLowerCase() === "sub") {
+      return parseSubAccounts(data, show_headers);
+    }
 
     throw new Error("Unsupported account wallet type: "+type);
   }
 
   function parseOverview(show_headers) {
     const headers = ["Asset", "Free", "Locked", "Borrowed", "Interest", "Total", "Net"];
-    const assets = BinWallet().calculateAssets();
-    const balances = Object.keys(assets).map(function (symbol) {
+    const assets = BinWallet().calculateAssets(); // Calculate assets from ALL implemented/available wallets!
+    const balances = Object.keys(assets).map(function(symbol) {
       const asset = assets[symbol];
       return [
         symbol,
@@ -230,11 +266,60 @@ function BinDoAccountInfo() {
     ];
   }
 
+  function parseSubAccounts(data, show_headers) {
+    const wallet = BinWallet();
+    const subaccs = BinSetup().getSubAccounts();
+    const emails = Object.keys(subaccs);
+    const headers = [
+      ["Account Type", "Added Accounts", "Last Update"],
+      ["Sub-Accounts", emails.length, new Date()]
+    ];
+    const general = show_headers ? headers : [];
+    if (!emails.length) {
+      general.push(["You have to add at least one sub-account email from 'Binance' main menu!"]);
+    }
+
+    const assets = [];
+    const balances = Object.keys(data).reduce(function(rows, email) {
+      const subbalances = (data[email]||[]).reduce(function(subrows, a) {
+        const asset = wallet.parseSubAccountAsset(a);
+        if (asset.total > 0) { // Only return assets with balance
+          assets.push(asset);
+          subrows.push([
+            asset.symbol,
+            asset.free,
+            asset.locked,
+            asset.total
+          ]);
+        }
+        return subrows;
+      }, []);
+
+      if (show_headers) {
+        rows.push(["Sub-Account Email", "", "", "Assets"]);
+      }
+      rows.push([email, "", "", subbalances.length]);
+      if (show_headers) {
+        rows.push(["Asset", "Free", "Locked", "Total"]);
+      }
+
+      const sorted = BinUtils().sortResults(subbalances);
+      return rows.concat(sorted);
+    }, []);
+
+    // Save assets to wallet
+    wallet.setSubAccountAssets(assets);
+
+    return [...general, ...balances];
+  }
+
   // Return just what's needed from outside!
   return {
     tag,
     is,
     period,
+    schedule,
+    refresh,
     run
   };
 }

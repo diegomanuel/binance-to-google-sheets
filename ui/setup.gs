@@ -31,6 +31,9 @@ function onInstall(event) {
  * Script setup functions wrapper.
  */
 function BinSetup() {
+  const API_KEY_NAME = "BIN_API_KEY";
+  const API_SECRET_NAME = "BIN_API_SECRET";
+  const SUB_ACCOUNTS_NAME = "BIN_SUB_ACCOUNTS";
   const user_props = PropertiesService.getUserProperties();
 
   return {
@@ -43,7 +46,10 @@ function BinSetup() {
     getAPISecret,
     setAPISecret,
     configAPIKeys,
-    clearAPIKeys
+    clearAPIKeys,
+    addSubAccount,
+    removeSubAccount,
+    getSubAccounts
   };
 
   /**
@@ -51,7 +57,7 @@ function BinSetup() {
    */
   function init() {
     BinScheduler().init(); // Mark the scheduler as initialized
-    configTriggers(); // Create triggers to automatically keep the formulas updated
+    _configTriggers(); // Create triggers to automatically keep the formulas updated
   }
 
   /**
@@ -195,9 +201,80 @@ function BinSetup() {
   }
 
   /**
+   * Adds a sub-account
+   */
+  function addSubAccount(ui) {
+    // @TODO Get currently detected sub-accounts and cancel if none!
+    const subaccs = getSubAccounts();
+    const text = "Please enter the sub-account email that you want to add:\n"+
+      //"\nAvailable sub-accounts detected:\n"+Object.keys(accounts).join("\n")+"\n"+
+      "\nCurrently added sub-accounts:\n"+(Object.keys(subaccs).join("\n")||"- none -");
+    const result = ui.prompt("Add Sub-Account", text, ui.ButtonSet.OK_CANCEL);
+    if (result.getSelectedButton() != ui.Button.OK) {
+      return false; // Cancel
+    }
+    const email = result.getResponseText().replace(/\s+/g, '');
+    if (!email) {
+      return false; // Cancel
+    }
+
+    // @TODO Check given email as detected sub-account
+    // Logger.log("[BinSetup] Available sub-accounts detected: "+Object.keys(accounts).join(", "));
+    Logger.log("[BinSetup] Adding sub-account: "+email);
+    subaccs[email] = email; // @TODO Add some useful data here?
+    user_props.setProperty(SUB_ACCOUNTS_NAME, JSON.stringify(subaccs));
+    BinDoAccountInfo().schedule(); // Update assets in the next "1m" trigger run
+    BinUtils().refreshMenu();
+    Logger.log("[BinSetup] Currently added sub-accounts:\n"+JSON.stringify(Object.keys(subaccs)));
+    ui.alert("Sub-Account added",
+              "Email '"+email+"' was successfully added as sub-account!",
+              ui.ButtonSet.OK);
+    return email;
+  }
+
+  /**
+   * Removes a sub-account
+   */
+  function removeSubAccount(ui) {
+    const subaccs = getSubAccounts();
+    const text = "Please enter the sub-account email that you want to remove:\n"+
+      "\nCurrently added sub-accounts:\n"+(Object.keys(subaccs).join("\n")||"- none -");
+    const result = ui.prompt("Remove Sub-Account", text, ui.ButtonSet.OK_CANCEL);
+    if (result.getSelectedButton() != ui.Button.OK) {
+      return false; // Cancel
+    }
+    const email = result.getResponseText().replace(/\s+/g, '');
+    if (!email) {
+      return false; // Cancel
+    }
+    if (!subaccs[email]) {
+      ui.alert("Remove Sub-Account",
+               "ERROR: The email '"+email+"' doesn't belong to any added sub-account!",
+               ui.ButtonSet.OK);
+      return false; // Cancel
+    }
+
+    Logger.log("[BinSetup] Removing sub-account: "+email);
+    delete subaccs[email];
+    user_props.setProperty(SUB_ACCOUNTS_NAME, JSON.stringify(subaccs));
+    BinDoAccountInfo().schedule(); // Update assets in the next "1m" trigger run
+    BinUtils().refreshMenu();
+    Logger.log("[BinSetup] Currently added sub-accounts:\n"+JSON.stringify(Object.keys(subaccs)));
+    ui.alert("Sub-Account removed",
+              "Email '"+email+"' was successfully removed as sub-account!",
+              ui.ButtonSet.OK);
+    return email;
+  }
+
+  function getSubAccounts() {
+    const data = user_props.getProperty(SUB_ACCOUNTS_NAME);
+    return data ? JSON.parse(data) : {};
+  }
+
+  /**
    * Configs required triggers to automatically have the data updated.
    */
-  function configTriggers() {
+  function _configTriggers() {
     // Time-based triggers config
     const triggers = {
       "doRefresh1m": [1, false],
