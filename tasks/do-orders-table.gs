@@ -88,7 +88,7 @@ function BinDoOrdersTable() {
 
     if (sheets.length) { // Refresh and get wallet assets only if we have sheets to update!
       const bw = BinWallet();
-      bw.refreshAssets();
+      bw.refreshAssets(true); // Exclude sub-account assets!
       assets = {
         last: _getLastAssets(),
         current: bw.calculateAssets(true) // Exclude sub-account assets!
@@ -248,7 +248,7 @@ function BinDoOrdersTable() {
 
     return ss.getSheets().filter(function(sheet) {
       const formula = _getFormula(sheet);
-      return BinUtils().isFormulaMatching(self, self.period(), formula);
+      return formula && BinUtils().isFormulaMatching(self, self.period(), formula);
     });
   }
 
@@ -348,7 +348,11 @@ function BinDoOrdersTable() {
   }
 
   function _getFormula(sheet) {
-    return sheet.getRange("A1").getFormula();
+    try { // [#13] It may fail when a chart is moved to its own sheet!
+      return sheet.getRange("A1").getFormula();
+    } catch(_) {
+      return "";
+    }
   }
 
   function _parseFormula(sheet) {

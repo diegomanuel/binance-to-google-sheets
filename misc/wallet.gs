@@ -179,8 +179,8 @@ function BinWallet(OPTIONS) {
   /**
    * Refreshes the assets from ALL supported/available wallets
    */
-  function refreshAssets() {
-    return BinDoAccountInfo().refresh();
+  function refreshAssets(exclude_sub_accounts) {
+    return BinDoAccountInfo().refresh(exclude_sub_accounts);
   }
 
   /**

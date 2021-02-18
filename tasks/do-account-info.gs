@@ -22,7 +22,7 @@ function BinDoAccountInfo() {
    * Returns this function period (the one that's used by the refresh triggers)
    */
   function period() {
-    return BinScheduler().getSchedule(tag()) || "15m";
+    return BinScheduler().getSchedule(tag()) || "10m";
   }
 
   /**
@@ -36,12 +36,14 @@ function BinDoAccountInfo() {
    * Fetches fresh data for each implemented Binance wallet so far..
    * that will be parsed and saved inside each `run/2` call.
    */
-  function refresh() {
+  function refresh(exclude_sub_accounts) {
     const opts = {headers: false};
     run("spot", opts);
     run("cross", opts);
     run("isolated", opts);
-    run("sub", opts);
+    if (!exclude_sub_accounts) { // Include sub-account assets
+      run("sub", opts);
+    }
   }
 
   /**

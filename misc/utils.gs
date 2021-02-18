@@ -238,19 +238,18 @@ function BinUtils() {
     }
 
     const sheets = SpreadsheetApp.getActiveSpreadsheet().getSheets();
-    const affectedFormulaCells = sheets.reduce(function(formulas, sheet) {
-      const formulaCells = _findAffectedSheetFormulaCells(period, sheet);
-      formulas.push(...formulaCells); // Add formulas to be refreshed (if any)
-      return formulas;
+    const affected_formula_cells = sheets.reduce(function(formulas, sheet) {
+      const formula_cells = _findAffectedSheetFormulaCells(period, sheet);
+      return formulas.concat(formula_cells); // Add formulas to be refreshed (if any)
     }, []);
     if (DEBUG) {
-      Logger.log("FORMULAS TO REFRESH: "+JSON.stringify(affectedFormulaCells));
+      Logger.log("FORMULAS TO REFRESH: "+JSON.stringify(affected_formula_cells));
     }
 
-    const regexIsFormulaRefresh = new RegExp("BINANCER\\(", "i");
-    for (const cell of affectedFormulaCells) {
+    const regex_is_formula_refresh = new RegExp("BINANCER\\(", "i");
+    for (const cell of affected_formula_cells) {
       const formula = cell.getFormula();
-      if (formula.match(regexIsFormulaRefresh)) {
+      if (formula.match(regex_is_formula_refresh)) {
         cell.setFormula(formula.replace(/BINANCER\(/i, "BINANCE("));
       } else {
         cell.setFormula(formula.replace(/BINANCE\(/i, "BINANCER("));
@@ -258,26 +257,30 @@ function BinUtils() {
     }
 
     releaseLock(lock);
-    Logger.log(affectedFormulaCells.length+" spreadsheet formulas were refreshed!");
-    return affectedFormulaCells.length;
+    Logger.log(affected_formula_cells.length+" spreadsheet formulas were refreshed!");
+    return affected_formula_cells.length;
   }
 
   function _findAffectedSheetFormulaCells(period, sheet) {
-    const range = sheet.getDataRange();
-    const formulas = range.getFormulas();
-    const num_cols = range.getNumColumns();
-    const num_rows = range.getNumRows();
-    let affectedFormulaCells = [];
-    for (let row = 0; row < num_rows ; row++) {
-      for (let col = 0; col < num_cols; col++) {
-        if (_isFormulaReplacement(period, formulas[row][col])) {
-          const row_offset = range.getRow();
-          const col_offset = range.getColumn();
-          affectedFormulaCells.push(range.getCell(row+row_offset, col+col_offset));
+    let affected_formula_cells = [];
+
+    try { // [#13] It may fail when a chart is moved to its own sheet!
+      const range = sheet.getDataRange();
+      const formulas = range.getFormulas();
+      const num_cols = range.getNumColumns();
+      const num_rows = range.getNumRows();
+      for (let row = 0; row < num_rows ; row++) {
+        for (let col = 0; col < num_cols; col++) {
+          if (_isFormulaReplacement(period, formulas[row][col])) {
+            const row_offset = range.getRow();
+            const col_offset = range.getColumn();
+            affected_formula_cells.push(range.getCell(row+row_offset, col+col_offset));
+          }
         }
       }
-    }
-    return affectedFormulaCells;
+    } catch(_) {}
+
+    return affected_formula_cells;
   }
 
   function _isFormulaReplacement(period, formula) {
