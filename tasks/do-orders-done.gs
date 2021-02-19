@@ -49,7 +49,14 @@ function BinDoOrdersDone() {
   function execute(range_or_cell, options) {
     // const ticker_against = options["ticker"];
     Logger.log("[BinDoOrdersDone] Running..");
-    
+
+    const ot = BinDoOrdersTable();
+    const has_sheets = ot.hasSheets();
+    if (!has_sheets) {
+      console.error("[BinDoOrdersDone] It seems that we didn't find any sheet in the spreadsheet with the 'orders/table' operation in it!");
+      return [["ERROR: This operation requires at least ONE sheet in the spreadsheet with the 'orders/table' operation in it!"]];
+    }
+
     // const range = BinUtils().getRangeOrCell(range_or_cell) || [];
     // const data = range.reduce(function(rows, asset) {
     //   return rows.concat(asset);
@@ -57,10 +64,9 @@ function BinDoOrdersDone() {
     // const parsed = parse(data, options);
 
     // Get ALL the rows contained in ALL defined sheets as order tables!
-    const data = BinDoOrdersTable().getRows();
+    const data = ot.getRows();
     if (!data.length) {
-      console.error("[BinDoOrdersDone] It seems that we didn't find any sheet in the spreadsheet with the 'orders/table' operation in it!");
-      return [["- no results to display - WARNING: This operation requires at least ONE sheet in the spreadsheet with the 'orders/table' operation in it!"]];
+      return [["- no orders to display yet -"]];
     }
     const parsed = parse(data, options);
     Logger.log("[BinDoOrdersDone] Returning "+data.length+" orders..");

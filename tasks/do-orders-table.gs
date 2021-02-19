@@ -275,8 +275,8 @@ function BinDoOrdersTable() {
     // Set initial stats values
     _initCellValue(sheet, "B2");
     _initCellValue(sheet, "E2", "waiting for 1st poll run");
-    _initCellValue(sheet, "H2");
-    _initCellValue(sheet, "J2");
+    _initCellValue(sheet, "H2", 0);
+    _initCellValue(sheet, "J2", 0);
 
     // Remove extra rows (if any)
     const row_min = Math.max(header_size+1, sheet.getLastRow());
@@ -408,7 +408,8 @@ function BinDoOrdersTable() {
 
   function _updateStats(sheet, saved_data) {
     // Calculate total orders per pair
-    const pairs = sheet.getRange("D"+(header_size+1)+":D"+sheet.getLastRow()).getValues();
+    const row_min = Math.max(header_size+1, sheet.getLastRow());
+    const pairs = sheet.getRange("D"+(header_size+1)+":D"+row_min).getValues();
     const [count, totals] = pairs.reduce(function([count, acc], [pair]) {
       if (pair) {
         acc[pair] = 1 + (acc[pair]||0);
@@ -451,7 +452,7 @@ function BinDoOrdersTable() {
    * Get the FULL data range for given sheet
    */
   function _getSheetDataRange(sheet) {
-    return sheet.getRange(header_size+1, 1, sheet.getLastRow()-header_size, sheet.getLastColumn());
+    return sheet.getRange(header_size+1, 1, sheet.getLastRow(), sheet.getLastColumn());
   }
 
   /**
@@ -459,9 +460,18 @@ function BinDoOrdersTable() {
    */
   function getRows() {
     return _findSheets().reduce(function(rows, sheet) { // Go through each sheet found
-      const values = _getSheetDataRange(sheet).getValues();
+      const values = _getSheetDataRange(sheet).getValues().filter(function(val) {
+        return val && val[0]; // Filter possible empty rows!
+      });
       return values && values.length ? rows.concat(values) : rows;
     }, []);
+  }
+
+  /**
+   * Returns true if at least ONE sheet in the spreadsheet is defined as orders table
+   */
+  function hasSheets() {
+    return _findSheets().length > 0;
   }
 
   // Return just what's needed from outside!
@@ -472,6 +482,7 @@ function BinDoOrdersTable() {
     run,
     init,
     execute,
-    getRows
+    getRows,
+    hasSheets
   };
 }
