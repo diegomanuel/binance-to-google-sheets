@@ -4,8 +4,8 @@
 function BinRequest(OPTIONS) {
   OPTIONS = OPTIONS || {}; // Init options
   const CACHE_TTL = OPTIONS["CACHE_TTL"] || false; // Cache disabled by default
-  const retry_delay = 1000; // Delay between API calls when it fails in milliseconds
-  const retry_max_attempts = 5; // Max number of attempts when the API responses with status != 200
+  const retry_max_attempts = REQUEST_RETRY_MAX_ATTEMPTS; // Max number of attempts when the API responses with status != 200
+  const retry_delay = REQUEST_RETRY_DELAY; // Delay between API calls when it fails in milliseconds
 
   return {
     get

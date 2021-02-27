@@ -113,6 +113,7 @@ function BinDoOrdersTable() {
     Logger.log("[BinDoOrdersTable] Processing sheet: "+sheet.getName());
     const [range_or_cell, options] = _parseFormula(sheet);
     const ticker_against = options["ticker"];
+    const do_unchanged_check = BinUtils().parseBool(options["unchanged"], undefined);
     if (!range_or_cell) {
       throw new Error("A range with crypto symbols must be given!");
     }
@@ -133,7 +134,7 @@ function BinDoOrdersTable() {
         Logger.log("[BinDoOrdersTable] Max items cap! ["+numrows+"/"+max_items+"] => Skipping fetch for: "+symbol);
         return rows;
       }
-      if (_isUnchangedAsset(assets, asset)) { // Skip data fetch if the asset hasn't changed from last run!
+      if (do_unchanged_check && _isUnchangedAsset(assets, asset)) { // Skip data fetch if the asset hasn't changed from last run!
         Logger.log("[BinDoOrdersTable] Skipping unchanged asset: "+asset);
         return rows;
       }
@@ -279,10 +280,10 @@ function BinDoOrdersTable() {
     _initCellValue(sheet, "J2", 0);
 
     // Remove extra rows (if any)
-    const row_min = Math.max(header_size+1, sheet.getLastRow());
-    const row_diff = sheet.getMaxRows() - row_min;
+    const row_max = Math.max(header_size+1, sheet.getLastRow());
+    const row_diff = sheet.getMaxRows() - row_max;
     if (row_diff > 0) {
-      sheet.deleteRows(row_min+1, row_diff);
+      sheet.deleteRows(row_max+1, row_diff);
     }
     // Remove extra colums (if any)
     const col_diff = sheet.getMaxColumns() - header.length;
@@ -408,8 +409,8 @@ function BinDoOrdersTable() {
 
   function _updateStats(sheet, saved_data) {
     // Calculate total orders per pair
-    const row_min = Math.max(header_size+1, sheet.getLastRow());
-    const pairs = sheet.getRange("D"+(header_size+1)+":D"+row_min).getValues();
+    const row_max = Math.max(header_size+1, sheet.getLastRow());
+    const pairs = sheet.getRange("D"+(header_size+1)+":D"+row_max).getValues();
     const [count, totals] = pairs.reduce(function([count, acc], [pair]) {
       if (pair) {
         acc[pair] = 1 + (acc[pair]||0);
@@ -452,7 +453,8 @@ function BinDoOrdersTable() {
    * Get the FULL data range for given sheet
    */
   function _getSheetDataRange(sheet) {
-    return sheet.getRange(header_size+1, 1, sheet.getLastRow(), sheet.getLastColumn());
+    const row_max = Math.max(header_size+1, sheet.getLastRow());
+    return sheet.getRange("A"+(header_size+1)+":J"+row_max);
   }
 
   /**
