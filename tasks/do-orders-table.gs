@@ -37,8 +37,14 @@ function BinDoOrdersTable() {
    * You may ONLY REMOVE records from the bottom of the sheet (as many as you want, even all of them).
    *
    * @param {["BTC","ETH"..]} range_or_cell REQUIRED! Will fetch ALL historic orders for given symbols only.
-   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT"
-   * @return The list of all orders for all or given symbols/tickers.
+   *            It can be a range with single assets like ["BTC","ETH"..] or just a single assets like "BTC".
+   *            It can also be a range with full tickers like ["BTCBUSD","ETHUSDT","ETHBTC"..] if you set "ticker: range" as option.
+   * @param {ticker, unchanged} options Custom options for this operation
+   *            ticker: Ticker to match against (USDT by default). Example: "ticker: BUSD".
+   *                    It can also be "ticker: range" to use full pairs from `range_or_cell`.
+   *            unchanged: Skip assets balance check to always force to fetch for new orders. Example: "unchanged: false" will disable the check.
+    *                      WARNING: The "unchanged check" is an important optimization, so disable it with caution!
+   * @return The list done orders for all given assets/symbols/tickers.
    */
   function run(range_or_cell, options) {
     Logger.log("[BinDoOrdersTable] Running..");
@@ -123,18 +129,18 @@ function BinDoOrdersTable() {
     const opts = {
       "no_cache_ok": true,
       "discard_40x": true, // Discard 40x errors for disabled wallets!
-      "retries": range.length
+      "retries": Math.max(10, range.length)
     };
 
     // Fetch data for given symbols in range
     const data = range.reduce(function(rows, asset) {
       const numrows = rows.length;
-      const symbol = asset + ticker_against;
+      const symbol = _fullSymbol(asset, ticker_against);
       if (numrows > max_items) { // Skip data fetch if we hit max items cap!
         Logger.log("[BinDoOrdersTable] Max items cap! ["+numrows+"/"+max_items+"] => Skipping fetch for: "+symbol);
         return rows;
       }
-      if (do_unchanged_check && _isUnchangedAsset(assets, asset)) { // Skip data fetch if the asset hasn't changed from last run!
+      if (do_unchanged_check && _isUnchangedAsset(assets, asset)) { // Skip data fetch if the asset balance hasn't changed from last run!
         Logger.log("[BinDoOrdersTable] Skipping unchanged asset: "+asset);
         return rows;
       }
@@ -159,11 +165,18 @@ function BinDoOrdersTable() {
     _updateStats(sheet, parsed);
   }
 
+  function _fullSymbol(asset, ticker) {
+    return ticker.toLowerCase() === "range" ? asset+"" : asset+""+ticker
+  }
+
   /**
    * Returns true if the given asset was changed its "net" property from last run
    * If it's unchanged and returns false, it will skip fetching orders for it!
    */
   function _isUnchangedAsset({last, current}, asset) {
+    if (last[asset] === undefined && current[asset] === undefined) {
+      return false; // The given asset wasn't found on any wallet => Take it as "changed"
+    }
     return (last[asset] ? last[asset].net : undefined) === (current[asset] ? current[asset].net : undefined);
   }
 
@@ -177,7 +190,7 @@ function BinDoOrdersTable() {
   }
 
   function _fetchOrders(type, numrows, sheet, asset, ticker, opts) {
-    const symbol = asset + ticker;
+    const symbol = _fullSymbol(asset, ticker);
     const [fkey, fval] = _parseFilterQS(sheet, symbol, type);
     const limit = max_items - numrows + (fkey === "fromId" ? 1 : 0); // Add 1 more result since it's going to be skipped
     const qs = "limit="+limit+"&symbol="+symbol+"&"+fkey+"="+fval;

@@ -145,10 +145,14 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 * Do **NOT** alter the table data by hand! It will **poll for data** every `10` minutes automatically and it will keep it ordered by date.
 * `=BINANCE("orders/table", MySheet!A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
     * **WARNING:** Make sure that **ALL** trading pairs exist on Binance platform to avoid errors!
-* `=BINANCE("orders/table", BTC, "ticker: BUSD, unchanged: false")` Optionally you can skip unchanged assets check to always force to fetch for new orders.
+* `=BINANCE("orders/table", "BTC, ETH", "ticker: BUSD, unchanged: false")` Optionally you can skip unchanged assets check to always force to fetch for new orders.
     * **WARNING:** The `unchanged` mechanism exists to try to optimize the number of requests needed to fetch orders from large ranges with many pairs.  
     You _could_ manually disable it if your range is _small_ with just a few trading pairs (5 at most).  
     If you disable it and the range is not small, you could start having problems with `418` responses from Binance API.. so use it with caution!
+    * Note the usage of the string `"BTC, ETH"` instead of a range as a 2nd parameter.
+* `=BINANCE("orders/table", "BTCBUSD, ETHBTC", "ticker: range")` Optionally you set `range` as **ticker** and provide **full pairs** as 2nd parameter, but only recommended for a few pairs.
+    * **WARNING:** Using like this will **void the optimization** for unchanged assets.. so use it with caution!
+    * You can also use a range `MySheet!A1:A2` in which each cell has full pair values like `MySheet!A1="BTCBUSD"` and `MySheet!A2="ETHBTC"`.
 
     **NOTE:** You can have **multiple sheets** with this formula on, they will be all polled every `10` minutes.  
     If you trade against multiple pairs, it's recommended to have **one** sheet **per each** pair. Example:  

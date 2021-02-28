@@ -65,11 +65,8 @@ function BinDoOrdersDone() {
 
     // Get ALL the rows contained in ALL defined sheets as order tables!
     const data = ot.getRows();
-    if (!data.length) {
-      return [["- no orders to display yet -"]];
-    }
-    const parsed = parse(data, options);
-    Logger.log("[BinDoOrdersDone] Returning "+data.length+" orders..");
+    Logger.log("[BinDoOrdersDone] Found "+data.length+" orders to display.");
+    const parsed = data.length ? parse(data, options) : [["- no orders to display yet -"]];
     Logger.log("[BinDoOrdersDone] Done!");
     return parsed;
   }

@@ -86,9 +86,9 @@ function BinUtils() {
       return range_or_cell;
     }
     try {
-      return sheet ? sheet.getRange(range_or_cell).getValues() : [range_or_cell];
+      return sheet ? sheet.getRange(range_or_cell).getValues() : range_or_cell.split(",").map(s => s.trim());
     } catch (err) {
-      return [range_or_cell];
+      return range_or_cell.split(",").map(s => s.trim());
     }
   }
 
@@ -202,22 +202,41 @@ function BinUtils() {
    * Extract parameters from the formula string for the given module
    */
   function extractFormulaParams(module, formula) {
-    const regex_formula = "=.*BINANCE[R]?\\s*\\(\\s*\""+module.tag()+"\"\\s*,\\s*\"?([^\"\\)]+)\"?(?:\\s*,\\s*\"([^\"]+)\")?";
-    const extracted = new RegExp(regex_formula, "ig").exec(formula);
+    const base_regex = "=.*BINANCE[R]?\\s*\\(\\s*\""+module.tag()+"\"\\s*,\\s*";
     let [range_or_cell, options] = ["", ""];
+
+    // 3 params formula with string 2nd param
+    let regex_formula = base_regex+"\"(.*)\"\\s*,\\s*\"(.*)\"";
+    let extracted = new RegExp(regex_formula, "ig").exec(formula);
+    if (extracted && extracted[1] && extracted[2]) {
+      range_or_cell = extracted[1];
+      options = extracted[2];
+    } else {
+      // 3 params formula with NOT-string 2nd param
+      regex_formula = base_regex+"(.*)\\s*,\\s*\"(.*)\"";
+      extracted = new RegExp(regex_formula, "ig").exec(formula);
+      if (extracted && extracted[1] && extracted[2]) {
+        range_or_cell = extracted[1];
+        options = extracted[2];
+      } else {
+        // 2 params formula
+        regex_formula = base_regex+"(.*)\\s*\\)";
+        extracted = new RegExp(regex_formula, "ig").exec(formula);
+        if (extracted && extracted[1]) {
+          range_or_cell = extracted[1];
+        }
+      }
+    }
 
     if (DEBUG) {
       Logger.log("FORMULA: "+JSON.stringify(formula));
-      extracted.map(function(val) {
-        Logger.log("REGEXP VAL: "+val);
-      });
-    }
-
-    if (extracted && extracted[0] && extracted[1]) {
-      range_or_cell = extracted[1];
-    }
-    if (extracted && extracted[0] && extracted[2]) {
-      options = extracted[2];
+      if (extracted) {
+        extracted.map(function(val) {
+          Logger.log("REGEXP VAL: "+val);
+        });
+      }
+      Logger.log("RANGE OR CELL: "+JSON.stringify(range_or_cell));
+      Logger.log("OPTIONS: "+JSON.stringify(options));
     }
 
     return [range_or_cell, parseOptions(options)];
