@@ -20,6 +20,7 @@ function BinMenu(ui) {
       if (BinSetup().areAPIKeysConfigured()) {
         menu.addItem("Show Open Orders", "showOpenOrders")
             .addSeparator()
+            .addSubMenu(addWalletsMenu())
             .addSubMenu(addSubAccountsMenu())
             .addSeparator()
             .addItem("Show API Keys", "showAPIKeys")
@@ -46,6 +47,15 @@ function BinMenu(ui) {
     }
     
     menu.addToUi(); // Add menu items to the spreadsheet main menu
+  }
+
+  function addWalletsMenu() {
+    const disabled = BinSetup().getDisabledWallets();
+    const walletEnabled = (type) => disabled[type] ? "Enable" : "Disable";
+    return ui.createMenu("Wallets")
+      .addItem(walletEnabled("cross")+" CROSS Margin Wallet", "toggleWalletCross")
+      .addItem(walletEnabled("isolated")+" ISOLATED Margin Wallet", "toggleWalletIsolated")
+      .addItem(walletEnabled("futures")+" FUTURES Wallet", "toggleWalletFutures");
   }
 
   function addSubAccountsMenu() {
@@ -150,6 +160,27 @@ function showOpenOrders() {
     }, [])
     .join("\n");
   ui.alert("Current open orders ("+(data.length-1)+")", formatted, ui.ButtonSet.OK);
+}
+
+/**
+ * Displays a confirmation to enable/disable CROSS wallet
+ */
+function toggleWalletCross() {
+  BinSetup().toggleWalletDisabled("cross", SpreadsheetApp.getUi());
+}
+
+/**
+ * Displays a confirmation to enable/disable ISOLATED wallet
+ */
+function toggleWalletIsolated() {
+  BinSetup().toggleWalletDisabled("isolated", SpreadsheetApp.getUi());
+}
+
+/**
+ * Displays a confirmation to enable/disable FUTURES wallet
+ */
+function toggleWalletFutures() {
+  BinSetup().toggleWalletDisabled("futures", SpreadsheetApp.getUi());
 }
 
 /**

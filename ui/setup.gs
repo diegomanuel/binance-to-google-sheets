@@ -33,6 +33,7 @@ function onInstall(event) {
 function BinSetup() {
   const API_KEY_NAME = "BIN_API_KEY";
   const API_SECRET_NAME = "BIN_API_SECRET";
+  const WALLETS_DISABLED_NAME = "BIN_WALLETS_DISABLED";
   const SUB_ACCOUNTS_NAME = "BIN_SUB_ACCOUNTS";
   const user_props = PropertiesService.getUserProperties();
 
@@ -47,6 +48,8 @@ function BinSetup() {
     setAPISecret,
     configAPIKeys,
     clearAPIKeys,
+    toggleWalletDisabled,
+    getDisabledWallets,
     addSubAccount,
     removeSubAccount,
     getSubAccounts
@@ -191,13 +194,52 @@ function BinSetup() {
   function clearAPIKeys(ui) {
     const text = "Are you sure you want to remove your configured Binance API Keys?\n\nYou can always re-configure'em again later if you proceed here.";
     const result = ui.alert("Clear Binance API Keys", text, ui.ButtonSet.OK_CANCEL);
-    if (result == ui.Button.OK) {
-      user_props.deleteProperty(API_KEY_NAME);
-      user_props.deleteProperty(API_SECRET_NAME);
-      Logger.log("[clearAPIKeys] Binance API Keys were cleared!");
-      BinUtils().toast("Binance API Keys were cleared! You can always re-configure'em again from 'Binance' main menu.", "", 30);
-      _refreshUI(); // Force UI refresh!
+    if (result !== ui.Button.OK) {
+      return false; // Cancel
     }
+
+    user_props.deleteProperty(API_KEY_NAME);
+    user_props.deleteProperty(API_SECRET_NAME);
+    Logger.log("[clearAPIKeys] Binance API Keys were cleared!");
+    BinUtils().toast("Binance API Keys were cleared! You can always re-configure'em again from 'Binance' main menu.", "", 30);
+    _refreshUI(); // Force UI refresh!
+  }
+
+  /**
+   * Toggles the enabled/disabled status for a given wallet type
+   */
+  function toggleWalletDisabled(type, ui) {
+    const wallets = getDisabledWallets();
+    const disabled = !!wallets[type];
+    const title = (disabled?"En":"Dis")+"able wallet: "+type.toUpperCase();
+    const text = "You will "+(disabled?"EN":"DIS")+"ABLE the "+type.toUpperCase()+" wallet!\nProceed?";
+    const result = ui.alert(title, text, ui.ButtonSet.OK_CANCEL);
+    if (result !== ui.Button.OK) {
+      return false; // Cancel
+    }
+
+    Logger.log("[BinSetup] "+(disabled?"En":"Dis")+"abling wallet: "+type.toUpperCase());
+    wallets[type] = !disabled;
+    user_props.setProperty(WALLETS_DISABLED_NAME, JSON.stringify(wallets));
+    const bu = BinUtils();
+    bu.refreshMenu();
+    bu.toast("The "+type.toUpperCase()+" wallet was "+(disabled?"EN":"DIS")+"ABLED!\nPlease wait while assets are refreshed..", "", 30);
+
+    Logger.log("[BinSetup] Clearing wallet assets and refreshing formulas..");
+    const bw = BinWallet();
+    bw.clearAssets(type);
+    bw.refreshAssets();
+    bu.forceRefreshSheetFormulas(BinDoAccountInfo().tag());
+
+    return !disabled;
+  }
+
+  /**
+   * Gets the current disabled wallets
+   */
+  function getDisabledWallets() {
+    const data = user_props.getProperty(WALLETS_DISABLED_NAME);
+    return data ? JSON.parse(data) : {};
   }
 
   /**
@@ -278,6 +320,9 @@ function BinSetup() {
     return email;
   }
 
+  /**
+   * Gets the current added sub-accounts
+   */
   function getSubAccounts() {
     const data = user_props.getProperty(SUB_ACCOUNTS_NAME);
     return data ? JSON.parse(data) : {};

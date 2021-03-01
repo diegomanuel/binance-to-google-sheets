@@ -190,6 +190,10 @@ function BinDoOrdersTable() {
   }
 
   function _fetchOrders(type, numrows, sheet, asset, ticker, opts) {
+    if (!BinWallet().isEnabled(type)) {
+      Logger.log("[BinDoOrdersTable]["+type.toUpperCase()+"] Skipping disabled wallet.");
+      return [];
+    }
     const symbol = _fullSymbol(asset, ticker);
     const [fkey, fval] = _parseFilterQS(sheet, symbol, type);
     const limit = max_items - numrows + (fkey === "fromId" ? 1 : 0); // Add 1 more result since it's going to be skipped

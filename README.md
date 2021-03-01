@@ -128,8 +128,11 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 `=BINANCE("account")` will return total account assets from Binance wallets (SPOT + CROSS + ISOLATED + SUB-ACCOUNTS).
 * `=BINANCE("account", "spot")` Display assets summary for SPOT wallet.
 * `=BINANCE("account", "cross")` Display assets summary for CROSS MARGIN wallet.
+    * If yo don't use this wallet (0 assets there), you should disable it from "Binance->Wallets" main menu.
 * `=BINANCE("account", "isolated")` Display assets summary for ISOLATED MARGIN wallet.
-* `=BINANCE("account", "sub")` Display assets summary for SUB-ACCOUNT wallets.
+    * If yo don't use this wallet (0 assets there), you should disable it from "Binance->Wallets" main menu.
+* `=BINANCE("account", "sub")` Display assets summary for added SUB-ACCOUNT wallets.
+    * You can manually add/remove sub-accounts from "Binance->Sub-Accounts" main menu.
 * `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
 
 ### Operation: `"orders/open"` (private)

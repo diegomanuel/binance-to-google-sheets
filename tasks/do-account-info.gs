@@ -33,14 +33,20 @@ function BinDoAccountInfo() {
   }
 
   /**
-   * Fetches fresh data for each implemented Binance wallet so far..
+   * Fetches fresh data for each implemented and enabled Binance wallet
    * that will be parsed and saved inside each `run/2` call.
    */
   function refresh(exclude_sub_accounts) {
     const opts = {headers: false};
+    const bw = BinWallet();
+
     run("spot", opts);
-    run("cross", opts);
-    run("isolated", opts);
+    if (bw.isEnabled("cross")) {
+      run("cross", opts);
+    }
+    if (bw.isEnabled("isolated")) {
+      run("isolated", opts);
+    }
     if (!exclude_sub_accounts) { // Include sub-account assets
       run("sub", opts);
     }
@@ -64,7 +70,7 @@ function BinDoAccountInfo() {
   function run(type, options) {
     try {
       BinScheduler().clearFailed(tag());
-      return execute(type||"overview", options);
+      return execute((type||"").toLowerCase()||"overview", options);
     } catch(err) { // Re-schedule this failed run!
       schedule();
       throw err;
@@ -73,6 +79,11 @@ function BinDoAccountInfo() {
 
   function execute(type, options) {
     Logger.log("[BinDoAccountInfo]["+type.toUpperCase()+"] Running..");
+    if (!BinWallet().isEnabled(type)) { // The "overview" case will always be true
+      Logger.log("[BinDoAccountInfo]["+type.toUpperCase()+"] The wallet is disabled!");
+      return [["The "+type.toUpperCase()+" wallet is disabled! Enable it from 'Binance->Wallets' main menu."]];
+    }
+
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
       return execute(type, options);
@@ -92,6 +103,9 @@ function BinDoAccountInfo() {
     if (type === "overview") { // Ensure to fetch fresh data from all wallets for the overview
       refresh();
       return; // We don't return any data here!
+    }
+    if (!BinWallet().isEnabled(type)) { // The wallet is disabled..
+      return; // ..so we don't return any data here!
     }
 
     const br = new BinRequest(opts);
@@ -124,10 +138,13 @@ function BinDoAccountInfo() {
 
   function parse(type, data, {headers: show_headers}) {
     show_headers = BinUtils().parseBool(show_headers);
-
     if (type === "overview") {
       return parseOverview(show_headers);
     }
+    if (!BinWallet().isEnabled(type)) { // The wallet is disabled..
+      return []; // ..so we return empty data here!
+    }
+
     if (type.toLowerCase() === "spot") {
       return parseSpot(data, show_headers);
     }

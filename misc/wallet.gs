@@ -6,6 +6,7 @@ function BinWallet(OPTIONS) {
   const WALLET_PROP_NAME = "BIN_ACCOUNT_WALLET";
 
   return {
+    isEnabled,
     getSpotAssets,
     getCrossAssets,
     getIsolatedAssets,
@@ -21,8 +22,17 @@ function BinWallet(OPTIONS) {
     parseIsolatedMarginAsset,
     parseSubAccountAsset,
     refreshAssets,
+    clearAssets,
     calculateAssets
   };
+
+  /**
+   * Returns true if the given wallet type is currently enabled
+   */
+  function isEnabled(type) {
+    const wallets = BinSetup().getDisabledWallets();
+    return !wallets[type];
+  }
 
   /**
    * Returns the account wallet assets for SPOT
@@ -184,6 +194,13 @@ function BinWallet(OPTIONS) {
   }
 
   /**
+   * Clears all the assets for the given wallet type
+   */
+  function clearAssets(type) {
+    return setAssetsData(type, []);
+  }
+
+  /**
    * Returns a summary object whose keys are the asset name/symbol
    * and the values are the sum of each asset from all implemented wallets
    */
@@ -194,14 +211,18 @@ function BinWallet(OPTIONS) {
     totals = Object.keys(spot).reduce(function(acc, symbol) {
       return _accAssetHelper(acc, symbol, spot[symbol]);
     }, totals);
-    const cross = getCrossAssets();
-    totals = Object.keys(cross).reduce(function(acc, symbol) {
-      return _accAssetHelper(acc, symbol, cross[symbol]);
-    }, totals);
-    const isolated = getIsolatedAssets();
-    totals = Object.keys(isolated).reduce(function(acc, symbol) {
-      return _accAssetHelper(acc, symbol, isolated[symbol]);
-    }, totals);
+    if (isEnabled("cross")) {
+      const cross = getCrossAssets();
+      totals = Object.keys(cross).reduce(function(acc, symbol) {
+        return _accAssetHelper(acc, symbol, cross[symbol]);
+      }, totals);
+    }
+    if (isEnabled("isolated")) {
+      const isolated = getIsolatedAssets();
+      totals = Object.keys(isolated).reduce(function(acc, symbol) {
+        return _accAssetHelper(acc, symbol, isolated[symbol]);
+      }, totals);
+    }
     if (!exclude_sub_accounts) { // Include sub-account assets
       const subaccs = getSubAccountAssets();
       totals = Object.keys(subaccs).reduce(function(acc, symbol) {

@@ -58,10 +58,11 @@ function BinDoOrdersOpen() {
   }
 
   function fetch(symbol) {
+    const bw = BinWallet();
     const opts = {CACHE_TTL: 55, "discard_40x": true}; // Discard 40x errors for disabled wallets!
     const dataSpot = fetchSpotOrders(opts); // Get all SPOT orders
-    const dataCross = fetchCrossOrders(opts); // Get all CROSS MARGIN orders
-    const dataIsolated = fetchIsolatedOrders(opts, symbol); // Get all ISOLATED MARGIN orders
+    const dataCross = bw.isEnabled("cross") ? fetchCrossOrders(opts) : []; // Get all CROSS MARGIN orders
+    const dataIsolated = bw.isEnabled("isolated") ? fetchIsolatedOrders(opts, symbol) : []; // Get all ISOLATED MARGIN orders
     return [...dataSpot, ...dataCross, ...dataIsolated];
   }
 

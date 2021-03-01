@@ -195,7 +195,7 @@ function BinUtils() {
    */
   function isFormulaMatching(module, period, formula) {
     const regex_formula = "=.*BINANCE[R]?\\s*\\(\\s*\""+module.tag()+"\"";
-    return module.period() == period && new RegExp(regex_formula, "i").test(formula);
+    return module.tag() == period || (module.period() == period && new RegExp(regex_formula, "i").test(formula));
   }
 
   /**
@@ -244,6 +244,7 @@ function BinUtils() {
 
   /**
    * Force-refresh formulas for given period.
+   * NOTE: The period can also be a module tag!
    */
   function forceRefreshSheetFormulas(period) {
     let lock = null;
