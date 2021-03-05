@@ -28,41 +28,50 @@ function BinDoOrdersOpen() {
   /**
    * Returns current open oders.
    *
-   * @param {"BTCUSDT|..."} symbol If given, returns just the matching symbol open orders.
-   * @param options An option list like "headers: false"
-   * @return The list of all current open orders for all or given symbol/ticker.
+   * @param {["BTC","ETH"..]} range_or_cell If given, will filter by given symbols (regexp).
+   * @param options Ticker to match against (none by default) or an option list like "ticker: USDT, headers: false"
+   * @return A list of current open orders for given criteria.
    */
-  function run(symbol, options) {
+  function run(range_or_cell, options) {
     const bs = BinScheduler();
     try {
       bs.clearFailed(tag());
-      return execute(symbol, options);
+      return execute(range_or_cell, options);
     } catch(err) { // Re-schedule this failed run!
       bs.rescheduleFailed(tag());
       throw err;
     }
   }
 
-  function execute(symbol, options) {
+  function execute(range_or_cell, options) {
+    const ticker_against = options["ticker"] || "";
     Logger.log("[BinDoOrdersOpen] Running..");
     const lock = BinUtils().getUserLock(lock_retries--);
     if (!lock) { // Could not acquire lock! => Retry
-      return execute(symbol, options);
+      return execute(range_or_cell, options);
     }
 
-    const data = fetch(symbol);
+    let data = fetch();
     BinUtils().releaseLock(lock);
-    const parsed = parse(symbol ? filter(data, symbol) : data, options);
+    Logger.log("[BinDoOrdersOpen] Found "+data.length+" orders to display.");
+    const range = BinUtils().getRangeOrCell(range_or_cell);
+    if (range.length) { // Apply filtering
+      const pairs = range.map(symbol => new RegExp(symbol+ticker_against, "i"));
+      data = data.filter(row => pairs.find(pair => pair.test(row.symbol)));
+      Logger.log("[BinDoOrdersOpen] Filtered to "+data.length+" orders.");
+    }
+
+    const parsed = parse(data, options);
     Logger.log("[BinDoOrdersOpen] Done!");
     return parsed;
   }
 
-  function fetch(symbol) {
+  function fetch() {
     const bw = BinWallet();
     const opts = {CACHE_TTL: 55, "discard_40x": true}; // Discard 40x errors for disabled wallets!
     const dataSpot = fetchSpotOrders(opts); // Get all SPOT orders
     const dataCross = bw.isEnabled("cross") ? fetchCrossOrders(opts) : []; // Get all CROSS MARGIN orders
-    const dataIsolated = bw.isEnabled("isolated") ? fetchIsolatedOrders(opts, symbol) : []; // Get all ISOLATED MARGIN orders
+    const dataIsolated = bw.isEnabled("isolated") ? fetchIsolatedOrders(opts) : []; // Get all ISOLATED MARGIN orders
     return [...dataSpot, ...dataCross, ...dataIsolated];
   }
 
@@ -84,9 +93,9 @@ function BinDoOrdersOpen() {
     });
   }
 
-  function fetchIsolatedOrders(opts, symbol) {
+  function fetchIsolatedOrders(opts) {
     const wallet = BinWallet();
-    const symbols = symbol ? [symbol] : Object.keys(wallet.getIsolatedPairs());
+    const symbols = Object.keys(wallet.getIsolatedPairs());
     return symbols.reduce(function(acc, symbol) {
       Logger.log("[BinDoOrdersOpen][ISOLATED] Fetching orders for '"+symbol+"' pair..");
       const qs = "isIsolated=true&symbol="+symbol;
@@ -97,12 +106,6 @@ function BinDoOrdersOpen() {
       });
       return [...acc, ...data];
     }, []);
-  }
-
-  function filter(data, symbol) {
-    return data.filter(function(ticker) {
-      return ticker.symbol == symbol;
-    });
   }
 
   function parse(data, {headers: show_headers}) {

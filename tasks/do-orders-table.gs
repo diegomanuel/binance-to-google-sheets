@@ -48,7 +48,8 @@ function BinDoOrdersTable() {
    */
   function run(range_or_cell, options) {
     Logger.log("[BinDoOrdersTable] Running..");
-    if (!range_or_cell) {
+    const range = BinUtils().getRangeOrCell(range_or_cell);
+    if (!range.length) {
       throw new Error("A range with crypto symbols must be given!");
     }
 
@@ -118,14 +119,14 @@ function BinDoOrdersTable() {
   function _fetchAndSave(assets, sheet) {
     Logger.log("[BinDoOrdersTable] Processing sheet: "+sheet.getName());
     const [range_or_cell, options] = _parseFormula(sheet);
-    const ticker_against = options["ticker"];
+    const ticker_against = options["ticker"] || TICKER_AGAINST;
     const do_unchanged_check = BinUtils().parseBool(options["unchanged"], undefined);
-    if (!range_or_cell) {
+    const range = BinUtils().getRangeOrCell(range_or_cell, sheet);
+    if (!range.length) {
       throw new Error("A range with crypto symbols must be given!");
     }
 
     _setStatus(sheet, "fetching data..");
-    const range = BinUtils().getRangeOrCell(range_or_cell, sheet) || [];
     const opts = {
       "no_cache_ok": true,
       "discard_40x": true, // Discard 40x errors for disabled wallets!

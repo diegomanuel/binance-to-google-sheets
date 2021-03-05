@@ -83,12 +83,14 @@ function BinUtils() {
    */
   function getRangeOrCell(range_or_cell, sheet) {
     if (typeof range_or_cell !== "string") {
-      return range_or_cell;
+      return Array.isArray(range_or_cell) ? range_or_cell : (range_or_cell ? [range_or_cell] : []);
     }
+
+    const parseValues = () => (range_or_cell||"").split(",").map(s => s.trim()).filter(s => s.length);
     try {
-      return sheet ? sheet.getRange(range_or_cell).getValues() : range_or_cell.split(",").map(s => s.trim());
-    } catch (err) {
-      return range_or_cell.split(",").map(s => s.trim());
+      return sheet ? sheet.getRange(range_or_cell).getValues() : parseValues();
+    } catch (_) {
+      return parseValues();
     }
   }
 
@@ -118,7 +120,7 @@ function BinUtils() {
     const options = marr.reduce(function(obj, [_, key, val]) {
       obj[key] = val;
       return obj;
-    }, {ticker: marr.length ? TICKER_AGAINST : (opts_or_value||TICKER_AGAINST)});
+    }, {ticker: marr.length ? undefined : (opts_or_value||undefined)});
 
     if (DEBUG) {
       Logger.log("PARSE OPTS MATCHES: "+JSON.stringify(marr));

@@ -28,11 +28,10 @@ function BinDoOrdersDone() {
   /**
    * Returns the most recent filled/done orders (100 by default) from ALL sheets that are "order tables" in the spreadsheet
    * NOTE: It requires at least ONE sheet with the 'orders/table' operation in it!
-   * @TODO Add support to filter by `range_or_cell` and/or `ticker` option!
    *
-   * @param {["BTC","ETH"..]} range_or_cell Will fetch recent done orders for given symbols only.
-   * @param options Ticker to match against (USDT by default) or an option list like "ticker: USDT, headers: false, max: 0"
-   * @return The list of all current done orders for all or given symbols/tickers.
+   * @param {["BTC","ETH"..]} range_or_cell If given, will filter by given symbols (regexp).
+   * @param options Ticker to match against (none by default) or an option list like "ticker: USDT, headers: false, max: 0"
+   * @return A list of current done orders for given criteria.
    */
   function run(range_or_cell, options) {
     const bs = BinScheduler();
@@ -45,9 +44,8 @@ function BinDoOrdersDone() {
     }
   }
 
-  // @TODO Implement `range_or_cell` and/or `ticker` filtering
   function execute(range_or_cell, options) {
-    // const ticker_against = options["ticker"];
+    const ticker_against = options["ticker"] || "";
     Logger.log("[BinDoOrdersDone] Running..");
 
     const ot = BinDoOrdersTable();
@@ -57,16 +55,17 @@ function BinDoOrdersDone() {
       return [["ERROR: This operation requires at least ONE sheet in the spreadsheet with the 'orders/table' operation in it!"]];
     }
 
-    // const range = BinUtils().getRangeOrCell(range_or_cell) || [];
-    // const data = range.reduce(function(rows, asset) {
-    //   return rows.concat(asset);
-    // }, []);
-    // const parsed = parse(data, options);
-
     // Get ALL the rows contained in ALL defined sheets as order tables!
-    const data = ot.getRows();
+    let data = ot.getRows();
     Logger.log("[BinDoOrdersDone] Found "+data.length+" orders to display.");
-    const parsed = data.length ? parse(data, options) : [["- no orders to display yet -"]];
+    const range = BinUtils().getRangeOrCell(range_or_cell);
+    if (range.length) { // Apply filtering
+      const pairs = range.map(symbol => new RegExp(symbol+ticker_against, "i"));
+      data = data.filter(row => pairs.find(pair => pair.test(row[3])));
+      Logger.log("[BinDoOrdersDone] Filtered to "+data.length+" orders.");
+    }
+
+    const parsed = data.length ? parse(data, options) : [["- no orders to display "+(range.length?"with given filters ":"")+"yet -"]];
     Logger.log("[BinDoOrdersDone] Done!");
     return parsed;
   }

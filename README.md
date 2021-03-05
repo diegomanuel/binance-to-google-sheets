@@ -137,8 +137,11 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 
 ### Operation: `"orders/open"` (private)
 `=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance  (SPOT + CROSS + ISOLATED for now).
-* `=BINANCE("orders/open", "BTCUSDT")` Optionally you can give a **full ticker** to filter the results.
-* `=BINANCE("orders/open", "BTCUSDT", "headers: false")` Optionally you can give more options like not returning table headers.
+* `=BINANCE("orders/open", "BTC")` Optionally you can give a **symbol** to filter the results (regexp).
+    * `=BINANCE("orders/open", "B")` Will match any pair containing the letter `B`.
+    * `=BINANCE("orders/open", "BTC")` Will match any pair having `BTC` somewhere (like `BTCUSDT`, `BTCBUSD`, `ETHBTC`, ...).
+    * `=BINANCE("orders/open", A1:A3)` The same as above, but for multiple symbols in the range.
+* `=BINANCE("orders/open", A1:A3, "headers: false, ticker: BTC")` Optionally you can give more options like not returning table headers and filtering by multiple symbols against `BTC` ticker (none by default).
 
 ### Operation: `"orders/table"` (private)
 `=BINANCE("orders/table", MySheet!A1:A3)` will **transform** the current sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance (SPOT + CROSS + ISOLATED for now).
@@ -179,10 +182,11 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 **IMPORTANT:** It now requires at least **ONE sheet** in the spreadsheet with the **`"orders/table"`** operation in it!  
 It will take **ALL** your sheets that have the **`"orders/table"`** operation (aka: "order table sheets") and it will summarize them for you in a single table.  
 * `=BINANCE("orders/done")` Will return a list with your most recent (`100` by default) done/finished orders from ALL `"orders/table"` sheets in the spreadsheet.
-<!-- * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
-* `=BINANCE("orders/done", A1:A3, "BTC")` Optionally you can give a ticker to match against (defaults to `USDT`).
-* `=BINANCE("orders/done", A1:A3, "ticker: BTC, headers: false, max: 0")` Optionally you can give more options like giving a ticker, not returning table headers and displaying ALL orders. -->
-* `=BINANCE("orders/done", "", "headers: false, max: 0")` Optionally you can give more options like not returning table headers and displaying ALL orders.
+* `=BINANCE("orders/done", "BTC")` Optionally you can give a **symbol** to filter the results (regexp).
+    * `=BINANCE("orders/done", "B")` Will match any pair containing the letter `B`.
+    * `=BINANCE("orders/done", "BTC")` Will match any pair having `BTC` somewhere (like `BTCUSDT`, `BTCBUSD`, `ETHBTC`, ...).
+    * `=BINANCE("orders/done", A1:A3)` The same as above, but for multiple symbols in the range.
+* `=BINANCE("orders/done", A1:A3, "headers: false, ticker: BTC, max: 0")` Optionally you can give more options like not returning table headers, filtering by multiple symbols against `BTC` ticker (none by default) and displaying ALL orders.
 * Values for `max` allowed between `0` (unlimited/all) and `1000` (defaults to `100`).
 
 ## See it working live!
