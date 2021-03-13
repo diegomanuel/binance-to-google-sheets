@@ -19,8 +19,8 @@ jobs:
           filepath=_build/$filename
           tmpfile=_build/tmp.gs
           mkdir _build
-          find . -type f \( -iname "*.gs" ! -iname "BINANCE.gs" ! -iname "tmp.gs" \) -exec cat > $tmpfile {} +
-          cat BINANCE.gs > $filepath
+          find . -type f \( -iname "*.gs" ! -iname "main.gs" ! -iname "tmp.gs" \) -exec cat > $tmpfile {} +
+          cat main.gs > $filepath
           printf "\n\n/////////////////////////////////////\n\n" >> $filepath
           cat $tmpfile >> $filepath
           echo "$filename generated!"
