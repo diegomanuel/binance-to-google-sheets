@@ -15,12 +15,10 @@ function BinMenu(ui) {
     }
     menu.addSeparator()
         .addItem("Show API Last Update", "showAPILastUpdate")
-        .addItem("Show Current Prices", "showCurrentPrices");
+        .addSeparator();
     if (is_ready) { // Add-on is authorized and running fine!
       if (BinSetup().areAPIKeysConfigured()) {
-        menu.addItem("Show Open Orders", "showOpenOrders")
-            .addSeparator()
-            .addSubMenu(addWalletsMenu())
+        menu.addSubMenu(addWalletsMenu())
             .addSubMenu(addSubAccountsMenu())
             .addSeparator()
             .addItem("Show API Keys", "showAPIKeys")
@@ -28,11 +26,11 @@ function BinMenu(ui) {
               .addItem("Re-configure API Keys", "showAPIKeysSetup")
               .addItem("Clear API Keys", "showAPIKeysClear"));
       } else {
-        menu.addSeparator()
-            .addItem("Setup API Keys", "showAPIKeysSetup");
+        menu.addItem("Setup API Keys", "showAPIKeysSetup");
       }
       menu.addSubMenu(ui.createMenu("Update Intervals")
             .addSubMenu(addTriggerIntervalItems("Prices", "Prices", BinDoCurrentPrices()))
+            .addSubMenu(addTriggerIntervalItems("Historical Data", "HistoricalData", BinDoHistoricalData()))
             .addSubMenu(addTriggerIntervalItems("24h Stats", "24hStats", BinDo24hStats()))
             .addSubMenu(addTriggerIntervalItems("Account Info", "AccountInfo", BinDoAccountInfo()))
             .addSubMenu(addTriggerIntervalItems("Open Orders", "OrdersOpen", BinDoOrdersOpen()))
@@ -125,41 +123,6 @@ function showAPILastUpdate() {
   const last_update = BinDoLastUpdate().run();
   const formatted = last_update+"" || "- never called yet -";
   ui.alert("Binance API last call", formatted, ui.ButtonSet.OK);
-}
-
-/**
- * Displays a modal with the most important crypto prices.
- * // @TODO Improve this to be like the 10th cryptos with most volume
- */
-function showCurrentPrices() {
-  const ui = SpreadsheetApp.getUi();
-  const tickers = ["BTC", "BCH", "ETH", "LTC", "BNB"];
-  const opts = {headers: false};
-  const formatted = BinDoCurrentPrices().run(tickers, opts).map(function([symbol, price]) {
-    return symbol+": $"+price;
-  });
-  ui.alert("Current Crypto Prices", formatted.join("\n"), ui.ButtonSet.OK);
-}
-
-/**
- * Displays a modal with current open orders (@TODO: Improve how it's displayed!).
- */
-function showOpenOrders() {
-  const ui = SpreadsheetApp.getUi();
-  const data = BinDoOrdersOpen().run(null, {});
-  const formatted = (data||[]).reduce(function(out, row) {
-      if (out.length > 0) {
-        row[0] = Utilities.formatDate(new Date(row[0]), "UTC", "MM-dd HH:mm");
-        row[row.length-1] = "$"+row[row.length-1];
-      }
-      out.push(row.join(" || "));
-      if (out.length === 1) {
-        out.push("-------------------------------------------------------------------------------------------------");
-      }
-      return out;
-    }, [])
-    .join("\n");
-  ui.alert("Current open orders ("+(data.length-1)+")", formatted, ui.ButtonSet.OK);
 }
 
 /**
@@ -354,6 +317,32 @@ function setIntervalForPrices30m() {
 }
 function setIntervalForPrices60m() {
   _setIntervalForPrices("60m");
+}
+
+// HISTORICAL DATA
+function _setIntervalForHistoricalData(interval) {
+  _setIntervalFor(BinDoHistoricalData().tag(), interval);
+}
+function setIntervalForHistoricalDataOff() {
+  _setIntervalForHistoricalData("off");
+}
+function setIntervalForHistoricalData1m() {
+  _setIntervalForHistoricalData("1m");
+}
+function setIntervalForHistoricalData5m() {
+  _setIntervalForHistoricalData("5m");
+}
+function setIntervalForHistoricalData10m() {
+  _setIntervalForHistoricalData("10m");
+}
+function setIntervalForHistoricalData15m() {
+  _setIntervalForHistoricalData("15m");
+}
+function setIntervalForHistoricalData30m() {
+  _setIntervalForHistoricalData("30m");
+}
+function setIntervalForHistoricalData60m() {
+  _setIntervalForHistoricalData("60m");
 }
 
 // 24H STATS

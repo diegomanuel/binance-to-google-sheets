@@ -314,6 +314,8 @@ function BinUtils() {
               ||
             isFormulaMatching(BinDoCurrentPrices(), period, formula)
               ||
+            isFormulaMatching(BinDoHistoricalData(), period, formula)
+              ||
             isFormulaMatching(BinDo24hStats(), period, formula)
               ||
             isFormulaMatching(BinDoOrdersDone(), period, formula)

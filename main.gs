@@ -34,6 +34,9 @@ function BINANCE(operation, range_or_cell, opts, force_refresh_cell) {
   if (BinDoCurrentPrices().is(operation)) {
     return BinDoCurrentPrices().run(range_or_cell, options);
   }
+  if (BinDoHistoricalData().is(operation)) {
+    return BinDoHistoricalData().run(range_or_cell, options);
+  }
   if (BinDo24hStats().is(operation)) {
     return BinDo24hStats().run(range_or_cell, options);
   }

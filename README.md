@@ -5,6 +5,7 @@ A lightweight **Google Spreadsheets Add-On** to GET data _directly_ from **Binan
 This `add-on` is basically an **API client** specially hand-crafted to work between Google Spreadsheets and Binance.  
 By using the `BINANCE()` formula in your spreadsheet, you can get data fetched from Binance API like:  
 * Current market [prices](#operation-prices-public)
+* Historical market [OHLCV](#operation-history-public)
 * Last [24h stats](#operation-stats24h-public)
 * Total [account assets](#operation-account-private) from Binance wallets (SPOT + CROSS + ISOLATED + SUB-ACCOUNTS for now)
 * All current [open orders](#operation-ordersopen-private) (SPOT + CROSS + ISOLATED for now)
@@ -13,7 +14,7 @@ By using the `BINANCE()` formula in your spreadsheet, you can get data fetched f
 * Last data [update time](#operation-last_update-public) and current [add-on version](#operation-version-public) being used
 * ..and many more to come!
 
-At first glance, **NO Binance API key** is needed to call **public endpoints** like [current prices](#operation-prices-public) and [24h stats](#operation-stats24h-public).   
+At first glance, **NO Binance API key** is needed to call **public endpoints** like [current prices](#operation-prices-public), [historic prices](#operation-history-public) and [24h stats](#operation-stats24h-public).   
 It **only** requires a [Binance API key](#binance-api-key) for **private endpoints** like [account info](#operation-account-private) and [open/done/table orders](#operation-ordersopen-private), but a **READ-ONLY** API key is enough for everything to work.  
 In deed, I _personally recommend_ to generate a **READ-ONLY** API key at Binance site [here](https://www.binance.com/en/usercenter/settings/api-management).  
 It does **NOT need** write/trade access **in ANY way** to properly work with all its features, so don't give extra permissions if they aren't needed!
@@ -117,6 +118,17 @@ Some operations are **private**, meaning they **do require a Binance API key** t
     * Values must be simple symbols like `A1="BTC"`, `A2="ETH"` and `A3="LTC"`.
 * `=BINANCE("prices", A1:A3, "headers: false")` Optionally you can give more options like not returning table headers.
 * `=BINANCE("prices", A1:A3, "ticker: BNB, prices: true")` Optionally you can return only the prices (and give a ticker in the meantime).
+
+### Operation: `"history"` (public)
+`=BINANCE("history", "BTCUSDT", "interval: 1h, limit: 24")` will return a list with the latest **24hr** OHLCV **hourly** data for given **full symbol/ticker** from Binance.  
+* The **2nd** parameter is **required** and it must be a **valid** single full symbol/ticker, like: `"BTCUSDT"`, `"ETHBTC"`, etc.
+* The **3rd** parameter supports the following options, in a single string separated by commas:
+    * `"interval: 15m"`: Can be any supported value by Binance API, like: `1m`, `5m`, `1h`, `1d`, etc. Defaults to: `1h`
+    * `"start: 2021-01-01"`: Optional. The start date/time to get data from. Can be any supported value by `new Date(value)` JS object, like: `2021-01-01 11:22:33`.
+    * `"end: 2021-01-31"`: Optional. The end date/time to get data from. The same supported values as `start` option.
+    * `"limit: 10"`: Optional. How many rows to return, from `1` to `1000`, defaults to: `500`.
+    * `"headers: false"`: Don't return table headers.
+* **IMPORTANT:** If any parameter value is wrong, Binance API will answer with a `400` status code.
 
 ### Operation: `"stats/24h"` (public)
 `=BINANCE("stats/24h", A1:A3)` will return a list with the 24hs stats for given symbols from Binance.

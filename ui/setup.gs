@@ -9,7 +9,7 @@ function onOpen(event) {
   BinMenu(SpreadsheetApp.getUi()); // Add items to main menu
   if (setup.isReady()) { // Add-on is ready!
     setup.init();
-    BinUtils().toast("Hi there! I'm installed and working at this spreadsheet. Enjoy it!  =]");
+    BinUtils().toast("Hi there! I'm installed and working at this spreadsheet. Enjoy!  =]");
   } else { // Add-on is not ready! It might be due to missing authorization or permissions removal (BinScheduler is stalled or never run)
     Logger.log("The add-on is NOT authorized!");
     BinUtils().toast("The add-on is NOT authorized! Click 'Authorize add-on!' button on 'Binance' menu TWICE.", "", 600);
