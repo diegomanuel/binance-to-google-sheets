@@ -146,10 +146,9 @@ function BinUtils() {
    */
   function filterTickerSymbol(data, range_or_cell, ticker_against) {
     ticker_against = ticker_against || TICKER_AGAINST;
-    const INITVAL = "?"; // Character used to initialize results (acts as a data placeholder)
     const cryptos = getRangeOrCell(range_or_cell);
     const tickers = cryptos.reduce(function(tickers, crypto) { // Init expected tickers to be returned
-        tickers[crypto+ticker_against] = INITVAL;
+        tickers[crypto+ticker_against] = "?";
         return tickers;
       }, {});
 
@@ -161,13 +160,7 @@ function BinUtils() {
       return tickers;
       }, tickers);
 
-    // Only include valid records in the returned results
-    return Object.keys(results).reduce(function(retvals, ticker) {
-      if (results[ticker][0] !== INITVAL) { // Valid records shouldn't have the INITVAL (just check the 1st column)
-        retvals.push(results[ticker]); // We have a valid record!
-      }
-      return retvals;
-    }, []);
+    return Object.values(results);
   }
   
   /**
