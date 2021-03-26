@@ -108,8 +108,8 @@ function BinDoHistoricalData() {
         parseFloat(d[2]),
         parseFloat(d[3]),
         parseFloat(d[4]),
-        new Date(parseInt(d[5])),
-        parseFloat(d[6]),
+        new Date(parseInt(d[6])),
+        parseFloat(d[5]),
         parseInt(d[7])
       ];
       return rows.concat([row]);
