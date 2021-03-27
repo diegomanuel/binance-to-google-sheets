@@ -7,8 +7,8 @@ By using the `BINANCE()` formula in your spreadsheet, you can get data fetched f
 * Current market [prices](#operation-prices-public)
 * Historical market [OHLCV](#operation-history-public)
 * Last [24h stats](#operation-stats24h-public)
-* Total [account assets](#operation-account-private) from Binance wallets (SPOT + CROSS + ISOLATED + SUB-ACCOUNTS for now)
-* All current [open orders](#operation-ordersopen-private) (SPOT + CROSS + ISOLATED for now)
+* Total [account assets](#operation-account-private) from Binance wallets (SPOT + CROSS + ISOLATED + FUTURES + SUB-ACCOUNTS)
+* All current [open orders](#operation-ordersopen-private) (SPOT + CROSS + ISOLATED + FUTURES)
 * Latest [done/finished orders](#operation-ordersdone-private) (SPOT + CROSS + ISOLATED for now)
 * Historical [orders table](#operation-orderstable-private) (SPOT + CROSS + ISOLATED for now)
 * Last data [update time](#operation-last_update-public) and current [add-on version](#operation-version-public) being used
@@ -137,18 +137,21 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 * `=BINANCE("stats/24h", A1:A3, "ticker: BTC, headers: false")` Optionally you can give more options like not returning table headers.
 
 ### Operation: `"account"` (private)
-`=BINANCE("account")` will return total account assets from Binance wallets (SPOT + CROSS + ISOLATED + SUB-ACCOUNTS).
+`=BINANCE("account")` will return total account assets from Binance wallets (SPOT + CROSS + ISOLATED + FUTURES + SUB-ACCOUNTS).
 * `=BINANCE("account", "spot")` Display assets summary for SPOT wallet.
 * `=BINANCE("account", "cross")` Display assets summary for CROSS MARGIN wallet.
-    * If yo don't use this wallet (0 assets there), you should disable it from "Binance->Wallets" main menu.
+    * If you don't use this wallet (0 assets there), you should disable it from "Binance->Wallets" main menu.
 * `=BINANCE("account", "isolated")` Display assets summary for ISOLATED MARGIN wallet.
-    * If yo don't use this wallet (0 assets there), you should disable it from "Binance->Wallets" main menu.
+    * If you don't use this wallet (0 assets there), you should disable it from "Binance->Wallets" main menu.
+* `=BINANCE("account", "futures")` Display assets summary for FUTURES wallet.
+    * `=BINANCE("account", "futures/positions")` Display current positions summary.
+    * If you don't use this wallet (0 assets there), you should disable it from "Binance->Wallets" main menu.
 * `=BINANCE("account", "sub")` Display assets summary for added SUB-ACCOUNT wallets.
     * You can manually add/remove sub-accounts from "Binance->Sub-Accounts" main menu.
 * `=BINANCE("account", "", "headers: false")` Optionally you can give more options like not returning table headers.
 
 ### Operation: `"orders/open"` (private)
-`=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance  (SPOT + CROSS + ISOLATED for now).
+`=BINANCE("orders/open")` will return a list with all your open/pending orders from Binance (SPOT + CROSS + ISOLATED + FUTURES).
 * `=BINANCE("orders/open", "BTC")` Optionally you can give a **symbol** to filter the results (regexp).
     * `=BINANCE("orders/open", "B")` Will match any pair containing the letter `B`.
     * `=BINANCE("orders/open", "BTC")` Will match any pair having `BTC` somewhere (like `BTCUSDT`, `BTCBUSD`, `ETHBTC`, ...).
