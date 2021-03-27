@@ -10,16 +10,20 @@ function BinWallet(OPTIONS) {
     getSpotAssets,
     getCrossAssets,
     getIsolatedAssets,
+    getFuturesAssets,
     getSubAccountAssets,
     setSpotAssets,
     setCrossAssets,
     setIsolatedAssets,
+    setFuturesAssets,
     setSubAccountAssets,
     getIsolatedPairs,
     setIsolatedPairs,
     parseSpotAsset,
     parseCrossMarginAsset,
     parseIsolatedMarginAsset,
+    parseFuturesAsset,
+    parseFuturesPosition,
     parseSubAccountAsset,
     refreshAssets,
     clearAssets,
@@ -56,6 +60,13 @@ function BinWallet(OPTIONS) {
   }
 
   /**
+   * Returns the account wallet assets for FUTURES
+   */
+  function getFuturesAssets(symbol) {
+    return getAssets("futures", symbol);
+  }
+
+  /**
    * Returns the account wallet assets for SUB-ACCOUNTS
    */
   function getSubAccountAssets(symbol) {
@@ -87,6 +98,13 @@ function BinWallet(OPTIONS) {
    */
   function setIsolatedAssets(data) {
     return setAssetsData("isolated", data);
+  }
+
+  /**
+   * Sets account wallet data for FUTURES
+   */
+  function setFuturesAssets(data) {
+    return setAssetsData("futures", data);
   }
 
   /**
@@ -171,6 +189,48 @@ function BinWallet(OPTIONS) {
     };
   }
 
+  function parseFuturesAsset(asset) {
+    const total = parseFloat(asset.walletBalance);
+    const free = parseFloat(asset.availableBalance);
+    return {
+      symbol: asset.asset,
+      free,
+      locked: total - free,
+      borrowed: 0,
+      interest: 0,
+      total,
+      net: total,
+      netBTC: 0,
+      initialMargin: parseFloat(asset.initialMargin),
+      maintMargin: parseFloat(asset.maintMargin),
+      unrealizedProfit: parseFloat(asset.unrealizedProfit),
+      walletBalance: total,
+      marginBalance: parseFloat(asset.marginBalance),
+      crossWalletBalance: parseFloat(asset.crossWalletBalance),
+      availableBalance: free,
+      maxWithdrawAmount: parseFloat(asset.maxWithdrawAmount)
+    };
+  }
+
+  function parseFuturesPosition(position) {
+    return {
+      pair: position.symbol,
+      side: position.positionSide,
+      leverage: parseFloat(position.leverage),
+      entry: parseFloat(position.entryPrice),
+      amount: parseFloat(position.positionAmt),
+      notional: parseFloat(position.notional),
+      maxNotional: parseFloat(position.maxNotional),
+      unpnl: parseFloat(position.unrealizedProfit),
+      isolated: position.isolated,
+      isolatedWallet: parseFloat(position.isolatedWallet),
+      initialMargin: parseFloat(position.initialMargin),
+      maintMargin: parseFloat(position.maintMargin),
+      positionInitialMargin: parseFloat(position.positionInitialMargin),
+      openOrderInitialMargin: parseFloat(position.openOrderInitialMargin)
+    };
+  }
+
   function parseSubAccountAsset(asset) {
     const free = parseFloat(asset.free);
     const locked = parseFloat(asset.locked);
@@ -221,6 +281,12 @@ function BinWallet(OPTIONS) {
       const isolated = getIsolatedAssets();
       totals = Object.keys(isolated).reduce(function(acc, symbol) {
         return _accAssetHelper(acc, symbol, isolated[symbol]);
+      }, totals);
+    }
+    if (isEnabled("futures")) {
+      const futures = getFuturesAssets();
+      totals = Object.keys(futures).reduce(function(acc, symbol) {
+        return _accAssetHelper(acc, symbol, futures[symbol]);
       }, totals);
     }
     if (!exclude_sub_accounts) { // Include sub-account assets

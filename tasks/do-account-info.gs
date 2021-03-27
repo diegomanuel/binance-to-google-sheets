@@ -47,6 +47,9 @@ function BinDoAccountInfo() {
     if (bw.isEnabled("isolated")) {
       run("isolated", opts);
     }
+    if (bw.isEnabled("futures")) {
+      run("futures", opts);
+    }
     if (!exclude_sub_accounts) { // Include sub-account assets
       run("sub", opts);
     }
@@ -109,16 +112,20 @@ function BinDoAccountInfo() {
     }
 
     const br = new BinRequest(opts);
-    if (type.toLowerCase() === "spot") {
+    if (type === "spot") {
       return br.get("api/v3/account", "", "");
     }
-    if (type.toLowerCase() === "cross") {
+    if (type === "cross") {
       return br.get("sapi/v1/margin/account", "", "");
     }
-    if (type.toLowerCase() === "isolated") {
+    if (type === "isolated") {
       return br.get("sapi/v1/margin/isolated/account", "", "");
     }
-    if (type.toLowerCase() === "sub") {
+    if (type === "futures" || type === "futures/positions") {
+      const options = Object.assign({futures: true}, opts);
+      return new BinRequest(options).get("fapi/v2/account", "", "");
+    }
+    if (type === "sub") {
       return _requestSubAccounts(opts);
     }
 
@@ -145,16 +152,22 @@ function BinDoAccountInfo() {
       return []; // ..so we return empty data here!
     }
 
-    if (type.toLowerCase() === "spot") {
+    if (type === "spot") {
       return parseSpot(data, show_headers);
     }
-    if (type.toLowerCase() === "cross") {
+    if (type === "cross") {
       return parseCrossMargin(data, show_headers);
     }
-    if (type.toLowerCase() === "isolated") {
+    if (type === "isolated") {
       return parseIsolatedMargin(data, show_headers);
     }
-    if (type.toLowerCase() === "sub") {
+    if (type === "futures") {
+      return parseFutures(data, show_headers);
+    }
+    if (type === "futures/positions") {
+      return parseFuturesPositions(data, show_headers);
+    }
+    if (type === "sub") {
       return parseSubAccounts(data, show_headers);
     }
 
@@ -253,7 +266,7 @@ function BinDoAccountInfo() {
     const balances = (data.assets || []).reduce(function(rows, a) {
       pairs.push(a); // Add isolated pair to wallet
       if (show_headers) {
-        rows.push(["Symbol", "Margin Level", "Margin Ratio", "Index Price", "Liquidate Price", "Liquidate Rate"]);
+        rows.push(["Pair", "Margin Level", "Margin Ratio", "Index Price", "Liquidate Price", "Liquidate Rate"]);
       }
       const marginLevel = parseFloat(a.marginLevel);
       const marginRatio = parseFloat(a.marginRatio);
@@ -291,6 +304,81 @@ function BinDoAccountInfo() {
       asset.net,
       asset.netBTC
     ];
+  }
+
+  function parseFutures(data, show_headers) {
+    const wallet = BinWallet();
+    const header1 = ["Account Type", "Total Free", "Total Locked", "Total Wallet Balance", "Total Margin Balance", "Total Cross Balance", "Max Withdraw", "Total UnPnl", "Initial Margin", "Maint. Margin", "Last Update"];
+    const totalWalletBalance = parseFloat(data.totalWalletBalance);
+    const totalAvailableBalance = parseFloat(data.availableBalance);
+    const account = ["Futures",
+                      totalAvailableBalance,
+                      totalWalletBalance - totalAvailableBalance,
+                      totalWalletBalance,
+                      parseFloat(data.totalMarginBalance),
+                      parseFloat(data.totalCrossWalletBalance),
+                      parseFloat(data.maxWithdrawAmount),
+                      parseFloat(data.totalUnrealizedProfit),
+                      parseFloat(data.totalInitialMargin),
+                      parseFloat(data.totalMaintMargin),
+                      new Date()];
+    const header2 = ["Asset", "Free", "Locked", "Total", "Margin Balance", "Cross Balance", "Max Withdraw", "UnPnl", "Initial Margin", "Maint. Margin"];
+    const general = show_headers ? [header1, account, header2] : [];
+
+    const assets = [];
+    const balances = (data.assets || []).reduce(function(rows, a) {
+      const asset = wallet.parseFuturesAsset(a);
+      if (asset.initialMargin!==0 || asset.maintMargin!==0 || asset.unrealizedProfit!==0 || asset.walletBalance!==0 || asset.marginBalance!==0 || asset.crossWalletBalance!==0 || asset.availableBalance!==0 || asset.maxWithdrawAmount!==0) {
+        // Only return assets with balance
+        assets.push(asset);
+        rows.push([
+          asset.symbol,
+          asset.free,
+          asset.locked,
+          asset.total,
+          asset.marginBalance,
+          asset.crossWalletBalance,
+          asset.maxWithdrawAmount,
+          asset.unrealizedProfit,
+          asset.initialMargin,
+          asset.maintMargin
+        ]);
+      }
+      return rows;
+    }, []);
+
+    // Save futures assets to wallet
+    wallet.setFuturesAssets(assets);
+
+    return [...general, ...balances];
+  }
+
+  function parseFuturesPositions(data, show_headers) {
+    const wallet = BinWallet();
+    const header = ["Pair", "Side", "Leverage", "Entry", "Amount", "Notional", "UnPnl", "Isolated?", "Isolated Wallet", "Maint. Margin", "Initial Margin", "Position Initial Margin", "Open Orders Initial Margin"];
+    const positions = (data.positions || []).reduce(function(rows, pos) {
+      const position = wallet.parseFuturesPosition(pos);
+      if (position.entry > 0) { // Only return positions with entry price
+        rows.push([
+          position.pair,
+          position.side,
+          position.leverage,
+          position.entry,
+          position.amount,
+          position.notional,
+          position.unpnl,
+          position.isolated,
+          position.isolatedWallet,
+          position.maintMargin,
+          position.initialMargin,
+          position.positionInitialMargin,
+          position.openOrderInitialMargin
+        ]);
+      }
+      return rows;
+    }, []);
+
+    return show_headers ? [header, ...positions] : positions;
   }
 
   function parseSubAccounts(data, show_headers) {
