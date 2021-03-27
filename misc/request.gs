@@ -57,12 +57,13 @@ function BinRequest(OPTIONS) {
     
     return data;
   }
-  
+
   /**
   * Sends a request to Binance API with given parameters.
   */
   function _request(method, url, qs, payload, opts) {
     const CACHE_OK_KEY = method+"_"+url+"_"+qs;
+    const API_URL = opts["futures"] ? FUTURES_API_URL : SPOT_API_URL;
     const need_auth = !opts["public"]; // Calling a private endpoint
     const headers = opts["headers"] || {};
     const da_payload = payload ? JSON.stringify(payload) : "";
@@ -84,7 +85,7 @@ function BinRequest(OPTIONS) {
       da_qs += (da_qs?"&":"")+"timestamp="+(new Date()).getTime()+"&recvWindow=30000";
       da_qs += "&signature="+_computeSignature(da_qs, da_payload);
     }
-    const da_url = BASE_URL+"/"+url+"?"+da_qs;
+    const da_url = API_URL+"/"+url+"?"+da_qs;
     const response = UrlFetchApp.fetch(da_url, options);
     if (DEBUG) {
       Logger.log("QUERY: "+da_url);

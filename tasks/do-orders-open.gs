@@ -72,7 +72,8 @@ function BinDoOrdersOpen() {
     const dataSpot = fetchSpotOrders(opts); // Get all SPOT orders
     const dataCross = bw.isEnabled("cross") ? fetchCrossOrders(opts) : []; // Get all CROSS MARGIN orders
     const dataIsolated = bw.isEnabled("isolated") ? fetchIsolatedOrders(opts) : []; // Get all ISOLATED MARGIN orders
-    return [...dataSpot, ...dataCross, ...dataIsolated];
+    const dataFutures = bw.isEnabled("futures") ? fetchFuturesOrders(opts) : []; // Get all FUTURES orders
+    return [...dataSpot, ...dataCross, ...dataIsolated, ...dataFutures];
   }
 
   function fetchSpotOrders(opts) {
@@ -106,6 +107,16 @@ function BinDoOrdersOpen() {
       });
       return [...acc, ...data];
     }, []);
+  }
+
+  function fetchFuturesOrders(opts) {
+    Logger.log("[BinDoOrdersOpen][FUTURES] Fetching orders..");
+    const options = Object.assign({futures: true}, opts);
+    const orders = new BinRequest(options).get("fapi/v1/openOrders") || []; //  It may fail if wallet isn't enabled!
+    return orders.map(function(order) {
+      order.market = "FUTURES";
+      return order;
+    });
   }
 
   function parse(data, {headers: show_headers}) {
