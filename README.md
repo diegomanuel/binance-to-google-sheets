@@ -9,8 +9,8 @@ By using the `BINANCE()` formula in your spreadsheet, you can get data fetched f
 * Last [24h stats](#operation-stats24h-public)
 * Total [account assets](#operation-account-private) from Binance wallets (SPOT + CROSS + ISOLATED + FUTURES + SUB-ACCOUNTS)
 * All current [open orders](#operation-ordersopen-private) (SPOT + CROSS + ISOLATED + FUTURES)
-* Latest [done/finished orders](#operation-ordersdone-private) (SPOT + CROSS + ISOLATED for now)
-* Historical [orders table](#operation-orderstable-private) (SPOT + CROSS + ISOLATED for now)
+* Latest [done/finished orders](#operation-ordersdone-private) (SPOT + CROSS + ISOLATED + FUTURES)
+* Historical [orders table](#operation-orderstable-private) (SPOT + CROSS + ISOLATED + FUTURES)
 * Last data [update time](#operation-last_update-public) and current [add-on version](#operation-version-public) being used
 * ..and many more to come!
 
@@ -159,7 +159,7 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 * `=BINANCE("orders/open", A1:A3, "headers: false, ticker: BTC")` Optionally you can give more options like not returning table headers and filtering by multiple symbols against `BTC` ticker (none by default).
 
 ### Operation: `"orders/table"` (private)
-`=BINANCE("orders/table", MySheet!A1:A3)` will **transform** the current sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance (SPOT + CROSS + ISOLATED for now).
+`=BINANCE("orders/table", MySheet!A1:A3)` will **transform** the current sheet into a **"table"** in where ALL historic done/finished orders will be periodically polled and stored for each given symbol from Binance (SPOT + CROSS + ISOLATED + FUTURES).
 * This formula **must always** be placed at `A1` in any new blank sheet into your spreadsheet.
 * A single value like `"BTC"` or a range of values is **required**. Values must be simple symbols like `MySheet!A1="BTC"`, `MySheet!A2="ETH"` and `MySheet!A3="LTC"`.
 * Be patient! It will adjust sheet's cols/rows and initialize a table header for you.
@@ -169,7 +169,7 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 * `=BINANCE("orders/table", "BTC, ETH", "ticker: BUSD, unchanged: false")` Optionally you can skip unchanged assets check to always force to fetch for new orders.
     * **WARNING:** The `unchanged` mechanism exists to try to optimize the number of requests needed to fetch orders from large ranges with many pairs.  
     You _could_ manually disable it if your range is _small_ with just a few trading pairs (5 at most).  
-    If you disable it and the range is not small, you could start having problems with `418` responses from Binance API.. so use it with caution!
+    If you disable it and the range is not small, you could start having problems with `418` responses from Binance API or execution timeouts.. so use it with caution!
     * Note the usage of the string `"BTC, ETH"` instead of a range as a 2nd parameter.
 * `=BINANCE("orders/table", "BTCBUSD, ETHBTC", "ticker: range")` Optionally you set `range` as **ticker** and provide **full pairs** as 2nd parameter, but only recommended for a few pairs.
     * **WARNING:** Using like this will **void the optimization** for unchanged assets.. so use it with caution!

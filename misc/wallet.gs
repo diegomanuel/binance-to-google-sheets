@@ -7,6 +7,7 @@ function BinWallet(OPTIONS) {
 
   return {
     isEnabled,
+    getAssets,
     getSpotAssets,
     getCrossAssets,
     getIsolatedAssets,

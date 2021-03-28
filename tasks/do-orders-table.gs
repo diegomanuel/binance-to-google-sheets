@@ -6,7 +6,7 @@ function BinDoOrdersTable() {
   const header_size = 3; // How many rows the header will have
   const max_items = 1000; // How many items to be fetched on each run
   const delay = 500; // Delay between API calls in milliseconds
-  let retry_assets = {}; // Ugly global index of assets to be retried in the next poll run
+  let update_assets = {}; // Ugly global index of assets to be updated for the next poll run
 
   /**
    * Returns this function tag (the one that's used for BINANCE function 1st parameter)
@@ -88,25 +88,19 @@ function BinDoOrdersTable() {
   function execute() {
     Logger.log("[BinDoOrdersTable] Running..");
 
-    let assets = {};
     const sheets = _findSheets();
     const names = _sheetNames(sheets);
     Logger.log("[BinDoOrdersTable] Processing '"+names.length+"' sheets: "+JSON.stringify(names));
 
-    if (sheets.length) { // Refresh and get wallet assets only if we have sheets to update!
-      const bw = BinWallet();
-      bw.refreshAssets(true); // Exclude sub-account assets!
-      assets = {
-        last: _getLastAssets(),
-        current: bw.calculateAssets(true) // Exclude sub-account assets!
-      };
+    if (sheets.length) { // Refresh wallet assets only if we have sheets to update!
+      BinWallet().refreshAssets(true); // Exclude sub-account assets!
     }
 
     sheets.map(function(sheet) { // Go through each sheet found
       try {
         _initSheet(sheet); // Ensure the sheet is initialized
-        _fetchAndSave(assets, sheet); // Fetch data just for changed assets
-        _updateLastAssets(assets.current); // Update the latest asset balances for next run
+        _fetchAndSave(sheet); // Fetch and save data for this sheet assets
+        _updateLastAssets(); // Update the latest asset balances for next run
       } catch (err) {
         _setStatus(sheet, "ERROR: "+err.message);
         console.error(err);
@@ -116,11 +110,10 @@ function BinDoOrdersTable() {
     Logger.log("[BinDoOrdersTable] Done!");
   }
 
-  function _fetchAndSave(assets, sheet) {
+  function _fetchAndSave(sheet) {
     Logger.log("[BinDoOrdersTable] Processing sheet: "+sheet.getName());
     const [range_or_cell, options] = _parseFormula(sheet);
     const ticker_against = options["ticker"] || TICKER_AGAINST;
-    const do_unchanged_check = BinUtils().parseBool(options["unchanged"], undefined);
     const range = BinUtils().getRangeOrCell(range_or_cell, sheet);
     if (!range.length) {
       throw new Error("A range with crypto symbols must be given!");
@@ -130,7 +123,8 @@ function BinDoOrdersTable() {
     const opts = {
       "no_cache_ok": true,
       "discard_40x": true, // Discard 40x errors for disabled wallets!
-      "retries": Math.max(10, range.length)
+      "retries": Math.max(10, Math.min(100, range.length*5)),
+      "do_unchanged_check": BinUtils().parseBool(options["unchanged"], undefined)
     };
 
     // Fetch data for given symbols in range
@@ -139,10 +133,6 @@ function BinDoOrdersTable() {
       const symbol = _fullSymbol(asset, ticker_against);
       if (numrows > max_items) { // Skip data fetch if we hit max items cap!
         Logger.log("[BinDoOrdersTable] Max items cap! ["+numrows+"/"+max_items+"] => Skipping fetch for: "+symbol);
-        return rows;
-      }
-      if (do_unchanged_check && _isUnchangedAsset(assets, asset)) { // Skip data fetch if the asset balance hasn't changed from last run!
-        Logger.log("[BinDoOrdersTable] Skipping unchanged asset: "+asset);
         return rows;
       }
 
@@ -174,11 +164,13 @@ function BinDoOrdersTable() {
    * Returns true if the given asset was changed its "net" property from last run
    * If it's unchanged and returns false, it will skip fetching orders for it!
    */
-  function _isUnchangedAsset({last, current}, asset) {
-    if (last[asset] === undefined && current[asset] === undefined) {
-      return false; // The given asset wasn't found on any wallet => Take it as "changed"
+  function _isUnchangedAsset(type, asset) {
+    if (type === "futures") {
+      return false; // @TODO Improve this, since futures asset balances don't change the quote asset!
     }
-    return (last[asset] ? last[asset].net : undefined) === (current[asset] ? current[asset].net : undefined);
+    const last = _getLastAssets(type, asset);
+    const current = BinWallet().getAssets(type, asset);
+    return (last ? last.net : undefined) === (current ? current.net : undefined);
   }
 
   function _fetch(numrows, sheet, asset, ticker, opts) {
@@ -187,7 +179,9 @@ function BinDoOrdersTable() {
     const data_cross = _fetchOrders("cross", numrows, sheet, asset, ticker, opts); // Get CROSS MARGIN orders
     numrows += data_cross.length;
     const data_isolated = _fetchOrders("isolated", numrows, sheet, asset, ticker, opts); // Get ISOLATED MARGIN orders
-    return [...data_spot, ...data_cross, ...data_isolated];
+    numrows += data_isolated.length;
+    const data_futures = _fetchOrders("futures", numrows, sheet, asset, ticker, opts); // Get FUTURES orders
+    return [...data_spot, ...data_cross, ...data_isolated, ...data_futures];
   }
 
   function _fetchOrders(type, numrows, sheet, asset, ticker, opts) {
@@ -195,13 +189,18 @@ function BinDoOrdersTable() {
       Logger.log("[BinDoOrdersTable]["+type.toUpperCase()+"] Skipping disabled wallet.");
       return [];
     }
+    if (opts["do_unchanged_check"] && _isUnchangedAsset(type, asset)) { // Skip data fetch if the asset balance hasn't changed from last run!
+      Logger.log("[BinDoOrdersTable]["+type.toUpperCase()+"] Skipping unchanged asset: "+asset);
+      return [];
+    }
+
     const symbol = _fullSymbol(asset, ticker);
     const [fkey, fval] = _parseFilterQS(sheet, symbol, type);
-    const limit = max_items - numrows + (fkey === "fromId" ? 1 : 0); // Add 1 more result since it's going to be skipped
-    const qs = "limit="+limit+"&symbol="+symbol+"&"+fkey+"="+fval;
+    const limit = Math.max(2, Math.min(max_items, max_items - numrows + (fkey === "fromId" ? 1 : 0))); // Add 1 more result since it's going to be skipped
+    const qs = "limit="+limit+"&symbol="+symbol+(fkey&&fval?"&"+fkey+"="+fval:"");
     let data = [];
 
-    if (limit < 1) { // Skip data fetch if we hit max items cap!
+    if (numrows >= max_items) { // Skip data fetch if we hit max items cap!
       Logger.log("[BinDoOrdersTable]["+type.toUpperCase()+"] Max items cap! ["+numrows+"/"+max_items+"] => Skipping fetch for: "+symbol);
       return [];
     }
@@ -220,11 +219,13 @@ function BinDoOrdersTable() {
           Logger.log("[BinDoOrdersTable][ISOLATED] Skipping inexistent isolated pair for: "+symbol);
           return [];
         }
+      } else if (type === "futures") { // Get FUTURES orders
+        data = _fetchFuturesOrders(opts, qs);
       } else {
         throw new Error("Bad developer.. shame on you!  =0");
       }
-      if (data.length === limit) { // We got the max possible rows number on this run, we may have more to fetch, so..
-        retry_assets[asset] = symbol; // ..mark this asset to be fetched again in the next poll run!
+      if (data.length !== limit) { // We got all possible rows so far on this run, we don't have more to fetch, so..
+        _markUpdateAsset(type, asset); // Mark the asset to update its balance for next run!
       }
       if (fkey === "fromId") { // Skip the first result if we used fromId to filter
         data.shift();
@@ -233,24 +234,31 @@ function BinDoOrdersTable() {
       return data;
     } catch (err) { // Discard request errors and keep running!
       console.error("[BinDoOrdersTable]["+type.toUpperCase()+"] Couldn't fetch orders for '"+symbol+"': "+err.message);
-      retry_assets[asset] = symbol; // Mark this failed asset to be retried in the next poll run!
       return [];
     }
   }
 
   function _fetchSpotOrders(opts, qs) {
-    // The default/generic implementation works fine for SPOT
     return _fetchOrdersForType("spot", opts, "api/v3/myTrades", qs);
   }
 
   function _fetchCrossOrders(opts, qs) {
-    // The default/generic implementation works fine for CROSS
     return _fetchOrdersForType("cross", opts, "sapi/v1/margin/myTrades", qs);
   }
 
   function _fetchIsolatedOrders(opts, qs) {
-    // The default/generic implementation works fine for ISOLATED
     return _fetchOrdersForType("isolated", opts, "sapi/v1/margin/myTrades", "isIsolated=true&"+qs);
+  }
+
+  function _fetchFuturesOrders(opts, qs) {
+    const options = Object.assign({futures: true}, opts);
+    return _fetchOrdersForType("futures", options, "fapi/v1/userTrades", qs)
+      .map(function(order) {
+        return Object.assign({
+          isMaker: order.maker,
+          isBuyer: order.buyer,
+        }, order);
+      });
   }
 
   function _fetchOrdersForType(type, opts, url, qs) {
@@ -324,6 +332,10 @@ function BinDoOrdersTable() {
     const row = _findLastRowData(sheet, symbol, type);
     if (row) { // We found the latest matching row for this symbol and type..
       return ["fromId", row[0]]; // .. so use its #ID value!
+    }
+
+    if (type === "futures") { // @TODO REVIEW: The 'startTime' filter is not working fine on futures API....!!
+      return [];
     }
 
     // Fallback to the oldest possible datetime (Binance launch date)
@@ -450,21 +462,26 @@ function BinDoOrdersTable() {
     }
   }
 
-  function _getLastAssets() {
-    const assets = PropertiesService.getScriptProperties().getProperty(ASSETS_PROP_NAME);
-    return assets ? JSON.parse(assets) : {};
+  function _getLastAssets(type, asset) {
+    const data = PropertiesService.getScriptProperties().getProperty(ASSETS_PROP_NAME+"_"+type.toUpperCase());
+    const assets = data ? JSON.parse(data) : {};
+    return asset ? assets[asset] : assets;
   }
 
-  function _updateLastAssets(assets) {
-    // UGLY but it works..! Remove assets that will be retried in the next poll run
-    const updated_assets = Object.keys(retry_assets).reduce(function(acc, asset) {
-      if (acc[asset]) {
-        delete acc[asset];
-      }
-      return acc;
-    }, assets);
+  function _markUpdateAsset(type, asset) {
+    update_assets[type] = update_assets[type] || {};
+    update_assets[type][asset] = BinWallet().getAssets(type, asset);
+  }
 
-    return PropertiesService.getScriptProperties().setProperty(ASSETS_PROP_NAME, JSON.stringify(updated_assets));
+  function _updateLastAssets() {
+    return Object.keys(update_assets).map(function(type) {
+      const assets = _getLastAssets(type) || {};
+      Object.keys(update_assets[type]).map(function(asset) {
+        assets[asset] = update_assets[type][asset];
+      });
+
+      return PropertiesService.getScriptProperties().setProperty(ASSETS_PROP_NAME+"_"+type.toUpperCase(), JSON.stringify(assets));
+    });
   }
 
   /**
