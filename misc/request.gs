@@ -59,11 +59,19 @@ function BinRequest(OPTIONS) {
   }
 
   /**
+  * Builds an URL for the Spot API, using one of the 4 available clusters at random.
+  * @see {@link https://binance-docs.github.io/apidocs/spot/en/#general-api-information}
+  */
+  function _makeSpotApiUrl() {
+    return SPOT_API_URL.replace(/api/, `api${Math.floor(Math.random() * 4) || ''}`)
+  }
+  
+  /**
   * Sends a request to Binance API with given parameters.
   */
   function _request(method, url, qs, payload, opts) {
     const CACHE_OK_KEY = method+"_"+url+"_"+qs;
-    const API_URL = opts["futures"] ? FUTURES_API_URL : SPOT_API_URL;
+    const API_URL = opts["futures"] ? FUTURES_API_URL : _makeSpotApiUrl();
     const need_auth = !opts["public"]; // Calling a private endpoint
     const headers = opts["headers"] || {};
     const da_payload = payload ? JSON.stringify(payload) : "";
