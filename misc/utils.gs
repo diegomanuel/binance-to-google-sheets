@@ -12,6 +12,7 @@ function BinUtils() {
     getRangeOrCell,
     parsePrice,
     parseBool,
+    parseDate,
     parseOptions,
     checkExpectedResults,
     filterTickerSymbol,
@@ -108,6 +109,16 @@ function BinUtils() {
    */
   function parseBool(val, default_val) {
     return val === default_val || val === true || val === 1 || val === "1" || val === "true" || val === "yes" || val === "y";
+  }
+
+  /**
+   * Returns a date object from given string with format: YYYY-MM-DD and/or YYYY-MM-DD-HH-MM-SS
+   */
+  function parseDate(val) {
+    const parts = (val||"").split("-");
+    const date = parts[0] && parts[1] && parts[2] ? parts[0]+"-"+parts[1]+"-"+parts[2] : "";
+    const time = parts.length > 3 ? (parts[3]||"00")+":"+(parts[4]||"00")+":"+(parts[5]||"00") : "";
+    return new Date(date + (time ? " "+time : ""));
   }
 
   /**

@@ -68,10 +68,10 @@ function BinDoHistoricalData() {
     const qs = ["symbol="+symbol];
     qs.push("interval="+(interval||"1h"));
     if (start) {
-      qs.push("startTime="+(new Date(start).getTime()));
+      qs.push("startTime="+(BinUtils().parseDate(start).getTime()));
     }
     if (end) {
-      qs.push("endTime="+(new Date(end).getTime()));
+      qs.push("endTime="+(BinUtils().parseDate(end).getTime()));
     }
     if (limit) {
       qs.push("limit="+Math.max(1, Math.min(1000, parseInt(limit))));

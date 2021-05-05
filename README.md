@@ -124,7 +124,7 @@ Some operations are **private**, meaning they **do require a Binance API key** t
 * The **2nd** parameter is **required** and it must be a **valid** single full symbol/ticker, like: `"BTCUSDT"`, `"ETHBTC"`, etc.
 * The **3rd** parameter supports the following options, in a single string separated by commas:
     * `"interval: 15m"`: Can be any supported value by Binance API, like: `1m`, `5m`, `1h`, `1d`, etc. Defaults to: `1h`
-    * `"start: 2021-01-01"`: Optional. The start date/time to get data from. Can be any supported value by `new Date(value)` JS object, like: `2021-01-01 11:22:33`.
+    * `"start: 2021-01-01"`: Optional. The start date/time to get data from. Can be any supported value by `new Date(value)` JS object, like: `2021-01-01-11-22-33` (time is converted to `:` format).
     * `"end: 2021-01-31"`: Optional. The end date/time to get data from. The same supported values as `start` option.
     * `"limit: 10"`: Optional. How many rows to return, from `1` to `1000`, defaults to: `500`.
     * `"headers: false"`: Don't return table headers.
