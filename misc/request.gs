@@ -59,14 +59,6 @@ function BinRequest(OPTIONS) {
   }
 
   /**
-  * Builds an URL for the Spot API, using one of the 4 available clusters at random.
-  * @see {@link https://binance-docs.github.io/apidocs/spot/en/#general-api-information}
-  */
-  function _makeSpotApiUrl() {
-    return SPOT_API_URL.replace(/api/, `api${Math.floor(Math.random() * 4) || ''}`)
-  }
-  
-  /**
   * Sends a request to Binance API with given parameters.
   */
   function _request(method, url, qs, payload, opts) {
@@ -147,6 +139,15 @@ function BinRequest(OPTIONS) {
     }
 
     throw new Error("Request failed with status: "+response.getResponseCode());
+  }
+
+  /**
+  * Builds an URL for the Spot API, using one of the 4 available clusters at random.
+  * Thank you @fabiob for the PR! :: https://github.com/fabiob
+  * @see {@link https://binance-docs.github.io/apidocs/spot/en/#general-api-information}
+  */
+  function _makeSpotApiUrl() {
+    return SPOT_API_URL.replace(/api/, `api${Math.floor(Math.random() * 4) || ''}`);
   }
 
   /**
