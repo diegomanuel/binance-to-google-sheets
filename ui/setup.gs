@@ -239,7 +239,11 @@ function BinSetup() {
    */
   function getDisabledWallets() {
     const data = user_props.getProperty(WALLETS_DISABLED_NAME);
-    return data ? JSON.parse(data) : {};
+    const parsed = data ? JSON.parse(data) : {};
+    if (parsed["futures"] === undefined) { // Disabled futures wallet by default
+      parsed["futures"] = true;
+    }
+    return parsed;
   }
 
   /**

@@ -71,6 +71,15 @@ You will need [node](https://nodejs.org) and [clasp](https://github.com/google/c
 **Windows users:** You can download and use `make` from [here](https://sourceforge.net/projects/gnuwin32/files/make/3.81/) or even the entire [GnuWin](https://sourceforge.net/projects/gnuwin32/) toolset.
 
 
+### Troubleshoot
+
+Please take a look to the logs before opening an issue!  
+https://script.google.com/u/0/home/executions
+
+I'll try to answer all your questions but it takes time, dedication and effort to be there, so plz be patient!  
+The add-on is working in a stable manner and the only recurrent problem is the `418` and `403` responses from Binance API, but there is nothing we can do since our spreadsheets runs on shared Google servers whose IP addresses are shared among all the Google users.
+
+
 ### Binance API Key
 
 Only needed if you **also want** to call **private endpoints** from your spreadsheet.  
@@ -81,6 +90,7 @@ To get your keys, go to [Binance API panel](https://www.binance.com/en/usercente
 3. Click the `Edit restrictions` button.
     1. Under `API restrictions` **ONLY** `Can Read` checkbox should be checked.  
     2. Under `IP access restrictions` select `Unrestricted`.
+    3. Enable **futures** (read-only) if you also want to fetch data from there.
 4. Click the `Save` button and now you have to configure them on your spreadsheet!
 
 Once you have the `add-on` already installed/enabled on your desired Google Spreadsheet, the main menu item `Binance` should have appeared at the rightmost position.
