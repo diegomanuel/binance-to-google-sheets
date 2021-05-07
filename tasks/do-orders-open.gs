@@ -120,10 +120,11 @@ function BinDoOrdersOpen() {
   }
 
   function parse(data, {headers: show_headers}) {
+    const bu = BinUtils();
     const header = ["Date", "Pair", "Market", "Type", "Side", "Price", "Amount", "Executed", "Total"];
     const parsed = data.reduce(function(rows, order) {
       const symbol = order.symbol;
-      const price = BinUtils().parsePrice(order.price);
+      const price = parseFloat(order.price) ? bu.parsePrice(order.price) : bu.parsePrice(order.stopPrice);
       const amount = parseFloat(order.origQty);
       const row = [
         new Date(parseInt(order.time)),
