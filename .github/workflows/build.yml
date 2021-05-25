@@ -27,13 +27,18 @@ jobs:
           echo "::set-output name=filename::$filename"
           echo "::set-output name=filepath::$filepath"
 
-      - name: Upload as artifact
+      - name: Upload BINANCE.gs as artifact
         uses: actions/upload-artifact@v1
         with:
           name: ${{ steps.build_file.outputs.filename }}
           path: ${{ steps.build_file.outputs.filepath }}
+      - name: Upload appsscript.json as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: appsscript.json
+          path: appsscript.json
 
-      - name: Upload as release asset
+      - name: Upload BINANCE.gs as release asset
         id: upload_release
         uses: actions/upload-release-asset@v1
         env:
@@ -43,3 +48,13 @@ jobs:
           asset_name: ${{ steps.build_file.outputs.filename }}
           asset_path: ${{ steps.build_file.outputs.filepath }}
           asset_content_type: application/javascript
+      - name: Upload appsscript.json as release asset
+        id: upload_appsscript
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_name: appsscript.json
+          asset_path: appsscript.json
+          asset_content_type: application/json

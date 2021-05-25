@@ -118,6 +118,7 @@ function BinDoOrdersTable() {
     if (!range.length) {
       throw new Error("A range with crypto symbols must be given!");
     }
+    Logger.log("[BinDoOrdersTable] Processing "+range.length+" sheet's assets: "+range);
 
     _setStatus(sheet, "fetching data..");
     const opts = {

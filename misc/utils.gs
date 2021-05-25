@@ -225,24 +225,31 @@ function BinUtils() {
         range_or_cell = extracted[1];
         options = extracted[2];
       } else {
-        // 2 params formula
-        regex_formula = base_regex+"(.*)\\s*\\)";
+        // 2 params formula with string 2nd param
+        regex_formula = base_regex+"\"(.*)\"";
         extracted = new RegExp(regex_formula, "ig").exec(formula);
         if (extracted && extracted[1]) {
           range_or_cell = extracted[1];
+        } else {
+          // 2 params formula with NOT-string 2nd param
+          regex_formula = base_regex+"(.*)\\s*\\)";
+          extracted = new RegExp(regex_formula, "ig").exec(formula);
+          if (extracted && extracted[1]) {
+            range_or_cell = extracted[1];
+          }
         }
       }
     }
 
     if (DEBUG) {
-      Logger.log("FORMULA: "+JSON.stringify(formula));
+      Logger.log("FORMULA: "+formula);
       if (extracted) {
         extracted.map(function(val) {
           Logger.log("REGEXP VAL: "+val);
         });
       }
-      Logger.log("RANGE OR CELL: "+JSON.stringify(range_or_cell));
-      Logger.log("OPTIONS: "+JSON.stringify(options));
+      Logger.log("RANGE OR CELL: "+range_or_cell);
+      Logger.log("OPTIONS: "+options);
     }
 
     return [range_or_cell, parseOptions(options)];

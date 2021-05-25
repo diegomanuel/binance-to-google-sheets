@@ -32,18 +32,20 @@ First of all, open your desired Google Spreadsheet and configure it properly:
 
 ### The quick'n easy way for everybody
 
-Just [download the latest **BINANCE.gs**](https://github.com/diegomanuel/binance-to-google-sheets/releases/latest/download/BINANCE.gs) _all-in-one_ file and **copy & paste** its contents following these steps:
+Just [download the latest **BINANCE.gs**](https://github.com/diegomanuel/binance-to-google-sheets/releases/latest/download/BINANCE.gs) _all-in-one_ file + [**appsscript.json**](https://github.com/diegomanuel/binance-to-google-sheets/releases/latest/download/appsscript.json) and **copy & paste** its contents following these steps:
 
 1. With your desired `Google Spreadsheet` opened, go to `Tools -> Script editor`.
-    * It should open a new page with a `Code.gs` file containing an empty function.
-2. Remove any contents from `Code.gs` and paste the contents from the downloaded `BINANCE.gs` file.
-3. Save the project at `File -> Save`. Give any name you want.
-4. Refresh/reload your Google Spreadsheet (hit `F5` on the browser).
+    * It should open an editor in a new page with a `Code.gs` file containing an empty function.
+    * Remove any contents from `Code.gs` and save the project at `File -> Save`. Give any name you want.
+2. Go to project properties and make sure to select `Show "appsscript.json" manifest file in editor` checkbox.
+3. Go back to code editor, select the `Code.gs` file and paste the contents from the downloaded `BINANCE.gs` file.
+4. Do the same for `appsscript.json` and optionally set your desired timezone.
+5. Save the project again and refresh/reload your Google Spreadsheet (hit `F5` on the browser).
     * Once reloaded, you should see a little message box (toast) at the bottom-right corner.
-5. Go to `Binance` item at your spreadsheet's main menu and click on the `Authorize add-on!` item.
-6. A Google's dialog should appear asking for permissions, proceed with all the steps and click `Allow`.
+6. Go to `Binance` item at your spreadsheet's main menu and click on the `Authorize add-on!` item.
+7. A Google's dialog should appear asking for permissions, proceed with all the steps and click `Allow`.
     * The popup will close and nothing will change on your spreadsheet yet!
-7. Once the add-on is authorized, repeat step `5` (click `Authorize add-on!` again) and voila!
+8. Once the add-on is authorized, repeat step `5` (click `Authorize add-on!` again) and voila!
 
 ### If you are a developer  =]
 
@@ -55,6 +57,7 @@ You will need [node](https://nodejs.org) and [clasp](https://github.com/google/c
     1. With your `Google Spreadsheet` open, go to `Tools -> Script editor`.
     2. At the `Google Script` screen, go to `File -> Project properties`.
     3. The needed ID is the one under the `Script ID` label!
+    4. Make sure to select `Show "appsscript.json" manifest file in editor` checkbox.
 4. Just for the first time, run the target `make setup SCRIPT_ID=my-script-id` replacing `my-script-id` with the ID obtained at point `3`.
     * It should create the file `.clasp.json` with your `scriptId` inside for future use.
     * **NOTE:** You only need to re-run this step if you want to change the configured `scriptId`.
