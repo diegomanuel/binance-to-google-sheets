@@ -59,7 +59,7 @@ function BinDoAccountInfo() {
    * Gets the list of ALL sub-accounts
    */
   function listSubAccounts() {
-    const data = new BinRequest().get("wapi/v3/sub-account/list.html");
+    const data = new BinRequest().get("sapi/v1/sub-account/list");
     return data && data.subAccounts ? data.subAccounts : [];
   }
 
@@ -82,7 +82,8 @@ function BinDoAccountInfo() {
 
   function execute(type, options) {
     Logger.log("[BinDoAccountInfo]["+type.toUpperCase()+"] Running..");
-    if (!BinWallet().isEnabled(type)) { // The "overview" case will always be true
+    const wallet_type = type === "futures/positions" ? "futures" : type;
+    if (!BinWallet().isEnabled(wallet_type)) { // The "overview" case will always be true
       Logger.log("[BinDoAccountInfo]["+type.toUpperCase()+"] The wallet is disabled!");
       return [["The "+type.toUpperCase()+" wallet is disabled! Enable it from 'Binance->Wallets' main menu."]];
     }
@@ -107,7 +108,8 @@ function BinDoAccountInfo() {
       refresh();
       return; // We don't return any data here!
     }
-    if (!BinWallet().isEnabled(type)) { // The wallet is disabled..
+    const wallet_type = type === "futures/positions" ? "futures" : type;
+    if (!BinWallet().isEnabled(wallet_type)) { // The wallet is disabled..
       return; // ..so we don't return any data here!
     }
 
@@ -137,7 +139,7 @@ function BinDoAccountInfo() {
     
     return Object.keys(subaccs).reduce(function(assets, email) {
       const qs = "email="+email;
-      const data = new BinRequest(opts).get("wapi/v3/sub-account/assets.html", qs);
+      const data = new BinRequest(opts).get("sapi/v3/sub-account/assets", qs);
       assets[email] = (data||{}).balances || [];
       return assets;
     }, {});
@@ -148,7 +150,8 @@ function BinDoAccountInfo() {
     if (type === "overview") {
       return parseOverview(show_headers);
     }
-    if (!BinWallet().isEnabled(type)) { // The wallet is disabled..
+    const wallet_type = type === "futures/positions" ? "futures" : type;
+    if (!BinWallet().isEnabled(wallet_type)) { // The wallet is disabled..
       return []; // ..so we return empty data here!
     }
 
