@@ -53,7 +53,8 @@ function BinMenu(ui) {
     return ui.createMenu("Wallets")
       .addItem(walletEnabled("cross")+" CROSS Margin Wallet", "toggleWalletCross")
       .addItem(walletEnabled("isolated")+" ISOLATED Margin Wallet", "toggleWalletIsolated")
-      .addItem(walletEnabled("futures")+" FUTURES Wallet", "toggleWalletFutures");
+      .addItem(walletEnabled("futures")+" FUTURES USD-M Wallet", "toggleWalletFutures")
+      .addItem(walletEnabled("delivery")+" FUTURES COIN-M Wallet", "toggleWalletDelivery");
   }
 
   function addSubAccountsMenu() {
@@ -140,10 +141,17 @@ function toggleWalletIsolated() {
 }
 
 /**
- * Displays a confirmation to enable/disable FUTURES wallet
+ * Displays a confirmation to enable/disable FUTURES USD-M wallet
  */
 function toggleWalletFutures() {
-  BinSetup().toggleWalletDisabled("futures", SpreadsheetApp.getUi());
+  BinSetup().toggleWalletDisabled("futures", SpreadsheetApp.getUi(), "FUTURES USD-M");
+}
+
+/**
+ * Displays a confirmation to enable/disable FUTURES COIN-M wallet
+ */
+function toggleWalletDelivery() {
+  BinSetup().toggleWalletDisabled("delivery", SpreadsheetApp.getUi(), "FUTURES COIN-M");
 }
 
 /**

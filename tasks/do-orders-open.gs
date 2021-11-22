@@ -72,8 +72,9 @@ function BinDoOrdersOpen() {
     const dataSpot = fetchSpotOrders(opts); // Get all SPOT orders
     const dataCross = bw.isEnabled("cross") ? fetchCrossOrders(opts) : []; // Get all CROSS MARGIN orders
     const dataIsolated = bw.isEnabled("isolated") ? fetchIsolatedOrders(opts) : []; // Get all ISOLATED MARGIN orders
-    const dataFutures = bw.isEnabled("futures") ? fetchFuturesOrders(opts) : []; // Get all FUTURES orders
-    return [...dataSpot, ...dataCross, ...dataIsolated, ...dataFutures];
+    const dataFutures = bw.isEnabled("futures") ? fetchFuturesOrders(opts) : []; // Get all FUTURES orders (USD-M)
+    const dataDelivery = bw.isEnabled("delivery") ? fetchDeliveryOrders(opts) : []; // Get all DELIVERY orders (COIN-M)
+    return [...dataSpot, ...dataCross, ...dataIsolated, ...dataFutures, ...dataDelivery];
   }
 
   function fetchSpotOrders(opts) {
@@ -110,21 +111,32 @@ function BinDoOrdersOpen() {
   }
 
   function fetchFuturesOrders(opts) {
-    Logger.log("[BinDoOrdersOpen][FUTURES] Fetching orders..");
+    Logger.log("[BinDoOrdersOpen][FUTURES USD-M] Fetching orders..");
     const options = Object.assign({futures: true}, opts);
     const orders = new BinRequest(options).get("fapi/v1/openOrders") || []; //  It may fail if wallet isn't enabled!
     return orders.map(function(order) {
-      order.market = "FUTURES";
+      order.market = "FUTURES USD-M";
+      return order;
+    });
+  }
+
+  function fetchDeliveryOrders(opts) {
+    Logger.log("[BinDoOrdersOpen][FUTURES COIN-M] Fetching orders..");
+    const options = Object.assign({delivery: true}, opts);
+    const orders = new BinRequest(options).get("dapi/v1/openOrders") || []; //  It may fail if wallet isn't enabled!
+    return orders.map(function(order) {
+      order.market = "FUTURES COIN-M";
+      // Convert order.origQty that represent contracts amount
+      order.origQty = Math.round(parseFloat(order.origQty) / _parseOrderPrice(order) * 100000000) / 100000000;
       return order;
     });
   }
 
   function parse(data, {headers: show_headers}) {
-    const bu = BinUtils();
     const header = ["Date", "Pair", "Market", "Type", "Side", "Price", "Amount", "Executed", "Total"];
     const parsed = data.reduce(function(rows, order) {
       const symbol = order.symbol;
-      const price = parseFloat(order.price) ? bu.parsePrice(order.price) : bu.parsePrice(order.stopPrice);
+      const price = _parseOrderPrice(order);
       const amount = parseFloat(order.origQty);
       const row = [
         new Date(parseInt(order.time)),
@@ -143,6 +155,16 @@ function BinDoOrdersOpen() {
 
     const sorted = BinUtils().sortResults(parsed, 0, true);
     return BinUtils().parseBool(show_headers) ? [header, ...sorted] : sorted;
+  }
+
+  function _parseOrderPrice(order) {
+    if (parseFloat(order.price)) {
+      return BinUtils().parsePrice(order.price);
+    }
+    if (parseFloat(order.activatePrice)) { // Only returned for TRAILING_STOP_MARKET orders
+      return BinUtils().parsePrice(order.activatePrice);
+    }
+    return BinUtils().parsePrice(order.stopPrice);
   }
 
   // Return just what's needed from outside!

@@ -208,22 +208,23 @@ function BinSetup() {
   /**
    * Toggles the enabled/disabled status for a given wallet type
    */
-  function toggleWalletDisabled(type, ui) {
+  function toggleWalletDisabled(type, ui, desc) {
     const wallets = getDisabledWallets();
     const disabled = !!wallets[type];
-    const title = (disabled?"En":"Dis")+"able wallet: "+type.toUpperCase();
-    const text = "You will "+(disabled?"EN":"DIS")+"ABLE the "+type.toUpperCase()+" wallet!\nProceed?";
+    const description = (desc || type).toUpperCase();
+    const title = (disabled?"En":"Dis")+"able wallet: "+description;
+    const text = "You will "+(disabled?"EN":"DIS")+"ABLE the "+description+" wallet!\nProceed?";
     const result = ui.alert(title, text, ui.ButtonSet.OK_CANCEL);
     if (result !== ui.Button.OK) {
       return false; // Cancel
     }
 
-    Logger.log("[BinSetup] "+(disabled?"En":"Dis")+"abling wallet: "+type.toUpperCase());
+    Logger.log("[BinSetup] "+(disabled?"En":"Dis")+"abling wallet: "+description);
     wallets[type] = !disabled;
     user_props.setProperty(WALLETS_DISABLED_NAME, JSON.stringify(wallets));
     const bu = BinUtils();
     bu.refreshMenu();
-    bu.toast("The "+type.toUpperCase()+" wallet was "+(disabled?"EN":"DIS")+"ABLED!\nPlease wait while assets are refreshed..", "", 30);
+    bu.toast("The "+description+" wallet was "+(disabled?"EN":"DIS")+"ABLED!\nPlease wait while assets are refreshed..", "", 30);
 
     Logger.log("[BinSetup] Clearing wallet assets and refreshing formulas..");
     const bw = BinWallet();
@@ -240,8 +241,11 @@ function BinSetup() {
   function getDisabledWallets() {
     const data = user_props.getProperty(WALLETS_DISABLED_NAME);
     const parsed = data ? JSON.parse(data) : {};
-    if (parsed["futures"] === undefined) { // Disabled futures wallet by default
+    if (parsed["futures"] === undefined) { // Disabled FUTURES USD-M wallet by default
       parsed["futures"] = true;
+    }
+    if (parsed["delivery"] === undefined) { // Disabled FUTURES COIN-M wallet by default
+      parsed["delivery"] = true;
     }
     return parsed;
   }

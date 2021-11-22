@@ -63,7 +63,7 @@ function BinRequest(OPTIONS) {
   */
   function _request(method, url, qs, payload, opts) {
     const CACHE_OK_KEY = method+"_"+url+"_"+qs;
-    const API_URL = opts["futures"] ? FUTURES_API_URL : _makeSpotApiUrl();
+    const API_URL = _makeApiUrl(opts);
     const need_auth = !opts["public"]; // Calling a private endpoint
     const headers = opts["headers"] || {};
     const da_payload = payload ? JSON.stringify(payload) : "";
@@ -139,6 +139,16 @@ function BinRequest(OPTIONS) {
     }
 
     throw new Error("Request failed with status: "+response.getResponseCode());
+  }
+
+  function _makeApiUrl(opts) {
+    if (opts["futures"]) {
+      return FUTURES_API_URL;
+    }
+    if (opts["delivery"]) {
+      return DELIVERY_API_URL;
+    }
+    return _makeSpotApiUrl();
   }
 
   /**

@@ -12,11 +12,13 @@ function BinWallet(OPTIONS) {
     getCrossAssets,
     getIsolatedAssets,
     getFuturesAssets,
+    getDeliveryAssets,
     getSubAccountAssets,
     setSpotAssets,
     setCrossAssets,
     setIsolatedAssets,
     setFuturesAssets,
+    setDeliveryAssets,
     setSubAccountAssets,
     getIsolatedPairs,
     setIsolatedPairs,
@@ -61,10 +63,17 @@ function BinWallet(OPTIONS) {
   }
 
   /**
-   * Returns the account wallet assets for FUTURES
+   * Returns the account wallet assets for FUTURES USD-M
    */
   function getFuturesAssets(symbol) {
     return getAssets("futures", symbol);
+  }
+
+  /**
+   * Returns the account wallet assets for FUTURES COIN-M
+   */
+  function getDeliveryAssets(symbol) {
+    return getAssets("delivery", symbol);
   }
 
   /**
@@ -102,10 +111,17 @@ function BinWallet(OPTIONS) {
   }
 
   /**
-   * Sets account wallet data for FUTURES
+   * Sets account wallet data for FUTURES USD-M
    */
   function setFuturesAssets(data) {
     return setAssetsData("futures", data);
+  }
+
+  /**
+   * Sets account wallet data for FUTURES COIN-M
+   */
+  function setDeliveryAssets(data) {
+    return setAssetsData("delivery", data);
   }
 
   /**
@@ -288,6 +304,12 @@ function BinWallet(OPTIONS) {
       const futures = getFuturesAssets();
       totals = Object.keys(futures).reduce(function(acc, symbol) {
         return _accAssetHelper(acc, symbol, futures[symbol]);
+      }, totals);
+    }
+    if (isEnabled("delivery")) {
+      const delivery = getDeliveryAssets();
+      totals = Object.keys(delivery).reduce(function(acc, symbol) {
+        return _accAssetHelper(acc, symbol, delivery[symbol]);
       }, totals);
     }
     if (!exclude_sub_accounts) { // Include sub-account assets
