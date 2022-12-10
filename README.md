@@ -2,6 +2,10 @@
 
 A lightweight **Google Spreadsheets Add-On** to GET data _directly_ from **Binance API** _without_ any intermediaries!
 
+> Since Binance decided to **block API requests** coming from restricted countries like USA (from which the Google servers in where our spreadsheets run are located), you'll probably need a proxy.  
+Check [Binance to Google Sheets Add-On Proxy](https://github.com/diegomanuel/binance-to-google-sheets-proxy) for a basic proxy server implementation that I did for myself and is currently working fine. It may be useful for you too!  
+See the [README.md](https://github.com/diegomanuel/binance-to-google-sheets-proxy#readme) for further details.
+
 This `add-on` is basically an **API client** specially hand-crafted to work between Google Spreadsheets and Binance.  
 By using the `BINANCE()` formula in your spreadsheet, you can get data fetched from Binance API like:  
 * Current market [prices](#operation-prices-public)

@@ -93,7 +93,7 @@ function BinRequest(OPTIONS) {
     }
     if (response.getResponseCode() == 200) {
       BinDoLastUpdate().run(new Date()); // Refresh last update ts
-      const data = JSON.parse(response.getContentText());
+      const data = JSON.parse(response.getContentText() || "{}");
       if (!opts["no_cache_ok"]) { // Keep last OK response
         _setLastCacheResponseOK(CACHE_OK_KEY, da_payload, data);
       }
@@ -142,22 +142,35 @@ function BinRequest(OPTIONS) {
   }
 
   function _makeApiUrl(opts) {
+    if (USE_PROXY) {
+      return _makeProxyApiUrl(opts)
+    }
     if (opts["futures"]) {
       return FUTURES_API_URL;
     }
     if (opts["delivery"]) {
       return DELIVERY_API_URL;
     }
-    return _makeSpotApiUrl();
+
+    /**
+    * Builds an URL for the Spot API, using one of the 4 available clusters at random.
+    * Thank you @fabiob for the PR! :: https://github.com/fabiob
+    * @see {@link https://binance-docs.github.io/apidocs/spot/en/#general-api-information}
+    */
+    return SPOT_API_URL.replace(/api/, `api${Math.floor(Math.random() * 4) || ''}`);
   }
 
-  /**
-  * Builds an URL for the Spot API, using one of the 4 available clusters at random.
-  * Thank you @fabiob for the PR! :: https://github.com/fabiob
-  * @see {@link https://binance-docs.github.io/apidocs/spot/en/#general-api-information}
-  */
-  function _makeSpotApiUrl() {
-    return SPOT_API_URL.replace(/api/, `api${Math.floor(Math.random() * 4) || ''}`);
+  // The ports below should match the ones defined at:
+  // https://github.com/diegomanuel/binance-to-google-sheets-proxy/blob/main/config/config.exs
+  function _makeProxyApiUrl(opts) {
+    if (opts["futures"]) {
+      return USE_PROXY+":4004";
+    }
+    if (opts["delivery"]) {
+      return USE_PROXY+":4005";
+    }
+    // Ports 4000 to 4003
+    return `${USE_PROXY}:400${Math.floor(Math.random() * 4) || '0'}`;
   }
 
   /**

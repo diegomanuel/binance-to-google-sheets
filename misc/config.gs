@@ -3,8 +3,11 @@
  */
 
 let DEBUG = false;
-const VERSION = "v0.5.2";
+const VERSION = "v0.5.3";
 const REPO_URL = "https://github.com/diegomanuel/binance-to-google-sheets";
+const USE_PROXY = false;
+// See: https://github.com/diegomanuel/binance-to-google-sheets-proxy
+//const USE_PROXY = "https://btgs-proxy.setupme.io"
 const SPOT_API_URL = "https://api.binance.com";
 const FUTURES_API_URL = "https://fapi.binance.com";
 const DELIVERY_API_URL = "https://dapi.binance.com";

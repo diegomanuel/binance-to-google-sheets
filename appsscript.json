@@ -27,6 +27,12 @@
     "https://api2.binance.com/",
     "https://api3.binance.com/",
     "https://fapi.binance.com/",
-    "https://dapi.binance.com/"
+    "https://dapi.binance.com/",
+    "https://btgs-proxy.setupme.io:4000/",
+    "https://btgs-proxy.setupme.io:4001/",
+    "https://btgs-proxy.setupme.io:4002/",
+    "https://btgs-proxy.setupme.io:4003/",
+    "https://btgs-proxy.setupme.io:4004/",
+    "https://btgs-proxy.setupme.io:4005/"
   ]
 }
