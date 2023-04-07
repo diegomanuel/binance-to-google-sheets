@@ -261,11 +261,9 @@ function showDonate() {
                "You can send any token through the Binance Smart Chain (BSC/BEP20) to:\n"+
                "0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
                "\n"+
-               "But you can also use:\n"+
-               "[BTC] BTC: 1FsN54WNibhhPhRt4vnAPRGgzaVeeFvEnM\n"+
-               "[BTC] SegWit: bc1qanxn2ycp9em50hj5p7en6wxe962zj4umqvs7q9\n"+
-               "[ETH] ERC20: 0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
-               "[LTC] LTC: LZ8URuChzyuuy272isMCrts7R7UKtwnj6a\n"+
+               "But you can also use these networks:\n"+
+               "BTC: bc1qanxn2ycp9em50hj5p7en6wxe962zj4umqvs7q9\n"+
+               "ETH: 0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
                "\n"+
                "------------------------------------------------\n"+
                "Don't you have a Binance account yet?\n"+

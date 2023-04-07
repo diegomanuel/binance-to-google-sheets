@@ -1,12 +1,4 @@
 /**
- * Binance to Google Sheets!
- * Diego Manuel - diegomanuel@gmail.com
- * https://github.com/diegomanuel/binance-to-google-sheets
- * https://github.com/diegomanuel/binance-to-google-sheets-proxy
- */
-
-
-/**
  * Main formula wrapper to call supported operations.
  *
  * @param operation The operation tag to call.

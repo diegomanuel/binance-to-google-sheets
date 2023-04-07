@@ -9,12 +9,14 @@ function BinWallet(OPTIONS) {
     isEnabled,
     getAssets,
     getSpotAssets,
+    getLendingAssets,
     getCrossAssets,
     getIsolatedAssets,
     getFuturesAssets,
     getDeliveryAssets,
     getSubAccountAssets,
     setSpotAssets,
+    setLendingAssets,
     setCrossAssets,
     setIsolatedAssets,
     setFuturesAssets,
@@ -23,6 +25,7 @@ function BinWallet(OPTIONS) {
     getIsolatedPairs,
     setIsolatedPairs,
     parseSpotAsset,
+    parseLendingAsset,
     parseCrossMarginAsset,
     parseIsolatedMarginAsset,
     parseFuturesAsset,
@@ -46,6 +49,13 @@ function BinWallet(OPTIONS) {
    */
   function getSpotAssets(symbol) {
     return getAssets("spot", symbol);
+  }
+
+  /**
+   * Returns the account wallet assets for LENDING (flexible earn)
+   */
+  function getLendingAssets(symbol) {
+    return getAssets("lending", symbol);
   }
 
   /**
@@ -94,6 +104,13 @@ function BinWallet(OPTIONS) {
    */
   function setSpotAssets(data) {
     return setAssetsData("spot", data);
+  }
+
+  /**
+   * Sets account wallet data for LENDING (flexible earn)
+   */
+  function setLendingAssets(data) {
+    return setAssetsData("lending", data);
   }
 
   /**
@@ -175,6 +192,21 @@ function BinWallet(OPTIONS) {
       total: free + locked,
       net: free + locked,
       netBTC: 0 // Missing!
+    };
+  }
+
+  function parseLendingAsset(asset) {
+    const amount = parseFloat(asset.amount);
+    const netBTC = parseFloat(asset.amountInBTC);
+    return {
+      symbol: asset.asset,
+      free: 0,
+      locked: amount,
+      borrowed: 0,
+      interest: 0,
+      total: amount,
+      net: amount,
+      netBTC: netBTC
     };
   }
 
@@ -287,6 +319,10 @@ function BinWallet(OPTIONS) {
     const spot = getSpotAssets();
     totals = Object.keys(spot).reduce(function(acc, symbol) {
       return _accAssetHelper(acc, symbol, spot[symbol]);
+    }, totals);
+    const lending = getLendingAssets();
+    totals = Object.keys(lending).reduce(function(acc, symbol) {
+      return _accAssetHelper(acc, "LEND"+symbol, lending[symbol]);
     }, totals);
     if (isEnabled("cross")) {
       const cross = getCrossAssets();

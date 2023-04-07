@@ -39,8 +39,10 @@ dev: push
 
 generate:
 	@rm -f BINANCE-ALL.gs
-	@find . -type f \( -iname "*.gs" ! -iname "main.gs" ! -iname "tmp.gs" \) -exec cat > tmp.gs {} +
-	@cat main.gs > BINANCE-ALL.gs
+	@find . -type f \( -iname "*.gs" ! -iname "config.gs" ! -iname "main.gs" ! -iname "tmp.gs" \) -exec cat > tmp.gs {} +
+	@cat config.gs > BINANCE-ALL.gs
+	@printf "\n\n/////////////////////////////////////\n\n" >> BINANCE-ALL.gs
+	@cat main.gs >> BINANCE-ALL.gs
 	@printf "\n\n/////////////////////////////////////\n\n" >> BINANCE-ALL.gs
 	@cat tmp.gs >> BINANCE-ALL.gs
 	@rm -f tmp.gs

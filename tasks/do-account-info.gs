@@ -41,6 +41,7 @@ function BinDoAccountInfo() {
     const bw = BinWallet();
 
     run("spot", opts);
+    run("lending", opts);
     if (bw.isEnabled("cross")) {
       run("cross", opts);
     }
@@ -117,6 +118,9 @@ function BinDoAccountInfo() {
     if (type === "spot") {
       return br.get("api/v3/account", "", "");
     }
+    if (type === "lending") {
+      return br.get("sapi/v1/lending/union/account", "", "");
+    }
     if (type === "cross") {
       return br.get("sapi/v1/margin/account", "", "");
     }
@@ -157,6 +161,9 @@ function BinDoAccountInfo() {
 
     if (type === "spot") {
       return parseSpot(data, show_headers);
+    }
+    if (type === "lending") {
+      return parseLending(data, show_headers);
     }
     if (type === "cross") {
       return parseCrossMargin(data, show_headers);
@@ -224,6 +231,31 @@ function BinDoAccountInfo() {
 
     const sorted = BinUtils().sortResults(balances);
     return [...general, ...sorted];
+  }
+
+  function parseLending(data, show_headers) {
+    const wallet = BinWallet();
+    const header = ["Asset", "Amount", "Amount BTC"];
+
+    const assets = [];
+    const balances = (data.positionAmountVos || []).reduce(function(rows, a) {
+      const asset = wallet.parseLendingAsset(a);
+      if (asset.total > 0) { // Only return assets with balance
+        assets.push(asset);
+        rows.push([
+          asset.symbol,
+          asset.net,
+          asset.netBTC
+        ]);
+      }
+      return rows;
+    }, []);
+
+    // Save assets to wallet
+    wallet.setLendingAssets(assets);
+
+    const sorted = BinUtils().sortResults(balances);
+    return show_headers ? [header, ...sorted] : sorted;
   }
 
   function parseCrossMargin(data, show_headers) {
