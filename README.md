@@ -295,12 +295,11 @@ If your love is strong enough, feel free to share it with me!  =D
 I will much appreciate any contribution and support to keep working on it.  
 I have several ideas for new features, so much more could come!
 
-You can send any token through the **Binance Smart Chain** (BSC/BEP20) to the address:  
-`0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97`
-
-But you can also use these networks:
-* **BTC:** `bc1qanxn2ycp9em50hj5p7en6wxe962zj4umqvs7q9`
-* **ETH:** `0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97`
+You can send any token to these network addresses:
+* **BTC (SegWit):** `bc1quxsufu73vy3d2ehpjddgxl9pjs2wygltmkryd0`
+* **ETH (ERC20) | BNB (BSC/BEP20) | MATIC (Polygon):** `0x25307eea23642c03e3e2a522624f8181870afb18`
+* **TRX (TRC20):** `THu2mwfkFXSs2jFuZDxuMBKd22Wjkp3zwv`
+* **SOL (Solana):** `3c7g2DP1cgth1rxrF5iis5RjkWWZKavACaoJ1JTvZpL2`
 
 ---
 

@@ -6,6 +6,7 @@ function BinScheduler(OPTIONS) {
   const SCHEDULES_PROP_NAME = "BIN_SCHEDULER_ENTRIES";
   const RESCHEDULES_PROP_NAME = "BIN_SCHEDULER_ENTRIES_RETRY";
   const LAST_RUN_PROP_NAME = "BIN_SCHEDULER_LAST_RUN";
+  const PAUSED_PROP_NAME = "BIN_SCHEDULER_PAUSED";
 
   return {
     init,
@@ -15,11 +16,14 @@ function BinScheduler(OPTIONS) {
     run15m,
     run30m,
     run60m,
+    runOrdersTable,
     getSchedule,
     setSchedule,
     cleanSchedules,
     rescheduleFailed,
     clearFailed,
+    isPaused,
+    setPaused,
     isStalled
   };
 
@@ -36,7 +40,11 @@ function BinScheduler(OPTIONS) {
   function run1m() {
     _updateLastRun();
     BinDoOrdersTable().init(); // Initialize orders table sheets (if any)
-    BinUtils().forceRefreshSheetFormulas("1m");
+    if (isPaused()) {
+      Logger.log("Scheduler is paused, skipping '1m' call..");
+    } else {
+      BinUtils().forceRefreshSheetFormulas("1m");
+    }
   }
 
   /**
@@ -44,7 +52,11 @@ function BinScheduler(OPTIONS) {
    */
   function run5m() {
     _updateLastRun();
-    BinUtils().forceRefreshSheetFormulas("5m");
+    if (isPaused()) {
+      Logger.log("Scheduler is paused, skipping '5m' call..");
+    } else {
+      BinUtils().forceRefreshSheetFormulas("5m");
+    }
   }
 
   /**
@@ -52,7 +64,11 @@ function BinScheduler(OPTIONS) {
    */
   function run10m() {
     _updateLastRun();
-    BinUtils().forceRefreshSheetFormulas("10m");
+    if (isPaused()) {
+      Logger.log("Scheduler is paused, skipping '10m' call..");
+    } else {
+      BinUtils().forceRefreshSheetFormulas("10m");
+    }
   }
 
   /**
@@ -60,7 +76,11 @@ function BinScheduler(OPTIONS) {
    */
   function run15m() {
     _updateLastRun();
-    BinUtils().forceRefreshSheetFormulas("15m");
+    if (isPaused()) {
+      Logger.log("Scheduler is paused, skipping '15m' call..");
+    } else {
+      BinUtils().forceRefreshSheetFormulas("15m");
+    }
   }
 
   /**
@@ -68,7 +88,11 @@ function BinScheduler(OPTIONS) {
    */
   function run30m() {
     _updateLastRun();
-    BinUtils().forceRefreshSheetFormulas("30m");
+    if (isPaused()) {
+      Logger.log("Scheduler is paused, skipping '30m' call..");
+    } else {
+      BinUtils().forceRefreshSheetFormulas("30m");
+    }
   }
 
   /**
@@ -76,7 +100,24 @@ function BinScheduler(OPTIONS) {
    */
   function run60m() {
     _updateLastRun();
-    BinUtils().forceRefreshSheetFormulas("1h");
+    if (isPaused()) {
+      Logger.log("Scheduler is paused, skipping '1h' call..");
+    } else {
+      BinUtils().forceRefreshSheetFormulas("1h");
+    }
+  }
+
+  /**
+   * Runs the scheduled functions for OrdersTable
+   */
+  function runOrdersTable() {
+    _updateLastRun();
+    if (isPaused()) {
+      Logger.log("Scheduler is paused, skipping 'orders table poll' call..");
+    }
+    else if (BinSetup().areAPIKeysConfigured()) {
+      BinDoOrdersTable().execute();
+    }
   }
 
   /**
@@ -135,6 +176,25 @@ function BinScheduler(OPTIONS) {
       return _getDocPropService().setProperty(RESCHEDULES_PROP_NAME, JSON.stringify(reschedules));
     }
     return false;
+  }
+
+  /**
+   * Returns true if the scheduler is paused
+   */
+  function isPaused() {
+    return _getDocPropService().getProperty(PAUSED_PROP_NAME) == "true";
+  }
+
+  /**
+   * Sets the paused status
+   */
+  function setPaused(paused) {
+    const doc = _getDocPropService();
+    doc.setProperty(PAUSED_PROP_NAME, paused ? "true" : "false");
+    // Also clean the re-schedules (no matter the pause status)
+    doc.setProperty(RESCHEDULES_PROP_NAME, JSON.stringify({}));
+    Logger.log("Scheduler paused status set to: "+isPaused());
+    return paused;
   }
 
   /**

@@ -7,11 +7,13 @@ function BinMenu(ui) {
    */
   function addMenuItems(menu) {
     const is_ready = BinSetup().isReady();
+    const is_paused = BinScheduler().isPaused();
 
     if (!is_ready) { // Add-on is not ready (unauthorized or BinScheduler is stalled or never run)
       menu.addItem("Authorize add-on!", "authorizeMe");
     } else {
       menu.addItem("Refresh", "forceRefreshFormulas");
+      menu.addItem((is_paused?"Resume":"Pause")+" auto-refresh", "togglePaused");
     }
     menu.addSeparator()
         .addItem("Show API Last Update", "showAPILastUpdate")
@@ -106,6 +108,18 @@ function forceRefreshFormulas() {
   utils.toast("Refreshing data, be patient..!", "", 5);
   BinCache().clean(); // Clean cache!
   utils.forceRefreshSheetFormulas(); // Refresh'em all!
+}
+
+/**
+ * Toggles the pause state
+ */
+function togglePaused() {
+  const utils = BinUtils();
+  const scheduler = BinScheduler();
+  const is_paused = scheduler.isPaused();
+  scheduler.setPaused(!is_paused);
+  utils.toast("Auto-refresh was "+(is_paused?"resumed":"paused")+"!", "", 5);
+  utils.refreshMenu(); // Refresh main menu items
 }
 
 /**
@@ -258,12 +272,12 @@ function showDonate() {
                "I have several ideas for new features, so much more could come!\n"+
                "\n"+
                "\n"+
-               "You can send any token through the Binance Smart Chain (BSC/BEP20) to:\n"+
-               "0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
+               "You can send any token to these network addresses:\n"+
                "\n"+
-               "But you can also use these networks:\n"+
-               "BTC: bc1qanxn2ycp9em50hj5p7en6wxe962zj4umqvs7q9\n"+
-               "ETH: 0x1d047bc3e46ce0351fd0c44fc2a2029512e87a97\n"+
+               "BTC (SegWit): bc1quxsufu73vy3d2ehpjddgxl9pjs2wygltmkryd0\n"+
+               "ETH (ERC20) | BNB (BSC/BEP20) | MATIC (Polygon): 0x25307eea23642c03e3e2a522624f8181870afb18\n"+
+               "TRX (TRC20): THu2mwfkFXSs2jFuZDxuMBKd22Wjkp3zwv\n"+
+               "SOL (Solana): 3c7g2DP1cgth1rxrF5iis5RjkWWZKavACaoJ1JTvZpL2\n"+
                "\n"+
                "------------------------------------------------\n"+
                "Don't you have a Binance account yet?\n"+

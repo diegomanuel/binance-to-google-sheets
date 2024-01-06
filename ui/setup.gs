@@ -418,14 +418,8 @@ function doRefresh30m(event) {
 function doRefresh1h(event) {
   _callScheduler(event, "60m");
 }
-
 function doTablesPoll(event) {
-  if (DEBUG) {
-    Logger.log("EVENT: "+JSON.stringify(event));
-  }
-  if (BinSetup().areAPIKeysConfigured()) {
-    BinDoOrdersTable().execute();
-  }
+  _callScheduler(event, "OrdersTable")
 }
 
 function _callScheduler(event, every) {

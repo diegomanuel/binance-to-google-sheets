@@ -17,7 +17,7 @@ const USE_PROXY = false;
 
 // Other settings
 let DEBUG = false; // If enabled, will output more logs to the AppScript console
-const VERSION = "v0.5.4";
+const VERSION = "v0.5.5";
 const REPO_URL = "https://github.com/diegomanuel/binance-to-google-sheets";
 const SPOT_API_URL = "https://api.binance.com";
 const FUTURES_API_URL = "https://fapi.binance.com";
