@@ -4,19 +4,20 @@
 function BinWallet(OPTIONS) {
   OPTIONS = OPTIONS || {}; // Init options
   const WALLET_PROP_NAME = "BIN_ACCOUNT_WALLET";
+  const utils = BinUtils();
 
   return {
     isEnabled,
     getAssets,
     getSpotAssets,
-    getLendingAssets,
+    getEarnAssets,
     getCrossAssets,
     getIsolatedAssets,
     getFuturesAssets,
     getDeliveryAssets,
     getSubAccountAssets,
     setSpotAssets,
-    setLendingAssets,
+    setEarnAssets,
     setCrossAssets,
     setIsolatedAssets,
     setFuturesAssets,
@@ -25,7 +26,8 @@ function BinWallet(OPTIONS) {
     getIsolatedPairs,
     setIsolatedPairs,
     parseSpotAsset,
-    parseLendingAsset,
+    parseEarnFlexibleAsset,
+    parseEarnLockedAsset,
     parseCrossMarginAsset,
     parseIsolatedMarginAsset,
     parseFuturesAsset,
@@ -52,10 +54,10 @@ function BinWallet(OPTIONS) {
   }
 
   /**
-   * Returns the account wallet assets for LENDING (flexible earn)
+   * Returns the account wallet assets for EARN (flexible+locked)
    */
-  function getLendingAssets(symbol) {
-    return getAssets("lending", symbol);
+  function getEarnAssets(symbol) {
+    return getAssets("earn", symbol);
   }
 
   /**
@@ -107,10 +109,10 @@ function BinWallet(OPTIONS) {
   }
 
   /**
-   * Sets account wallet data for LENDING (flexible earn)
+   * Sets account wallet data for EARN (flexible+locked)
    */
-  function setLendingAssets(data) {
-    return setAssetsData("lending", data);
+  function setEarnAssets(data) {
+    return setAssetsData("earn", data);
   }
 
   /**
@@ -195,9 +197,10 @@ function BinWallet(OPTIONS) {
     };
   }
 
-  function parseLendingAsset(asset) {
-    const amount = parseFloat(asset.amount);
-    const netBTC = parseFloat(asset.amountInBTC);
+  function parseEarnFlexibleAsset(asset) {
+    const amount = parseFloat(asset.totalAmount);
+    const totalRewards = parseFloat(asset.cumulativeTotalRewards);
+    const apr = parseFloat(asset.latestAnnualPercentageRate);
     return {
       symbol: asset.asset,
       free: 0,
@@ -206,7 +209,37 @@ function BinWallet(OPTIONS) {
       interest: 0,
       total: amount,
       net: amount,
-      netBTC: netBTC
+      netBTC: 0, // Missing!
+      totalRewards,
+      apr,
+      type: "flexible",
+      duration: "-",
+      accrue: "-",
+      autoSubscribe: utils.parseBool(asset.autoSubscribe) ? "yes" : "no"
+    };
+  }
+
+  function parseEarnLockedAsset(asset) {
+    const amount = parseFloat(asset.amount);
+    const totalRewards = parseFloat(asset.rewardAmt);
+    const apr = parseFloat(asset.apy);
+    const duration = parseFloat(asset.duration);
+    const accrue = parseFloat(asset.accrualDays);
+    return {
+      symbol: asset.asset,
+      free: 0,
+      locked: amount,
+      borrowed: 0,
+      interest: 0,
+      total: amount,
+      net: amount,
+      netBTC: 0, // Missing!
+      totalRewards,
+      apr,
+      type: "locked",
+      duration,
+      accrue,
+      autoSubscribe: utils.parseBool(asset.autoSubscribe) ? "yes" : "no"
     };
   }
 
@@ -320,9 +353,9 @@ function BinWallet(OPTIONS) {
     totals = Object.keys(spot).reduce(function(acc, symbol) {
       return _accAssetHelper(acc, symbol, spot[symbol]);
     }, totals);
-    const lending = getLendingAssets();
-    totals = Object.keys(lending).reduce(function(acc, symbol) {
-      return _accAssetHelper(acc, "LEND"+symbol, lending[symbol]);
+    const earn = getEarnAssets();
+    totals = Object.keys(earn).reduce(function(acc, symbol) {
+      return _accAssetHelper(acc, "EARN"+symbol, earn[symbol]);
     }, totals);
     if (isEnabled("cross")) {
       const cross = getCrossAssets();

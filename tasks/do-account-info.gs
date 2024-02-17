@@ -41,7 +41,9 @@ function BinDoAccountInfo() {
     const bw = BinWallet();
 
     run("spot", opts);
-    run("lending", opts);
+    if (bw.isEnabled("earn")) {
+      run("earn", opts);
+    }
     if (bw.isEnabled("cross")) {
       run("cross", opts);
     }
@@ -83,8 +85,8 @@ function BinDoAccountInfo() {
 
   function execute(type, options) {
     Logger.log("[BinDoAccountInfo]["+type.toUpperCase()+"] Running..");
-    const wallet_type = type === "futures/positions" ? "futures" : type;
-    if (!BinWallet().isEnabled(wallet_type)) { // The "overview" case will always be true
+
+    if (!BinWallet().isEnabled(_walletMainType(type))) { // The "overview" case will always be true
       Logger.log("[BinDoAccountInfo]["+type.toUpperCase()+"] The wallet is disabled!");
       return [["The "+type.toUpperCase()+" wallet is disabled! Enable it from 'Binance->Wallets' main menu."]];
     }
@@ -109,8 +111,7 @@ function BinDoAccountInfo() {
       refresh();
       return; // We don't return any data here!
     }
-    const wallet_type = type === "futures/positions" ? "futures" : type;
-    if (!BinWallet().isEnabled(wallet_type)) { // The wallet is disabled..
+    if (!BinWallet().isEnabled(_walletMainType(type))) { // The wallet is disabled..
       return; // ..so we don't return any data here!
     }
 
@@ -118,8 +119,12 @@ function BinDoAccountInfo() {
     if (type === "spot") {
       return br.get("api/v3/account", "", "");
     }
-    if (type === "lending") {
-      return br.get("sapi/v1/lending/union/account", "", "");
+    if (_walletMainType(type) === "earn") {
+      return {
+        // @TODO: This will only get 100 items... I'd need to add pagination support
+        flexible: br.get("sapi/v1/simple-earn/flexible/position", "size=100", ""),
+        locked: br.get("sapi/v1/simple-earn/locked/position", "size=100", "")
+      };
     }
     if (type === "cross") {
       return br.get("sapi/v1/margin/account", "", "");
@@ -127,7 +132,7 @@ function BinDoAccountInfo() {
     if (type === "isolated") {
       return br.get("sapi/v1/margin/isolated/account", "", "");
     }
-    if (type === "futures" || type === "futures/positions") {
+    if (_walletMainType(type) === "futures") {
       const options = Object.assign({futures: true}, opts);
       return new BinRequest(options).get("fapi/v2/account", "", "");
     }
@@ -154,16 +159,15 @@ function BinDoAccountInfo() {
     if (type === "overview") {
       return parseOverview(show_headers);
     }
-    const wallet_type = type === "futures/positions" ? "futures" : type;
-    if (!BinWallet().isEnabled(wallet_type)) { // The wallet is disabled..
+    if (!BinWallet().isEnabled(_walletMainType(type))) { // The wallet is disabled..
       return []; // ..so we return empty data here!
     }
 
     if (type === "spot") {
       return parseSpot(data, show_headers);
     }
-    if (type === "lending") {
-      return parseLending(data, show_headers);
+    if (_walletMainType(type) === "earn") {
+      return parseEarn(data, show_headers);
     }
     if (type === "cross") {
       return parseCrossMargin(data, show_headers);
@@ -233,28 +237,50 @@ function BinDoAccountInfo() {
     return [...general, ...sorted];
   }
 
-  function parseLending(data, show_headers) {
+  function parseEarn(data, show_headers) {
     const wallet = BinWallet();
-    const header = ["Asset", "Amount", "Amount BTC"];
+    const header = ["Asset", "Amount", "Total Rewards", "APR", "Type", "Duration Days", "Accrue Days", "Auto-Subscribe"];
 
     const assets = [];
-    const balances = (data.positionAmountVos || []).reduce(function(rows, a) {
-      const asset = wallet.parseLendingAsset(a);
+    const flexible_balances = (data.flexible.rows || []).reduce(function(rows, a) {
+      const asset = wallet.parseEarnFlexibleAsset(a);
       if (asset.total > 0) { // Only return assets with balance
         assets.push(asset);
         rows.push([
           asset.symbol,
-          asset.net,
-          asset.netBTC
+          asset.total,
+          asset.totalRewards,
+          asset.apr,
+          asset.type,
+          asset.duration,
+          asset.accrue,
+          asset.autoSubscribe
+        ]);
+      }
+      return rows;
+    }, []);
+    const locked_balances = (data.locked.rows || []).reduce(function(rows, a) {
+      const asset = wallet.parseEarnLockedAsset(a);
+      if (asset.total > 0) { // Only return assets with balance
+        assets.push(asset);
+        rows.push([
+          asset.symbol,
+          asset.total,
+          asset.totalRewards,
+          asset.apr,
+          asset.type,
+          asset.duration,
+          asset.accrue,
+          asset.autoSubscribe
         ]);
       }
       return rows;
     }, []);
 
     // Save assets to wallet
-    wallet.setLendingAssets(assets);
+    wallet.setEarnAssets(assets);
 
-    const sorted = BinUtils().sortResults(balances);
+    const sorted = BinUtils().sortResults([...flexible_balances, ...locked_balances]);
     return show_headers ? [header, ...sorted] : sorted;
   }
 
@@ -461,6 +487,16 @@ function BinDoAccountInfo() {
     wallet.setSubAccountAssets(assets);
 
     return [...general, ...balances];
+  }
+
+  function _walletMainType(type) {
+    if (type === "futures/positions") {
+      return "futures";
+    }
+    if (type === "earn/simple") {
+      return "earn";
+    }
+    return type;
   }
 
   // Return just what's needed from outside!

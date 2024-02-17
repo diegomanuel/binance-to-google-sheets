@@ -53,6 +53,7 @@ function BinMenu(ui) {
     const disabled = BinSetup().getDisabledWallets();
     const walletEnabled = (type) => disabled[type] ? "Enable" : "Disable";
     return ui.createMenu("Wallets")
+      .addItem(walletEnabled("earn")+" EARN Wallet", "toggleWalletEarn")
       .addItem(walletEnabled("cross")+" CROSS Margin Wallet", "toggleWalletCross")
       .addItem(walletEnabled("isolated")+" ISOLATED Margin Wallet", "toggleWalletIsolated")
       .addItem(walletEnabled("futures")+" FUTURES USD-M Wallet", "toggleWalletFutures")
@@ -138,6 +139,13 @@ function showAPILastUpdate() {
   const last_update = BinDoLastUpdate().run();
   const formatted = last_update+"" || "- never called yet -";
   ui.alert("Binance API last call", formatted, ui.ButtonSet.OK);
+}
+
+/**
+ * Displays a confirmation to enable/disable EARN wallet
+ */
+function toggleWalletEarn() {
+  BinSetup().toggleWalletDisabled("earn", SpreadsheetApp.getUi());
 }
 
 /**
